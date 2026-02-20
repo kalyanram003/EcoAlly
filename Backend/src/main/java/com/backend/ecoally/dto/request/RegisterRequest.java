@@ -28,8 +28,6 @@ public class RegisterRequest {
     private String gender;
     private String city;
     private String address;
-
-    // Student-specific
     private String instituteName;
     private String instituteCity;
     private String instituteId;
@@ -42,14 +40,10 @@ public class RegisterRequest {
     private String guardianPhone;
     private String guardianAddress;
     private String guardianOccupation;
-
-    // Teacher-specific
     private String facultyId;
     private String rolePassword;
     private String department;
     private String specialization;
-
-    // Admin-specific
     private String adminRole;
     private List<String> permissions;
 }

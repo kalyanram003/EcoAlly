@@ -10,6 +10,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -48,7 +50,7 @@ public class Student {
     private LocalDateTime lastActiveDate;
     private int level = 1;
     private String tier = "sprout";
-
+    private List<String> ownedItems = new ArrayList<>(); 
     @CreatedDate
     private LocalDateTime createdAt;
 
