@@ -1,7 +1,6 @@
 package com.backend.ecoally.controller;
 
 import com.backend.ecoally.dto.response.ApiResponse;
-import com.backend.ecoally.exception.AppException;
 import com.backend.ecoally.model.ChallengeSubmission;
 import com.backend.ecoally.model.Student;
 import com.backend.ecoally.model.User;
@@ -28,7 +27,6 @@ public class LeaderboardController {
     private final UserRepository userRepository;
     private final QuizAttemptRepository quizAttemptRepository;
     private final ChallengeSubmissionRepository submissionRepository;
-
 
     @GetMapping
     public ResponseEntity<ApiResponse<Map<String, Object>>> getLeaderboard(
