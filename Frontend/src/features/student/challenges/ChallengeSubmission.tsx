@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ArrowLeft, Camera, Upload, CheckCircle2, X } from "lucide-react";
+import * as api from "../../../lib/api";
 import { Challenge } from "./ChallengesTab";
 
 interface ChallengeSubmissionProps {
@@ -16,6 +17,8 @@ interface UploadedPhoto {
 
 export function ChallengeSubmission({ challenge, onBack, onComplete }: ChallengeSubmissionProps) {
   const [photos, setPhotos] = useState<UploadedPhoto[]>([]);
+  // Keep raw File references so we can upload them to the API
+  const [photoFiles, setPhotoFiles] = useState<File[]>([]);
   const [notes, setNotes] = useState("");
   const [checkedRequirements, setCheckedRequirements] = useState<boolean[]>(
     new Array(challenge.requirements.length).fill(false)
@@ -60,6 +63,8 @@ export function ChallengeSubmission({ challenge, onBack, onComplete }: Challenge
           caption: file.name
         };
         setPhotos(prev => [...prev, newPhoto]);
+        // Also keep the raw File object for upload
+        setPhotoFiles(prev => [...prev, file]);
       };
       reader.readAsDataURL(file);
     });
@@ -69,7 +74,11 @@ export function ChallengeSubmission({ challenge, onBack, onComplete }: Challenge
   };
 
   const removePhoto = (photoId: string) => {
+    const idx = photos.findIndex(p => p.id === photoId);
     setPhotos(photos.filter(photo => photo.id !== photoId));
+    if (idx !== -1) {
+      setPhotoFiles(prev => prev.filter((_, i) => i !== idx));
+    }
   };
 
   const canSubmit = () => {
@@ -80,19 +89,16 @@ export function ChallengeSubmission({ challenge, onBack, onComplete }: Challenge
 
   const handleSubmit = async () => {
     if (!canSubmit()) return;
-    
     setIsSubmitting(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    setIsSubmitting(false);
-    setShowSuccess(true);
-    
-    // Auto-complete after showing success
-    setTimeout(() => {
-      onComplete();
-    }, 3000);
+    try {
+      await api.submitChallenge(challenge.id, notes, photoFiles);
+      setShowSuccess(true);
+      setTimeout(() => onComplete(), 3000);
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (showSuccess) {
@@ -114,7 +120,7 @@ export function ChallengeSubmission({ challenge, onBack, onComplete }: Challenge
     <div className="p-4 h-full flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <button 
+        <button
           onClick={onBack}
           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
         >
@@ -142,11 +148,10 @@ export function ChallengeSubmission({ challenge, onBack, onComplete }: Challenge
         <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold">Complete All Requirements</h3>
-            <span className={`text-sm px-2 py-1 rounded-full ${
-              checkedRequirements.every(checked => checked)
-                ? "bg-green-100 text-green-700" 
+            <span className={`text-sm px-2 py-1 rounded-full ${checkedRequirements.every(checked => checked)
+                ? "bg-green-100 text-green-700"
                 : "bg-amber-100 text-amber-700"
-            }`}>
+              }`}>
               {checkedRequirements.filter(checked => checked).length}/{challenge.requirements.length} {
                 checkedRequirements.every(checked => checked) ? "✓" : ""
               }
@@ -174,15 +179,14 @@ export function ChallengeSubmission({ challenge, onBack, onComplete }: Challenge
           <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold">Upload Photos</h3>
-              <span className={`text-sm px-2 py-1 rounded-full ${
-                photos.length >= 2 
-                  ? "bg-green-100 text-green-700" 
+              <span className={`text-sm px-2 py-1 rounded-full ${photos.length >= 2
+                  ? "bg-green-100 text-green-700"
                   : "bg-amber-100 text-amber-700"
-              }`}>
+                }`}>
                 {photos.length}/3 photos {photos.length >= 2 ? "✓" : "(min 2)"}
               </span>
             </div>
-            
+
             {photos.length > 0 && (
               <div className="space-y-3 mb-4">
                 <h4 className="font-medium text-sm text-gray-700">Uploaded Photos</h4>
@@ -210,7 +214,7 @@ export function ChallengeSubmission({ challenge, onBack, onComplete }: Challenge
                 </div>
               </div>
             )}
-            
+
             <div className="space-y-3">
               {/* Camera Button */}
               <label className="w-full bg-[#2ECC71] text-white rounded-lg p-4 text-center hover:bg-[#27AE60] transition-colors cursor-pointer block">
@@ -268,11 +272,10 @@ export function ChallengeSubmission({ challenge, onBack, onComplete }: Challenge
         <button
           onClick={handleSubmit}
           disabled={!canSubmit() || isSubmitting}
-          className={`w-full py-4 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 ${
-            canSubmit() && !isSubmitting
+          className={`w-full py-4 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 ${canSubmit() && !isSubmitting
               ? "bg-[#2ECC71] text-white hover:bg-[#27AE60]"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
+            }`}
         >
           {isSubmitting ? (
             <>
@@ -286,7 +289,7 @@ export function ChallengeSubmission({ challenge, onBack, onComplete }: Challenge
             </>
           )}
         </button>
-        
+
         {!canSubmit() && (
           <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
             <p className="text-sm text-amber-800 font-medium mb-2">

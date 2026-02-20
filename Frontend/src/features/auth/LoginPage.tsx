@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Mail, Phone, Lock, Eye, EyeOff, Chrome, ArrowRight, IdCard } from "lucide-react";
+import { Mail, Phone, Lock, Eye, EyeOff, Chrome, ArrowRight } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { RoleSelector } from "./RoleSelector";
 
 interface LoginPageProps {
-  onLogin: (credentials: { email: string; password: string; role?: string; roleId?: string; rolePassword?: string }) => void;
+  onLogin: (credentials: { identifier: string; password: string; role?: string }) => void;
   onShowSignup: () => void;
 }
 
@@ -15,13 +15,10 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
   const [selectedRole, setSelectedRole] = useState<"student" | "teacher" | "admin" | null>(null);
   const [loginMethod, setLoginMethod] = useState<"email" | "phone">("email");
   const [showPassword, setShowPassword] = useState(false);
-  const [showRolePassword, setShowRolePassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     phone: "",
     password: "",
-    roleId: "",
-    rolePassword: ""
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -62,23 +59,6 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
       newErrors.password = "Password must be at least 6 characters";
     }
 
-    // Additional validation for teacher and admin roles
-    if (selectedRole === "teacher") {
-      if (!formData.roleId) {
-        newErrors.roleId = "Teacher ID is required";
-      }
-      if (!formData.rolePassword) {
-        newErrors.rolePassword = "Teacher password is required";
-      }
-    } else if (selectedRole === "admin") {
-      if (!formData.roleId) {
-        newErrors.roleId = "Admin ID is required";
-      }
-      if (!formData.rolePassword) {
-        newErrors.rolePassword = "Admin password is required";
-      }
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -87,11 +67,9 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
     e.preventDefault();
     if (validateForm()) {
       onLogin({
-        email: loginMethod === "email" ? formData.email : formData.phone,
+        identifier: loginMethod === "email" ? formData.email : formData.phone,
         password: formData.password,
         role: selectedRole || undefined,
-        roleId: formData.roleId || undefined,
-        rolePassword: formData.rolePassword || undefined
       });
     }
   };
@@ -103,8 +81,6 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
       email: "",
       phone: "",
       password: "",
-      roleId: "",
-      rolePassword: ""
     });
     setErrors({});
   };
@@ -113,7 +89,7 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
     // Mock social login - in real app, integrate with OAuth providers
     console.log(`Logging in with ${provider}`);
     onLogin({
-      email: `user@${provider.toLowerCase()}.com`,
+      identifier: `user@${provider.toLowerCase()}.com`,
       password: "social_login"
     });
   };
@@ -161,11 +137,10 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
               <button
                 type="button"
                 onClick={() => setLoginMethod("email")}
-                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
-                  loginMethod === "email"
-                    ? "bg-white text-[#2ECC71] shadow-sm"
-                    : "text-gray-600 hover:text-gray-800"
-                }`}
+                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${loginMethod === "email"
+                  ? "bg-white text-[#2ECC71] shadow-sm"
+                  : "text-gray-600 hover:text-gray-800"
+                  }`}
               >
                 <Mail className="w-4 h-4 inline mr-2" />
                 Email
@@ -173,11 +148,10 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
               <button
                 type="button"
                 onClick={() => setLoginMethod("phone")}
-                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
-                  loginMethod === "phone"
-                    ? "bg-white text-[#2ECC71] shadow-sm"
-                    : "text-gray-600 hover:text-gray-800"
-                }`}
+                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${loginMethod === "phone"
+                  ? "bg-white text-[#2ECC71] shadow-sm"
+                  : "text-gray-600 hover:text-gray-800"
+                  }`}
               >
                 <Phone className="w-4 h-4 inline mr-2" />
                 Phone
@@ -245,64 +219,11 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
               )}
             </div>
 
-            {/* Role-specific fields for Teacher/Admin */}
+            {/* Teacher/Admin note – no extra credentials needed */}
             {(selectedRole === "teacher" || selectedRole === "admin") && (
-              <>
-                <div>
-                  <Label htmlFor="roleId" className="text-sm font-medium text-gray-700">
-                    {selectedRole === "teacher" ? "Teacher ID" : "Admin ID"}
-                  </Label>
-                  <div className="mt-1 relative">
-                    <Input
-                      id="roleId"
-                      type="text"
-                      value={formData.roleId}
-                      onChange={(e) => handleInputChange("roleId", e.target.value)}
-                      placeholder={`Enter your ${selectedRole} ID`}
-                      className={`pl-10 ${errors.roleId ? "border-red-500" : ""}`}
-                    />
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <IdCard className="h-5 w-5 text-gray-400" />
-                    </div>
-                  </div>
-                  {errors.roleId && (
-                    <p className="mt-1 text-sm text-red-600">{errors.roleId}</p>
-                  )}
-                </div>
-
-                <div>
-                  <Label htmlFor="rolePassword" className="text-sm font-medium text-gray-700">
-                    {selectedRole === "teacher" ? "Teacher Password" : "Admin Password"}
-                  </Label>
-                  <div className="mt-1 relative">
-                    <Input
-                      id="rolePassword"
-                      type={showRolePassword ? "text" : "password"}
-                      value={formData.rolePassword}
-                      onChange={(e) => handleInputChange("rolePassword", e.target.value)}
-                      placeholder={`Enter your ${selectedRole} password`}
-                      className={`pl-10 pr-10 ${errors.rolePassword ? "border-red-500" : ""}`}
-                    />
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Lock className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setShowRolePassword(!showRolePassword)}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                    >
-                      {showRolePassword ? (
-                        <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                      ) : (
-                        <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                      )}
-                    </button>
-                  </div>
-                  {errors.rolePassword && (
-                    <p className="mt-1 text-sm text-red-600">{errors.rolePassword}</p>
-                  )}
-                </div>
-              </>
+              <div className="text-sm text-gray-500 bg-gray-50 rounded-lg p-3">
+                ℹ️ Use your registered email/phone and password to sign in as {selectedRole}.
+              </div>
             )}
 
             {/* Forgot Password */}
@@ -348,7 +269,7 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
               <Chrome className="w-5 h-5 mr-3 text-red-500" />
               Continue with Google
             </Button>
-            
+
             <Button
               type="button"
               onClick={() => handleSocialLogin("Microsoft")}
@@ -380,7 +301,7 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
         {/* Pre-filled Credentials Help */}
         <div className="mt-6 bg-white/10 backdrop-blur-sm rounded-xl p-4 text-white">
           <h3 className="font-medium mb-3">🧪 Test Credentials for {selectedRole?.charAt(0).toUpperCase() + (selectedRole?.slice(1) || "")}:</h3>
-          
+
           {/* Role-specific credentials */}
           {selectedRole === "student" && (
             <div className="bg-white/10 rounded-lg p-3">
@@ -390,7 +311,7 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
               </div>
             </div>
           )}
-          
+
           {selectedRole === "teacher" && (
             <div className="bg-white/10 rounded-lg p-3">
               <div className="text-sm space-y-1 text-white/90">
@@ -401,7 +322,7 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
               </div>
             </div>
           )}
-          
+
           {selectedRole === "admin" && (
             <div className="bg-white/10 rounded-lg p-3">
               <div className="text-sm space-y-1 text-white/90">
@@ -412,7 +333,7 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
               </div>
             </div>
           )}
-          
+
           {/* Signup Demo Data */}
           <div className="mt-4 pt-3 border-t border-white/20">
             <p className="text-xs text-white/70 mb-2">📝 For New Registration Testing:</p>

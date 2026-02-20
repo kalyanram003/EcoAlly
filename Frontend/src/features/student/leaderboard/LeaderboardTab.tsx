@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { Trophy, Medal, Award, TrendingUp, Users, Calendar } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Trophy, Medal, Award, TrendingUp } from "lucide-react";
+import * as api from "../../../lib/api";
 
 export interface LeaderboardUser {
   id: string;
@@ -15,110 +16,59 @@ export interface LeaderboardUser {
 }
 
 export function LeaderboardTab() {
-  const [activeCategory, setActiveCategory] = useState<"total" | "weekly" | "challenges" | "quizzes">("total");
-  const [activeScope, setActiveScope] = useState<"class" | "school" | "global">("class");
+  const [activeCategory, setActiveCategory] = useState<"total" | "challenges" | "quizzes">("total");
+  const [leaderboardData, setLeaderboardData] = useState<LeaderboardUser[]>([]);
+  const [myRank, setMyRank] = useState<LeaderboardUser | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Mock data - in a real app, this would come from an API
-  const leaderboardData: LeaderboardUser[] = [
-    {
-      id: "1",
-      name: "Emma Watson",
-      avatar: "👩‍🦰",
-      points: 2450,
-      rank: 1,
-      weeklyPoints: 320,
-      challengesCompleted: 12,
-      quizzesCompleted: 25,
-      streak: 15
-    },
-    {
-      id: "2", 
-      name: "Alex Chen",
-      avatar: "👨‍💼",
-      points: 2380,
-      rank: 2,
-      weeklyPoints: 280,
-      challengesCompleted: 11,
-      quizzesCompleted: 23,
-      streak: 12
-    },
-    {
-      id: "3",
-      name: "Maria Garcia",
-      avatar: "👩‍🎓",
-      points: 2240,
-      rank: 3,
-      weeklyPoints: 250,
-      challengesCompleted: 10,
-      quizzesCompleted: 22,
-      streak: 8
-    },
-    {
-      id: "4",
-      name: "You",
-      avatar: "👤",
-      points: 2100,
-      rank: 4,
-      weeklyPoints: 180,
-      challengesCompleted: 8,
-      quizzesCompleted: 18,
-      streak: 5,
-      isCurrentUser: true
-    },
-    {
-      id: "5",
-      name: "James Kim",
-      avatar: "👨‍🎓",
-      points: 1980,
-      rank: 5,
-      weeklyPoints: 160,
-      challengesCompleted: 7,
-      quizzesCompleted: 19,
-      streak: 3
-    },
-    {
-      id: "6",
-      name: "Sophie Brown",
-      avatar: "👩‍💻",
-      points: 1850,
-      rank: 6,
-      weeklyPoints: 140,
-      challengesCompleted: 6,
-      quizzesCompleted: 16,
-      streak: 4
-    },
-    {
-      id: "7",
-      name: "David Wilson",
-      avatar: "👨‍🔬",
-      points: 1720,
-      rank: 7,
-      weeklyPoints: 120,
-      challengesCompleted: 5,
-      quizzesCompleted: 15,
-      streak: 2
-    },
-    {
-      id: "8",
-      name: "Lisa Anderson",
-      avatar: "👩‍🌾",
-      points: 1650,
-      rank: 8,
-      weeklyPoints: 100,
-      challengesCompleted: 4,
-      quizzesCompleted: 14,
-      streak: 1
-    }
-  ];
+  useEffect(() => {
+    setLoading(true);
+    api.getLeaderboard(activeCategory, 20)
+      .then((res) => {
+        const entries: LeaderboardUser[] = (res.entries ?? []).map((e: any, idx: number) => ({
+          id: e.userId ?? String(idx),
+          name: e.name ?? e.username ?? "Student",
+          avatar: e.avatarUrl ?? "👤",
+          points: e.totalPoints ?? e.points ?? 0,
+          rank: e.rank ?? idx + 1,
+          weeklyPoints: e.weeklyPoints ?? 0,
+          challengesCompleted: e.challengesCompleted ?? 0,
+          quizzesCompleted: e.quizzesCompleted ?? 0,
+          streak: e.currentStreak ?? 0,
+          isCurrentUser: e.isCurrentUser ?? false,
+        }));
+        setLeaderboardData(entries);
 
-  const currentUser = leaderboardData.find(user => user.isCurrentUser);
-  const totalUsers = 24; // Total users in class
+        // myRank from the backend
+        if (res.myRank) {
+          setMyRank({
+            id: res.myRank.userId ?? "me",
+            name: res.myRank.name ?? "You",
+            avatar: res.myRank.avatarUrl ?? "👤",
+            points: res.myRank.totalPoints ?? 0,
+            rank: res.myRank.rank ?? 0,
+            weeklyPoints: res.myRank.weeklyPoints ?? 0,
+            challengesCompleted: res.myRank.challengesCompleted ?? 0,
+            quizzesCompleted: res.myRank.quizzesCompleted ?? 0,
+            streak: res.myRank.currentStreak ?? 0,
+            isCurrentUser: true,
+          });
+        } else {
+          // Fall back to marking the current user in the list
+          const me = entries.find(e => e.isCurrentUser);
+          setMyRank(me ?? null);
+        }
+      })
+      .catch(() => setLeaderboardData([]))
+      .finally(() => setLoading(false));
+  }, [activeCategory]);
+
+  const currentUser = myRank;
+  const totalUsers = leaderboardData.length;
 
   const getSortedData = () => {
     return [...leaderboardData].sort((a, b) => {
       switch (activeCategory) {
-        case "weekly":
-          return b.weeklyPoints - a.weeklyPoints;
         case "challenges":
           return b.challengesCompleted - a.challengesCompleted;
         case "quizzes":
@@ -144,8 +94,6 @@ export function LeaderboardTab() {
 
   const getCategoryValue = (user: LeaderboardUser) => {
     switch (activeCategory) {
-      case "weekly":
-        return `${user.weeklyPoints} pts`;
       case "challenges":
         return `${user.challengesCompleted} completed`;
       case "quizzes":
@@ -157,8 +105,6 @@ export function LeaderboardTab() {
 
   const getCategoryTitle = () => {
     switch (activeCategory) {
-      case "weekly":
-        return "This Week";
       case "challenges":
         return "Challenges";
       case "quizzes":
@@ -196,7 +142,7 @@ export function LeaderboardTab() {
               <div className="text-white/80 text-sm">of {totalUsers}</div>
             </div>
           </div>
-          
+
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center">
               <div className="font-semibold">{currentUser.points}</div>
@@ -214,65 +160,33 @@ export function LeaderboardTab() {
         </div>
       )}
 
-      {/* Scope Tabs */}
-      <div className="flex gap-1 mb-4 bg-gray-100 rounded-lg p-1">
-        {["class", "school", "global"].map((scope) => (
-          <button
-            key={scope}
-            onClick={() => setActiveScope(scope as any)}
-            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors capitalize ${
-              activeScope === scope
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-600 hover:text-gray-900"
-            }`}
-          >
-            {scope === "class" && <Users className="w-4 h-4 mr-1 inline" />}
-            {scope}
-          </button>
-        ))}
-      </div>
-
-      {/* Category Tabs */}
+      {/* Category Tabs - global leaderboard only */}
       <div className="flex gap-2 mb-6 overflow-x-auto">
         <button
           onClick={() => setActiveCategory("total")}
-          className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap flex items-center gap-2 ${
-            activeCategory === "total"
-              ? "bg-[#2ECC71] text-white"
-              : "bg-gray-100 text-gray-600"
-          }`}
+          className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap flex items-center gap-2 ${activeCategory === "total"
+            ? "bg-[#2ECC71] text-white"
+            : "bg-gray-100 text-gray-600"
+            }`}
         >
           <TrendingUp className="w-4 h-4" />
           Total Points
         </button>
         <button
-          onClick={() => setActiveCategory("weekly")}
-          className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap flex items-center gap-2 ${
-            activeCategory === "weekly"
-              ? "bg-[#2ECC71] text-white"
-              : "bg-gray-100 text-gray-600"
-          }`}
-        >
-          <Calendar className="w-4 h-4" />
-          This Week
-        </button>
-        <button
           onClick={() => setActiveCategory("challenges")}
-          className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
-            activeCategory === "challenges"
-              ? "bg-[#2ECC71] text-white"
-              : "bg-gray-100 text-gray-600"
-          }`}
+          className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${activeCategory === "challenges"
+            ? "bg-[#2ECC71] text-white"
+            : "bg-gray-100 text-gray-600"
+            }`}
         >
           🎯 Challenges
         </button>
         <button
           onClick={() => setActiveCategory("quizzes")}
-          className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
-            activeCategory === "quizzes"
-              ? "bg-[#2ECC71] text-white"
-              : "bg-gray-100 text-gray-600"
-          }`}
+          className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${activeCategory === "quizzes"
+            ? "bg-[#2ECC71] text-white"
+            : "bg-gray-100 text-gray-600"
+            }`}
         >
           🧠 Quizzes
         </button>
@@ -329,18 +243,17 @@ export function LeaderboardTab() {
           {sortedData.map((user, index) => (
             <div
               key={user.id}
-              className={`p-4 flex items-center gap-4 ${
-                user.isCurrentUser ? "bg-[#2ECC71]/10 border-l-4 border-[#2ECC71]" : ""
-              }`}
+              className={`p-4 flex items-center gap-4 ${user.isCurrentUser ? "bg-[#2ECC71]/10 border-l-4 border-[#2ECC71]" : ""
+                }`}
             >
               <div className="flex-shrink-0">
                 {getRankIcon(index + 1)}
               </div>
-              
+
               <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
                 <span className="text-lg">{user.avatar}</span>
               </div>
-              
+
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <h4 className={`font-medium ${user.isCurrentUser ? "text-[#2ECC71]" : ""}`}>
@@ -354,7 +267,7 @@ export function LeaderboardTab() {
                     )}
                   </div>
                 </div>
-                
+
                 {activeCategory === "total" && (
                   <div className="flex items-center gap-4 mt-1 text-xs text-gray-500">
                     <span>🎯 {user.challengesCompleted}</span>

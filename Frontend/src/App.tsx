@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import * as api from "./lib/api";
 import { Header } from "./features/shared/Header";
 import { HomeTab } from "./features/student/dashboard/HomeTab";
 import { QuizTab } from "./features/student/quiz/QuizTab";
@@ -17,71 +18,6 @@ import { VirtualStore } from "./features/gamification/VirtualStore";
 import { SocialFeatures } from "./features/gamification/SocialFeatures";
 import { QRScannerPage } from "./features/shared/QRScannerPage";
 import { TeacherDashboard } from "./features/teacher/TeacherDashboard";
-
-// Mock user database for testing
-const mockUsers = [
-  {
-    email: "alex.johnson@email.com",
-    phone: "+1 (555) 123-4567",
-    username: "EcoWarrior2024",
-    password: "EcoAlly123!",
-    firstName: "Alex",
-    lastName: "Johnson",
-    dateOfBirth: "2008-06-15",
-    gender: "male",
-    city: "Los Angeles",
-    address: "456 Sunset Boulevard, Apt 3A",
-    guardianName: "Michael Johnson",
-    guardianRelationship: "father",
-    guardianEmail: "michael.johnson@email.com",
-    guardianPhone: "+1 (555) 123-4568",
-    guardianAddress: "456 Sunset Boulevard, Apt 3A",
-    guardianOccupation: "Software Engineer",
-    instituteName: "Hollywood High Institute",
-    instituteCity: "Los Angeles",
-    instituteId: "SCH002",
-    academicRollNo: "2024-STU-042",
-    gradeYear: "Grade 10",
-    sectionCourse: "Section B",
-    userType: "student"
-  },
-  {
-    email: "sarah.green@email.com",
-    phone: "+1 (555) 987-6543",
-    username: "GreenThumb!",
-    password: "Nature@123",
-    firstName: "Sarah",
-    lastName: "Green",
-    dateOfBirth: "1990-03-22",
-    gender: "female",
-    city: "Seattle",
-    address: "789 Pine Street, Unit 12B",
-    instituteName: "Seattle Academy of Arts & Sciences",
-    instituteCity: "Seattle",
-    instituteId: "SCH003",
-    facultyId: "FAC-SEAS-2024-15",
-    rolePassword: "Nature@123",
-    userType: "teacher"
-  },
-  {
-    email: "mike.earth@email.com",
-    phone: "+1 (555) 456-7890",
-    username: "EarthGuardian",
-    password: "Planet#2024",
-    firstName: "Mike",
-    lastName: "Earth",
-    dateOfBirth: "1985-11-08",
-    gender: "male",
-    city: "Denver",
-    address: "321 Mountain View Drive",
-    instituteName: "Denver Environmental University",
-    instituteCity: "Denver",
-    instituteId: "COL003",
-    adminId: "ADM-DENV-2024-001",
-    rolePassword: "Planet#2024",
-    userType: "admin"
-  }
-];
 
 // Demo data for easy signup testing
 export const demoSignupData = {
@@ -183,180 +119,128 @@ export default function App() {
   const [showQRScanner, setShowQRScanner] = useState(false);
   const [notesFilter, setNotesFilter] = useState<string | undefined>(undefined);
 
-  // Enhanced Gamification State
-  const [userPoints, setUserPoints] = useState(2100);
-  const [currentStreak, setCurrentStreak] = useState(5);
-  const [longestStreak, setLongestStreak] = useState(18);
-  const [streakShields, setStreakShields] = useState(1);
+  // Gamification state (initialised to 0 — filled by API on login/auto-login)
+  const [userPoints, setUserPoints] = useState(0);
+  const [userCoins, setUserCoins] = useState(0);
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [longestStreak, setLongestStreak] = useState(0);
+  const [streakShields, setStreakShields] = useState(0);
 
-  // Authentication handlers
-  const handleLogin = (credentials: { email: string; password: string; role?: string; roleId?: string; rolePassword?: string }) => {
-    // Check against mock database
-    const user = mockUsers.find(u =>
-      (u.email === credentials.email || u.phone === credentials.email) &&
-      u.password === credentials.password
-    );
+  // ── Auto-login on mount (restore session from localStorage token) ──────────
+  useEffect(() => {
+    const t = api.token.get();
+    if (!t) return;
+    api.getMe()
+      .then((res) => {
+        setCurrentUser({ ...res.user, userType: res.user.userType.toLowerCase() });
+        if (res.roleRecord) {
+          setUserPoints(res.roleRecord.points ?? 0);
+          setUserCoins(res.roleRecord.coins ?? 0);
+          setCurrentStreak(res.roleRecord.currentStreak ?? 0);
+          setLongestStreak(res.roleRecord.longestStreak ?? 0);
+          setStreakShields(res.roleRecord.streakShields ?? 0);
+        }
+        setIsLoggedIn(true);
+      })
+      .catch(() => api.token.clear());
+  }, []);
 
-    if (!user) {
-      alert("Invalid email/phone or password. Please check the test credentials in the login page.");
-      return;
-    }
-
-    // For students, no additional verification needed
-    if (!credentials.role || credentials.role === "student") {
-      setCurrentUser(user);
+  // ── Authentication handlers ───────────────────────────────────────────────
+  const handleLogin = async (credentials: any) => {
+    try {
+      const result = await api.login(
+        credentials.identifier ?? credentials.email ?? credentials.phone,
+        credentials.password
+      );
+      api.token.set(result.token);
+      setCurrentUser({ ...result.user, userType: result.user.userType.toLowerCase() });
+      if (result.roleRecord) {
+        setUserPoints(result.roleRecord.points ?? 0);
+        setUserCoins(result.roleRecord.coins ?? 0);
+        setCurrentStreak(result.roleRecord.currentStreak ?? 0);
+        setLongestStreak(result.roleRecord.longestStreak ?? 0);
+        setStreakShields(result.roleRecord.streakShields ?? 0);
+      }
       setIsLoggedIn(true);
-      console.log("Login successful:", user.username);
-      return;
+    } catch (err: any) {
+      alert(err.message);
     }
-
-    // For teachers and admins, verify role-specific credentials
-    if (credentials.role === "teacher") {
-      if (user.userType !== "teacher") {
-        alert("This account is not registered as a teacher.");
-        return;
-      }
-      if (!credentials.roleId || !credentials.rolePassword) {
-        alert("Teacher ID and password are required.");
-        return;
-      }
-      if (user.facultyId !== credentials.roleId || user.rolePassword !== credentials.rolePassword) {
-        alert("Invalid teacher ID or password.");
-        return;
-      }
-    } else if (credentials.role === "admin") {
-      if (user.userType !== "admin") {
-        alert("This account is not registered as an admin.");
-        return;
-      }
-      if (!credentials.roleId || !credentials.rolePassword) {
-        alert("Admin ID and password are required.");
-        return;
-      }
-      if (user.adminId !== credentials.roleId || user.rolePassword !== credentials.rolePassword) {
-        alert("Invalid admin ID or password.");
-        return;
-      }
-    }
-
-    setCurrentUser(user);
-    setIsLoggedIn(true);
-    console.log("Login successful:", user.username, "as", credentials.role);
   };
 
   const handleSignUp = (userData: { email: string; username: string; password: string }) => {
-    // Check if user already exists
-    const existingUser = mockUsers.find(u =>
-      u.email === userData.email ||
-      u.phone === userData.email ||
-      u.username === userData.username
-    );
-
-    if (existingUser) {
-      alert("User already exists with this email/phone or username.");
-      return;
-    }
-
-    // Store registration data and move to user info page
+    // Store initial signup data and move to user-info page for profile completion
     setRegistrationData(userData);
     setAuthView("userInfo");
   };
 
-  const handleUserInfoComplete = (userInfo: any) => {
-    // Complete registration process
-    const completeUserData = {
-      ...registrationData,
-      ...userInfo,
-      createdAt: new Date().toISOString()
-    };
-
-    // Add new user to mock database
-    const newUser = {
-      email: completeUserData.email.includes("@") ? completeUserData.email : "",
-      phone: completeUserData.email.includes("@") ? "" : completeUserData.email,
-      username: completeUserData.username,
-      password: completeUserData.password,
-      ...completeUserData
-    };
-
-    mockUsers.push(newUser);
-    console.log("Registration completed:", newUser);
-
-    // Reset registration state and redirect to login
-    setRegistrationData(null);
-    setAuthView("login");
-    alert(`Registration completed! You're now registered as a ${userInfo.userType}. Please login with your credentials.`);
+  const handleUserInfoComplete = async (userInfo: any) => {
+    try {
+      const payload = {
+        ...registrationData,
+        ...userInfo,
+        userType: userInfo.userType.toUpperCase(),
+        adminRole: userInfo.adminId ?? userInfo.adminRole,  // remap adminId → adminRole
+      };
+      const result = await api.register(payload);
+      api.token.set(result.token);
+      setCurrentUser({ ...result.user, userType: result.user.userType.toLowerCase() });
+      setUserPoints(0);
+      setUserCoins(0);
+      setCurrentStreak(0);
+      setLongestStreak(0);
+      setStreakShields(0);
+      setIsLoggedIn(true);
+      setRegistrationData(null);
+    } catch (err: any) {
+      alert(err.message);
+    }
   };
 
   const handleLogout = () => {
+    api.token.clear();
     setIsLoggedIn(false);
     setCurrentUser(null);
     setActiveTab("home");
   };
 
-  // Navigation helpers for enhanced features
-  const openProgressionSystem = () => {
-    setProfileSection("progression");
-    setActiveTab("profile");
-  };
+  // ── Navigation helpers ────────────────────────────────────────────────────
+  const openProgressionSystem = () => { setProfileSection("progression"); setActiveTab("profile"); };
+  const openQuestSystem = () => { setProfileSection("quests"); setActiveTab("profile"); };
+  const openStreakSystem = () => { setProfileSection("streaks"); setActiveTab("profile"); };
+  const openVirtualStore = () => { setProfileSection("store"); setActiveTab("profile"); };
+  const openSocialFeatures = () => { setProfileSection("social"); setActiveTab("profile"); };
+  const openQRScanner = () => setShowQRScanner(true);
 
-  const openQuestSystem = () => {
-    setProfileSection("quests");
-    setActiveTab("profile");
-  };
+  // ── Gamification handlers ─────────────────────────────────────────────────
 
-  const openStreakSystem = () => {
-    setProfileSection("streaks");
-    setActiveTab("profile");
-  };
-
-  const openVirtualStore = () => {
-    setProfileSection("store");
-    setActiveTab("profile");
-  };
-
-  const openSocialFeatures = () => {
-    setProfileSection("social");
-    setActiveTab("profile");
-  };
-
-  const openQRScanner = () => {
-    setShowQRScanner(true);
-  };
-
-  // Enhanced gamification handlers
-  const handlePurchase = (itemId: string, cost: number) => {
-    if (userPoints >= cost) {
-      setUserPoints(prev => prev - cost);
-      // Handle item unlock logic here
-      console.log(`Purchased ${itemId} for ${cost} points`);
-    }
+  // Called by VirtualStore after a successful API purchase to sync coins locally
+  const handlePurchase = (_itemId: string, cost: number) => {
+    setUserCoins((prev) => prev - cost);
   };
 
   const handleCompleteQuest = (questId: string) => {
-    // Handle quest completion logic
-    console.log(`Completed quest: ${questId}`);
-    // Award points, update progress, etc.
+    console.log(`Quest completed: ${questId}`);
   };
 
-  const handlePurchaseShield = () => {
-    const cost = 250;
-    if (userPoints >= cost) {
-      setUserPoints(prev => prev - cost);
-      setStreakShields(prev => prev + 1);
+  const handlePurchaseShield = async () => {
+    try {
+      const result = await api.purchaseShield();
+      setStreakShields(result.streakShields);
+      setUserCoins(result.coins);
+    } catch (err: any) {
+      alert(err.message);
     }
   };
 
   const handleGiveKudo = (userId: string, message: string) => {
-    // Handle peer endorsement logic
     console.log(`Gave kudo to ${userId}: ${message}`);
   };
 
   const handleJoinTeam = (teamId: string) => {
-    // Handle team joining logic
     console.log(`Joined team: ${teamId}`);
   };
 
+  // ── Tab rendering ─────────────────────────────────────────────────────────
   const renderTabContent = () => {
     if (showQRScanner) {
       return <QRScannerPage onBack={() => setShowQRScanner(false)} />;
@@ -389,6 +273,7 @@ export default function App() {
           <ProfileTab
             initialSection={profileSection}
             userPoints={userPoints}
+            userCoins={userCoins}
             currentStreak={currentStreak}
             longestStreak={longestStreak}
             streakShields={streakShields}
@@ -419,7 +304,7 @@ export default function App() {
     }
   };
 
-  // Show authentication pages if not logged in
+  // ── Auth screens ──────────────────────────────────────────────────────────
   if (!isLoggedIn) {
     if (authView === "signup") {
       return (
@@ -448,8 +333,8 @@ export default function App() {
     );
   }
 
-  // Show Teacher Dashboard for teachers
-  if (currentUser?.userType === "teacher") {
+  // Teacher / admin dashboard
+  if (currentUser?.userType === "teacher" || currentUser?.userType === "admin") {
     return (
       <TeacherDashboard
         currentUser={currentUser}
@@ -458,17 +343,7 @@ export default function App() {
     );
   }
 
-  // Show Admin Dashboard for admins (you can create this later)
-  if (currentUser?.userType === "admin") {
-    return (
-      <TeacherDashboard
-        currentUser={currentUser}
-        onLogout={handleLogout}
-      />
-    );
-  }
-
-  // Main student app interface (only shown when logged in as student)
+  // Student app
   return (
     <div className="min-h-screen bg-[#F9FAFB] flex flex-col max-w-md mx-auto relative">
       <Header setActiveTab={setActiveTab} />

@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { ArrowLeft, Check, X } from "lucide-react";
+import * as api from "../../../lib/api";
 import { Quiz, Question } from "./QuizTab";
 import { QuizResults } from "./QuizResults";
 
 interface QuizPlayerProps {
   quiz: Quiz;
-  onComplete: () => void;
+  onComplete: (result: any) => void;
   onBackToQuizzes: () => void;
   showResults: boolean;
+  lastResult: any;
 }
 
 export function QuizPlayer({
@@ -15,140 +17,134 @@ export function QuizPlayer({
   onComplete,
   onBackToQuizzes,
   showResults,
+  lastResult,
 }: QuizPlayerProps) {
-  const [currentQuestionIndex, setCurrentQuestionIndex] =
-    useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<
-    number[]
-  >([]);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [loadingQuestions, setLoadingQuestions] = useState(true);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  // keyed by string index so we can pass directly to submitQuiz
+  const [answers, setAnswers] = useState<Record<string, number>>({});
   const [timeLeft, setTimeLeft] = useState(30);
   const [isAnswered, setIsAnswered] = useState(false);
+  const [startTime] = useState(Date.now());
+  const [submitting, setSubmitting] = useState(false);
 
-  // Sample questions - in a real app, these would come from an API
-  const questions: Question[] = [
-    {
-      id: "1",
-      question:
-        "What percentage of Earth's water is freshwater?",
-      options: ["97%", "71%", "3%", "50%"],
-      correctAnswer: 2,
-      explanation:
-        "Only about 3% of Earth's water is freshwater, and most of that is frozen in ice caps and glaciers. Of the 3% that is freshwater, only about 1% is accessible for human use. The rest is in ice caps, glaciers, and underground aquifers. This makes freshwater conservation extremely important for our planet's future.",
-    },
-    {
-      id: "2",
-      question: "Which household activity uses the most water?",
-      options: [
-        "Showering",
-        "Washing dishes",
-        "Laundry",
-        "Toilet flushing",
-      ],
-      correctAnswer: 0,
-      explanation:
-        "Showering typically uses the most water in households, accounting for about 17% of indoor water use. An average shower uses 2.5 gallons per minute, so a 10-minute shower uses 25 gallons! You can save water by taking shorter showers, installing low-flow showerheads, and turning off water while soaping up.",
-    },
-    {
-      id: "3",
-      question:
-        "How much water can a leaky faucet waste per day?",
-      options: [
-        "1 gallon",
-        "5 gallons",
-        "20 gallons",
-        "50 gallons",
-      ],
-      correctAnswer: 2,
-      explanation:
-        "A single leaky faucet can waste over 20 gallons of water per day, which adds up to over 7,000 gallons per year! That's enough water for 180 showers. Even a slow drip (1 drip per second) wastes over 5 gallons per day. Fixing leaks quickly is one of the easiest ways to conserve water and save money.",
-    },
-    {
-      id: "4",
-      question: "What is greywater?",
-      options: [
-        "Polluted river water",
-        "Rainwater",
-        "Used water from sinks and showers",
-        "Industrial wastewater",
-      ],
-      correctAnswer: 2,
-      explanation:
-        "Greywater is gently used water from bathroom sinks, showers, tubs, and washing machines that can be recycled for irrigation and other non-potable uses. Unlike blackwater (from toilets), greywater contains minimal contamination and can be treated and reused. Using greywater systems can reduce household water consumption by 50-70%!",
-    },
-    {
-      id: "5",
-      question:
-        "Which irrigation method is most water-efficient?",
-      options: [
-        "Sprinkler irrigation",
-        "Flood irrigation",
-        "Drip irrigation",
-        "Manual watering",
-      ],
-      correctAnswer: 2,
-      explanation:
-        "Drip irrigation is the most water-efficient method, delivering water directly to plant roots with minimal waste. It can be 90% efficient compared to 60-70% for sprinklers and only 40-50% for flood irrigation. Drip systems reduce evaporation, prevent weed growth, and can reduce water usage by 30-50% while often improving crop yields.",
-    },
-  ];
+  // Fetch questions for this quiz from the backend on mount
+  useEffect(() => {
+    setLoadingQuestions(true);
+    api
+      .getQuiz(quiz.id)
+      .then((data) => {
+        // backend field: "text"; frontend expects: "question"
+        const mapped: Question[] = (data.questions ?? []).map((q: any) => ({
+          id: q._id ?? q.id ?? String(Math.random()),
+          question: q.text ?? q.question ?? "",
+          options: q.options ?? [],
+          // correctAnswer is stripped to -1 for students until after submit
+          correctAnswer: q.correctAnswer ?? -1,
+          explanation: q.explanation ?? "",
+        }));
+        setQuestions(mapped);
+      })
+      .finally(() => setLoadingQuestions(false));
+  }, [quiz.id]);
 
   const currentQuestion = questions[currentQuestionIndex];
 
+  // Countdown timer
   useEffect(() => {
+    if (loadingQuestions || showResults) return;
     if (!isAnswered && timeLeft > 0) {
-      const timer = setTimeout(
-        () => setTimeLeft(timeLeft - 1),
-        1000,
-      );
+      const timer = setTimeout(() => setTimeLeft((t) => t - 1), 1000);
       return () => clearTimeout(timer);
     } else if (timeLeft === 0 && !isAnswered) {
       handleTimeUp();
     }
-  }, [timeLeft, isAnswered]);
+  }, [timeLeft, isAnswered, loadingQuestions, showResults]);
 
   const handleTimeUp = () => {
     setIsAnswered(true);
-    const newAnswers = [...selectedAnswers];
-    newAnswers[currentQuestionIndex] = -1; // -1 indicates no answer/timeout
-    setSelectedAnswers(newAnswers);
+    setAnswers((prev) => ({ ...prev, [String(currentQuestionIndex)]: -1 }));
   };
 
   const handleAnswerSelect = (answerIndex: number) => {
     if (isAnswered) return;
-
     setIsAnswered(true);
-    const newAnswers = [...selectedAnswers];
-    newAnswers[currentQuestionIndex] = answerIndex;
-    setSelectedAnswers(newAnswers);
+    setAnswers((prev) => ({ ...prev, [String(currentQuestionIndex)]: answerIndex }));
   };
 
   const handleNextQuestion = () => {
     if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setCurrentQuestionIndex((i) => i + 1);
       setTimeLeft(30);
       setIsAnswered(false);
     } else {
-      onComplete();
+      handleFinish();
     }
   };
 
-  const getScore = () => {
-    return selectedAnswers.reduce((score, answer, index) => {
-      return (
-        score +
-        (answer === questions[index].correctAnswer ? 1 : 0)
-      );
-    }, 0);
+  const handleFinish = async () => {
+    const timeTaken = Math.round((Date.now() - startTime) / 1000);
+    setSubmitting(true);
+    try {
+      const result = await api.submitQuiz(quiz.id, answers, timeTaken);
+      onComplete(result);
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
+
+  // ── Derive correct answers from submit result for results screen ──────────
+  // lastResult.questions contains correctAnswer filled in by the backend
+  const resultQuestions: Question[] = lastResult?.questions
+    ? lastResult.questions.map((q: any) => ({
+      id: q._id ?? q.id,
+      question: q.text ?? q.question ?? "",
+      options: q.options ?? [],
+      correctAnswer: q.correctAnswer ?? -1,
+      explanation: q.explanation ?? "",
+    }))
+    : questions;
+
+  const selectedAnswers: number[] = questions.map(
+    (_q, i) => answers[String(i)] ?? -1
+  );
+
+  const score =
+    lastResult?.attempt?.correctAnswers ??
+    selectedAnswers.reduce(
+      (acc, answer, idx) =>
+        acc + (answer === resultQuestions[idx]?.correctAnswer ? 1 : 0),
+      0
+    );
 
   if (showResults) {
     return (
       <QuizResults
         quiz={quiz}
-        questions={questions}
+        questions={resultQuestions}
         selectedAnswers={selectedAnswers}
-        score={getScore()}
+        score={score}
         onBackToQuizzes={onBackToQuizzes}
       />
+    );
+  }
+
+  if (loadingQuestions) {
+    return (
+      <div className="flex items-center justify-center h-48 text-gray-500">
+        Loading questions…
+      </div>
+    );
+  }
+
+  if (!currentQuestion) {
+    return (
+      <div className="flex items-center justify-center h-48 text-gray-500">
+        No questions found for this quiz.
+      </div>
     );
   }
 
@@ -165,14 +161,12 @@ export function QuizPlayer({
         <div className="text-center">
           <h2 className="font-semibold">{quiz.title}</h2>
           <p className="text-sm text-gray-500">
-            Question {currentQuestionIndex + 1} of{" "}
-            {questions.length}
+            Question {currentQuestionIndex + 1} of {questions.length}
           </p>
         </div>
         <div
-          className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold ${
-            timeLeft <= 10 ? "bg-red-500" : "bg-[#2ECC71]"
-          }`}
+          className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold ${timeLeft <= 10 ? "bg-red-500" : "bg-[#2ECC71]"
+            }`}
         >
           {timeLeft}
         </div>
@@ -191,30 +185,26 @@ export function QuizPlayer({
       {/* Question */}
       <div className="flex-1 flex flex-col">
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
-          <h3 className="text-lg font-medium mb-4">
-            {currentQuestion.question}
-          </h3>
+          <h3 className="text-lg font-medium mb-4">{currentQuestion.question}</h3>
 
           <div className="space-y-3">
             {currentQuestion.options.map((option, index) => {
-              const isSelected =
-                selectedAnswers[currentQuestionIndex] === index;
+              const selected = answers[String(currentQuestionIndex)] === index;
+              // correctAnswer is -1 before submit; after time-up we just show selection
               const isCorrect =
+                isAnswered &&
+                currentQuestion.correctAnswer >= 0 &&
                 index === currentQuestion.correctAnswer;
-              const showAnswer = isAnswered;
 
               let buttonClass =
                 "w-full p-4 text-left rounded-xl border-2 transition-all ";
-
-              if (!showAnswer) {
+              if (!isAnswered) {
                 buttonClass +=
                   "border-gray-200 hover:border-[#2ECC71] hover:bg-[#2ECC71]/5";
               } else if (isCorrect) {
-                buttonClass +=
-                  "border-green-500 bg-green-50 text-green-800";
-              } else if (isSelected && !isCorrect) {
-                buttonClass +=
-                  "border-red-500 bg-red-50 text-red-800";
+                buttonClass += "border-green-500 bg-green-50 text-green-800";
+              } else if (selected && !isCorrect) {
+                buttonClass += "border-red-500 bg-red-50 text-red-800";
               } else {
                 buttonClass += "border-gray-200 bg-gray-50";
               }
@@ -228,10 +218,10 @@ export function QuizPlayer({
                 >
                   <div className="flex items-center justify-between">
                     <span>{option}</span>
-                    {showAnswer && isCorrect && (
+                    {isAnswered && isCorrect && (
                       <Check className="w-5 h-5 text-green-600" />
                     )}
-                    {showAnswer && isSelected && !isCorrect && (
+                    {isAnswered && selected && !isCorrect && (
                       <X className="w-5 h-5 text-red-600" />
                     )}
                   </div>
@@ -241,18 +231,14 @@ export function QuizPlayer({
           </div>
         </div>
 
-        {/* Explanation */}
-        {isAnswered && (
+        {/* Explanation (only if correctAnswer is known) */}
+        {isAnswered && currentQuestion.explanation && (
           <div className="bg-blue-50 rounded-xl p-5 mb-4 border border-blue-200">
             <div className="flex items-center mb-3">
               <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-2">
-                <span className="text-blue-600 text-sm">
-                  💡
-                </span>
+                <span className="text-blue-600 text-sm">💡</span>
               </div>
-              <h4 className="font-medium text-blue-900">
-                Explanation
-              </h4>
+              <h4 className="font-medium text-blue-900">Explanation</h4>
             </div>
             <p className="text-blue-800 text-sm leading-relaxed">
               {currentQuestion.explanation}
@@ -260,16 +246,19 @@ export function QuizPlayer({
           </div>
         )}
 
-        {/* Next Button */}
+        {/* Next / Submit */}
         {isAnswered && (
           <div className="flex flex-col items-center space-y-3 mt-6">
             <button
               onClick={handleNextQuestion}
+              disabled={submitting}
               className="w-full max-w-xs bg-[#2ECC71] text-white py-4 px-6 rounded-xl font-medium hover:bg-[#27AE60] transition-colors flex items-center justify-center"
             >
-              {currentQuestionIndex < questions.length - 1
-                ? "Next Question →"
-                : "See Results 🏆"}
+              {submitting
+                ? "Submitting…"
+                : currentQuestionIndex < questions.length - 1
+                  ? "Next Question →"
+                  : "See Results 🏆"}
             </button>
             <p className="text-sm text-gray-500 text-center">
               {currentQuestionIndex < questions.length - 1

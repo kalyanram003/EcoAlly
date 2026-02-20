@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import * as api from "../../../lib/api";
 import { QuizList } from "./QuizList";
 import { QuizPlayer } from "./QuizPlayer";
 
@@ -23,68 +24,53 @@ export interface Question {
 }
 
 export function QuizTab() {
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [loading, setLoading] = useState(true);
   const [currentQuiz, setCurrentQuiz] = useState<Quiz | null>(null);
+  const [lastResult, setLastResult] = useState<any>(null);
   const [showResults, setShowResults] = useState(false);
 
-  const quizzes: Quiz[] = [
-    {
-      id: "water-conservation",
-      title: "Water Conservation",
-      description: "Learn about saving water in daily life",
-      questions: 5,
-      points: 50,
-      difficulty: "Easy",
-      completed: true,
-      icon: "💧",
-      color: "bg-blue-100"
-    },
-    {
-      id: "waste-segregation", 
-      title: "Waste Segregation",
-      description: "Master the art of proper waste sorting",
-      questions: 6,
-      points: 80,
-      difficulty: "Medium",
-      completed: false,
-      icon: "🗑️",
-      color: "bg-green-100"
-    },
-    {
-      id: "renewable-energy",
-      title: "Renewable Energy",
-      description: "Explore clean energy sources",
-      questions: 8,
-      points: 120,
-      difficulty: "Hard",
-      completed: false,
-      icon: "⚡",
-      color: "bg-yellow-100"
-    },
-    {
-      id: "climate-change",
-      title: "Climate Change",
-      description: "Understanding global warming effects",
-      questions: 7,
-      points: 100,
-      difficulty: "Medium",
-      completed: false,
-      icon: "🌍",
-      color: "bg-purple-100"
-    }
-  ];
+  useEffect(() => {
+    api
+      .getQuizzes()
+      .then((data) => {
+        const mapped: Quiz[] = data.map((q: any) => ({
+          id: q.id,
+          title: q.title,
+          description: q.description ?? "",
+          // backend sends an array; frontend expects a count
+          questions: Array.isArray(q.questions) ? q.questions.length : (q.questions ?? 0),
+          // derive rough point value from difficulty
+          points:
+            q.difficulty === "EASY" ? 50 : q.difficulty === "MEDIUM" ? 100 : 150,
+          // "EASY" → "Easy"
+          difficulty: (q.difficulty
+            ? q.difficulty.charAt(0) + q.difficulty.slice(1).toLowerCase()
+            : "Easy") as "Easy" | "Medium" | "Hard",
+          completed: false,
+          icon: "🌿",
+          color: "bg-green-100",
+        }));
+        setQuizzes(mapped);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   const handleStartQuiz = (quiz: Quiz) => {
     setCurrentQuiz(quiz);
+    setLastResult(null);
     setShowResults(false);
   };
 
-  const handleQuizComplete = () => {
+  const handleQuizComplete = (result: any) => {
+    setLastResult(result);
     setShowResults(true);
   };
 
   const handleBackToQuizzes = () => {
     setCurrentQuiz(null);
     setShowResults(false);
+    setLastResult(null);
   };
 
   if (currentQuiz) {
@@ -94,14 +80,18 @@ export function QuizTab() {
         onComplete={handleQuizComplete}
         onBackToQuizzes={handleBackToQuizzes}
         showResults={showResults}
+        lastResult={lastResult}
       />
     );
   }
 
-  return (
-    <QuizList
-      quizzes={quizzes}
-      onStartQuiz={handleStartQuiz}
-    />
-  );
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-48 text-gray-500">
+        Loading quizzes…
+      </div>
+    );
+  }
+
+  return <QuizList quizzes={quizzes} onStartQuiz={handleStartQuiz} />;
 }

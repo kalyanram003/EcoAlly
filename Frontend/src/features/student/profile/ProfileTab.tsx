@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Settings, Edit, Share2, Trophy, Target, Calendar, Flame, Award, Star, TrendingUp, Leaf, Bell, Shield, HelpCircle, LogOut, Camera, ChevronRight, BookOpen, Clock, CheckCircle, Lock, Crown, Zap, ShoppingCart, Users, FileText } from "lucide-react";
 import { Switch } from "../../../components/ui/switch";
 import { ProfileEditModal } from "./ProfileEditModal";
@@ -11,6 +11,7 @@ import { QuestSystem } from "../../gamification/QuestSystem";
 import { EnhancedStreaks } from "../../gamification/EnhancedStreaks";
 import { VirtualStore } from "../../gamification/VirtualStore";
 import { SocialFeatures } from "../../gamification/SocialFeatures";
+import * as api from "../../../lib/api";
 
 export interface UserProfile {
   id: string;
@@ -43,6 +44,7 @@ export interface Achievement {
 interface ProfileTabProps {
   initialSection?: "overview" | "achievements" | "settings" | "notes" | "progression" | "quests" | "streaks" | "store" | "social";
   userPoints: number;
+  userCoins: number;
   currentStreak: number;
   longestStreak: number;
   streakShields: number;
@@ -59,6 +61,7 @@ interface ProfileTabProps {
 export function ProfileTab({
   initialSection = "overview",
   userPoints,
+  userCoins,
   currentStreak,
   longestStreak,
   streakShields,
@@ -88,24 +91,66 @@ export function ProfileTab({
   // References for smooth scrolling
   const settingsRef = useRef<HTMLDivElement>(null);
 
-  // Mock user data - in a real app, this would come from an API
+  // Start with sensible defaults; overwritten by API response
   const [userProfile, setUserProfile] = useState<UserProfile>({
-    id: "user123",
-    name: "Alex Johnson",
-    email: "alex.johnson@email.com",
+    id: "",
+    name: "Loading…",
+    email: "",
     avatar: "👤",
-    level: 12,
+    level: 1,
     totalPoints: userPoints,
-    joinDate: "2024-01-15",
+    joinDate: "",
     currentStreak: currentStreak,
     longestStreak: longestStreak,
-    challengesCompleted: 8,
-    quizzesCompleted: 18,
-    rank: 4,
-    totalUsers: 24,
+    challengesCompleted: 0,
+    quizzesCompleted: 0,
+    rank: 0,
+    totalUsers: 0,
     weeklyGoal: 200,
-    weeklyProgress: 180
+    weeklyProgress: 0
   });
+
+  // Fetch live profile on mount
+  useEffect(() => {
+    api.getProfile().then((data) => {
+      setUserProfile({
+        id: data.userId ?? "",
+        name: `${data.firstName ?? ""} ${data.lastName ?? ""}`.trim() || data.username || "Student",
+        email: data.email ?? "",
+        avatar: data.avatarUrl ?? "👤",
+        level: Math.max(1, Math.floor(userPoints / 200) + 1),
+        totalPoints: userPoints,
+        joinDate: data.createdAt ? new Date(data.createdAt).toISOString().split("T")[0] : "",
+        currentStreak: currentStreak,
+        longestStreak: longestStreak,
+        challengesCompleted: data.challengesCompleted ?? 0,
+        quizzesCompleted: data.quizzesCompleted ?? 0,
+        rank: data.rank ?? 0,
+        totalUsers: data.totalUsers ?? 0,
+        weeklyGoal: 200,
+        weeklyProgress: userPoints % 200
+      });
+    }).catch(() => {
+      // API unavailable; keep defaults derived from props
+      setUserProfile(prev => ({
+        ...prev,
+        totalPoints: userPoints,
+        currentStreak: currentStreak,
+        longestStreak: longestStreak
+      }));
+    });
+  }, []);
+
+  // Keep points/streak in sync when props change (e.g. after a quiz submit)
+  useEffect(() => {
+    setUserProfile(prev => ({
+      ...prev,
+      totalPoints: userPoints,
+      currentStreak: currentStreak,
+      longestStreak: longestStreak,
+      level: Math.max(1, Math.floor(userPoints / 200) + 1)
+    }));
+  }, [userPoints, currentStreak, longestStreak]);
 
   const achievements: Achievement[] = [
     {
@@ -192,7 +237,16 @@ export function ProfileTab({
   const earnedAchievements = achievements.filter(a => a.earned);
   const lockedAchievements = achievements.filter(a => !a.earned);
 
-  const handleProfileUpdate = (updatedProfile: Partial<UserProfile>) => {
+  const handleProfileUpdate = async (updatedProfile: Partial<UserProfile>) => {
+    try {
+      await api.updateProfile({
+        firstName: updatedProfile.name?.split(" ")[0],
+        lastName: updatedProfile.name?.split(" ").slice(1).join(" "),
+        avatarUrl: typeof updatedProfile.avatar === "string" ? updatedProfile.avatar : undefined
+      });
+    } catch {
+      // ignore; optimistic update proceeds anyway
+    }
     setUserProfile(prev => ({ ...prev, ...updatedProfile }));
   };
 
@@ -304,8 +358,8 @@ export function ProfileTab({
           <button
             onClick={() => setActiveSection("overview")}
             className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium whitespace-nowrap transition-colors ${activeSection === "overview"
-                ? "bg-[#2ECC71] text-white shadow-md"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              ? "bg-[#2ECC71] text-white shadow-md"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
           >
             <TrendingUp className="w-4 h-4" />
@@ -314,8 +368,8 @@ export function ProfileTab({
           <button
             onClick={() => setActiveSection("progression")}
             className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium whitespace-nowrap transition-colors ${activeSection === "progression"
-                ? "bg-[#2ECC71] text-white shadow-md"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              ? "bg-[#2ECC71] text-white shadow-md"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
           >
             <Crown className="w-4 h-4" />
@@ -324,8 +378,8 @@ export function ProfileTab({
           <button
             onClick={() => setActiveSection("notes")}
             className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium whitespace-nowrap transition-colors ${activeSection === "notes"
-                ? "bg-[#2ECC71] text-white shadow-md"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              ? "bg-[#2ECC71] text-white shadow-md"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
           >
             <BookOpen className="w-4 h-4" />
@@ -334,8 +388,8 @@ export function ProfileTab({
           <button
             onClick={() => setActiveSection("quests")}
             className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium whitespace-nowrap transition-colors ${activeSection === "quests"
-                ? "bg-[#2ECC71] text-white shadow-md"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              ? "bg-[#2ECC71] text-white shadow-md"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
           >
             <Target className="w-4 h-4" />
@@ -344,8 +398,8 @@ export function ProfileTab({
           <button
             onClick={() => setActiveSection("streaks")}
             className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium whitespace-nowrap transition-colors ${activeSection === "streaks"
-                ? "bg-[#2ECC71] text-white shadow-md"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              ? "bg-[#2ECC71] text-white shadow-md"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
           >
             <Flame className="w-4 h-4" />
@@ -354,8 +408,8 @@ export function ProfileTab({
           <button
             onClick={() => setActiveSection("store")}
             className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium whitespace-nowrap transition-colors ${activeSection === "store"
-                ? "bg-[#2ECC71] text-white shadow-md"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              ? "bg-[#2ECC71] text-white shadow-md"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
           >
             <ShoppingCart className="w-4 h-4" />
@@ -364,8 +418,8 @@ export function ProfileTab({
           <button
             onClick={() => setActiveSection("social")}
             className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium whitespace-nowrap transition-colors ${activeSection === "social"
-                ? "bg-[#2ECC71] text-white shadow-md"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              ? "bg-[#2ECC71] text-white shadow-md"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
           >
             <Users className="w-4 h-4" />
@@ -374,8 +428,8 @@ export function ProfileTab({
           <button
             onClick={() => setActiveSection("achievements")}
             className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium whitespace-nowrap transition-colors ${activeSection === "achievements"
-                ? "bg-[#2ECC71] text-white shadow-md"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              ? "bg-[#2ECC71] text-white shadow-md"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
           >
             <Trophy className="w-4 h-4" />
@@ -384,8 +438,8 @@ export function ProfileTab({
           <button
             onClick={() => setActiveSection("settings")}
             className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium whitespace-nowrap transition-colors ${activeSection === "settings"
-                ? "bg-[#2ECC71] text-white shadow-md"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              ? "bg-[#2ECC71] text-white shadow-md"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
           >
             <Settings className="w-4 h-4" />
@@ -510,7 +564,7 @@ export function ProfileTab({
 
       {activeSection === "store" && (
         <VirtualStore
-          currentPoints={userPoints}
+          currentPoints={userCoins}
           onPurchase={onPurchase}
           onOpenChest={(chestId) => console.log(`Opening chest: ${chestId}`)}
         />
@@ -623,8 +677,8 @@ export function ProfileTab({
               <button
                 onClick={() => setSelectedTopic(null)}
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${selectedTopic === null
-                    ? "bg-[#2ECC71] text-white shadow-md"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-[#2ECC71] text-white shadow-md"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
               >
                 All Notes
@@ -632,8 +686,8 @@ export function ProfileTab({
               <button
                 onClick={() => setSelectedTopic("waste-management")}
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${selectedTopic === "waste-management"
-                    ? "bg-[#2ECC71] text-white shadow-md"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-[#2ECC71] text-white shadow-md"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
               >
                 ♻️ Waste Management
@@ -641,8 +695,8 @@ export function ProfileTab({
               <button
                 onClick={() => setSelectedTopic("carbon-footprint")}
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${selectedTopic === "carbon-footprint"
-                    ? "bg-[#2ECC71] text-white shadow-md"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-[#2ECC71] text-white shadow-md"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
               >
                 🌍 Carbon Footprint
@@ -650,8 +704,8 @@ export function ProfileTab({
               <button
                 onClick={() => setSelectedTopic("renewable-energy")}
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${selectedTopic === "renewable-energy"
-                    ? "bg-[#2ECC71] text-white shadow-md"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-[#2ECC71] text-white shadow-md"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
               >
                 ⚡ Renewable Energy
@@ -659,8 +713,8 @@ export function ProfileTab({
               <button
                 onClick={() => setSelectedTopic("sustainable-living")}
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${selectedTopic === "sustainable-living"
-                    ? "bg-[#2ECC71] text-white shadow-md"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-[#2ECC71] text-white shadow-md"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
               >
                 🌱 Sustainable Living
@@ -668,8 +722,8 @@ export function ProfileTab({
               <button
                 onClick={() => setSelectedTopic("water-conservation")}
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${selectedTopic === "water-conservation"
-                    ? "bg-[#2ECC71] text-white shadow-md"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-[#2ECC71] text-white shadow-md"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
               >
                 💧 Water Conservation
@@ -677,8 +731,8 @@ export function ProfileTab({
               <button
                 onClick={() => setSelectedTopic("biodiversity")}
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${selectedTopic === "biodiversity"
-                    ? "bg-[#2ECC71] text-white shadow-md"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-[#2ECC71] text-white shadow-md"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
               >
                 🦋 Biodiversity
@@ -686,8 +740,8 @@ export function ProfileTab({
               <button
                 onClick={() => setSelectedTopic("climate-change")}
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${selectedTopic === "climate-change"
-                    ? "bg-[#2ECC71] text-white shadow-md"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-[#2ECC71] text-white shadow-md"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
               >
                 🌡️ Climate Change
@@ -695,8 +749,8 @@ export function ProfileTab({
               <button
                 onClick={() => setSelectedTopic("eco-transportation")}
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${selectedTopic === "eco-transportation"
-                    ? "bg-[#2ECC71] text-white shadow-md"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-[#2ECC71] text-white shadow-md"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
               >
                 🚲 Eco Transport
@@ -1040,7 +1094,7 @@ export function ProfileTab({
                   <p className="text-sm text-gray-600">Get notified about daily tasks</p>
                 </div>
                 <Switch
-                  checked={notifications.dailyReminders }
+                  checked={notifications.dailyReminders}
                   onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, dailyReminders: checked }))}
                 />
               </div>

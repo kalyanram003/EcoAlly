@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calendar, Clock, Trophy, Users, Zap, CheckCircle, Circle, Star, Target, Crown } from "lucide-react";
 import { Button } from "../../components/ui/button";
+import * as api from "../../lib/api";
 
 export interface Quest {
   id: string;
@@ -24,129 +25,38 @@ interface QuestSystemProps {
 
 export function QuestSystem({ onCompleteQuest }: QuestSystemProps) {
   const [activeTab, setActiveTab] = useState<"daily" | "weekly" | "epic">("daily");
+  const [quests, setQuests] = useState<Quest[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Mock quest data
-  const quests: Quest[] = [
-    // Daily Quests
-    {
-      id: "daily_habit",
-      type: "daily",
-      title: "Log Daily Eco Habit",
-      description: "Record one eco-friendly action you took today",
-      emoji: "✅",
-      progress: 1,
-      maxProgress: 1,
-      points: 15,
-      deadline: new Date(Date.now() + 24 * 60 * 60 * 1000),
-      completed: true,
-      color: "bg-green-100 border-green-300",
-      requirements: ["Log any eco-friendly habit"],
-      bonus: "+5 streak bonus"
-    },
-    {
-      id: "mini_game",
-      type: "daily",
-      title: "Play 5-Minute Game",
-      description: "Complete any eco-game for 5 minutes",
-      emoji: "🎮",
-      progress: 0,
-      maxProgress: 1,
-      points: 20,
-      deadline: new Date(Date.now() + 18 * 60 * 60 * 1000),
-      completed: false,
-      color: "bg-blue-100 border-blue-300",
-      requirements: ["Play any available eco-game"],
-      bonus: "Double points on weekends!"
-    },
-    {
-      id: "learn_fact",
-      type: "daily",
-      title: "Learn New Eco Fact",
-      description: "Read and share one environmental fact",
-      emoji: "🧠",
-      progress: 0,
-      maxProgress: 1,
-      points: 10,
-      deadline: new Date(Date.now() + 20 * 60 * 60 * 1000),
-      completed: false,
-      color: "bg-purple-100 border-purple-300",
-      requirements: ["Visit Learn section", "Share fact with friend"],
-    },
+  const fetchQuests = () => {
+    setLoading(true);
+    api.getQuests()
+      .then((data) => {
+        const mapped: Quest[] = data.map((q: any) => ({
+          id: q.id ?? q._id,
+          // backend sends "DAILY", "WEEKLY", "EPIC" — convert to lowercase
+          type: (q.type ? q.type.toLowerCase() : "daily") as "daily" | "weekly" | "epic",
+          title: q.title ?? "Quest",
+          description: q.description ?? "",
+          emoji: q.emoji ?? "🎯",
+          progress: q.progress ?? 0,
+          maxProgress: q.maxProgress ?? q.target ?? 1,
+          points: q.points ?? q.reward ?? 0,
+          deadline: q.deadline ? new Date(q.deadline) : undefined,
+          completed: q.completed ?? false,
+          color: q.color ?? "bg-green-100 border-green-300",
+          requirements: q.requirements ?? [],
+          bonus: q.bonus,
+        }));
+        setQuests(mapped);
+      })
+      .catch(() => setQuests([]))
+      .finally(() => setLoading(false));
+  };
 
-    // Weekly Quests
-    {
-      id: "multi_activity",
-      type: "weekly",
-      title: "Eco Triple Crown",
-      description: "Complete 2 quizzes + 1 challenge + 1 photo upload",
-      emoji: "🏆",
-      progress: 2,
-      maxProgress: 4,
-      points: 100,
-      deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-      completed: false,
-      color: "bg-yellow-100 border-yellow-400",
-      requirements: ["Complete 2 quizzes", "Finish 1 challenge", "Upload eco photo", "Maintain 5-day streak"],
-      bonus: "Unlock exclusive badge frame"
-    },
-    {
-      id: "social_champion",
-      type: "weekly",
-      title: "Social Eco Champion",
-      description: "Help teammates and give 5 eco kudos",
-      emoji: "🤝",
-      progress: 1,
-      maxProgress: 5,
-      points: 80,
-      deadline: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000),
-      completed: false,
-      color: "bg-pink-100 border-pink-300",
-      requirements: ["Give 5 eco kudos", "Comment on 3 challenges", "Help 1 teammate"],
-      bonus: "Team collaboration multiplier"
-    },
+  useEffect(() => { fetchQuests(); }, []);
 
-    // Epic Quests
-    {
-      id: "tree_master",
-      type: "epic",
-      title: "Master Tree Planter",
-      description: "Plant and document 5 trees over the next month",
-      emoji: "🌳",
-      progress: 1,
-      maxProgress: 5,
-      points: 500,
-      deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      completed: false,
-      color: "bg-emerald-100 border-emerald-400",
-      requirements: [
-        "Plant 5 trees with photo documentation",
-        "Create care plan for each tree",
-        "Track growth for 30 days",
-        "Share experience with community"
-      ],
-      bonus: "Exclusive Tree Guardian badge + Companion unlock"
-    },
-    {
-      id: "waste_warrior",
-      type: "epic",
-      title: "Zero Waste Warrior",
-      description: "Achieve zero waste lifestyle for 2 weeks",
-      emoji: "♻️",
-      progress: 0,
-      maxProgress: 14,
-      points: 350,
-      deadline: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000),
-      completed: false,
-      color: "bg-teal-100 border-teal-400",
-      requirements: [
-        "Daily waste tracking",
-        "Zero single-use plastics",
-        "Composting setup",
-        "Weekly progress photos"
-      ],
-      bonus: "Waste Warrior title + Special avatar"
-    }
-  ];
+
 
   const getQuestsByType = (type: "daily" | "weekly" | "epic") => {
     return quests.filter(quest => quest.type === type);
@@ -177,12 +87,12 @@ export function QuestSystem({ onCompleteQuest }: QuestSystemProps) {
   const formatTimeRemaining = (deadline: Date): string => {
     const now = new Date();
     const diff = deadline.getTime() - now.getTime();
-    
+
     if (diff <= 0) return "Expired";
-    
+
     const days = Math.floor(diff / (24 * 60 * 60 * 1000));
     const hours = Math.floor((diff % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
-    
+
     if (days > 0) return `${days}d ${hours}h`;
     return `${hours}h`;
   };
@@ -228,7 +138,7 @@ export function QuestSystem({ onCompleteQuest }: QuestSystemProps) {
           <span className="text-sm text-gray-500">{completedCount}/{totalCount} completed</span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
-          <div 
+          <div
             className={`h-2 rounded-full transition-all duration-500 ${getProgressColor(activeTab)}`}
             style={{ width: `${totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%` }}
           />
@@ -258,7 +168,7 @@ export function QuestSystem({ onCompleteQuest }: QuestSystemProps) {
                   )}
                 </div>
               </div>
-              
+
               <div className="text-right">
                 <div className="flex items-center gap-1 text-[#2ECC71] font-semibold">
                   <Star className="w-4 h-4" />
@@ -274,7 +184,7 @@ export function QuestSystem({ onCompleteQuest }: QuestSystemProps) {
                 <span className="text-sm font-medium">{quest.progress}/{quest.maxProgress}</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
+                <div
                   className={`h-2 rounded-full transition-all duration-500 ${getProgressColor(quest.type)}`}
                   style={{ width: `${(quest.progress / quest.maxProgress) * 100}%` }}
                 />
@@ -306,12 +216,22 @@ export function QuestSystem({ onCompleteQuest }: QuestSystemProps) {
 
             {/* Action Button */}
             {!quest.completed && (
-              <Button 
-                onClick={() => onCompleteQuest?.(quest.id)}
+              <Button
+                onClick={async () => {
+                  if (quest.progress >= quest.maxProgress) {
+                    try {
+                      await api.claimQuest(quest.id);
+                      fetchQuests();
+                      onCompleteQuest?.(quest.id);
+                    } catch (err: any) {
+                      alert(err.message);
+                    }
+                  }
+                }}
                 className="w-full bg-[#2ECC71] hover:bg-[#27AE60] text-white"
-                disabled={quest.progress >= quest.maxProgress}
+                disabled={quest.progress < quest.maxProgress}
               >
-                {quest.progress >= quest.maxProgress ? "Ready to Complete!" : "Work on Quest"}
+                {quest.progress >= quest.maxProgress ? "Claim Reward! 🏆" : "Work on Quest"}
               </Button>
             )}
           </div>

@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ShoppingCart, Star, Gift, Sparkles, Crown, Flame, Shield, Zap, Heart, Coins } from "lucide-react";
 import { Button } from "../../components/ui/button";
+import * as api from "../../lib/api";
 
 export interface StoreItem {
   id: string;
@@ -26,15 +27,22 @@ export interface MysteryChest {
 }
 
 interface VirtualStoreProps {
-  currentPoints: number;
+  currentCoins: number;
   onPurchase?: (itemId: string, cost: number) => void;
   onOpenChest?: (chestId: string) => void;
 }
 
-export function VirtualStore({ currentPoints, onPurchase, onOpenChest }: VirtualStoreProps) {
+export function VirtualStore({ currentCoins, onPurchase, onOpenChest }: VirtualStoreProps) {
   const [activeCategory, setActiveCategory] = useState<"all" | "avatar" | "effects" | "boosts" | "chests">("all");
   const [selectedItem, setSelectedItem] = useState<StoreItem | null>(null);
+  // IDs of items the user already owns (fetched from the API)
+  const [ownedItemIds, setOwnedItemIds] = useState<string[]>([]);
 
+  useEffect(() => {
+    api.getOwnedItems().then(setOwnedItemIds).catch(() => { });
+  }, []);
+
+  // Derive `owned` dynamically from ownedItemIds so it stays in sync after purchases
   const storeItems: StoreItem[] = [
     // Avatar Items
     {
@@ -43,9 +51,9 @@ export function VirtualStore({ currentPoints, onPurchase, onOpenChest }: Virtual
       description: "A beautiful green frame that shows your dedication to the environment",
       emoji: "🍃",
       price: 150,
-      category: "badge_frame", 
+      category: "badge_frame",
       rarity: "common",
-      owned: false,
+      owned: ownedItemIds.includes("green_frame"),
       icon: <Shield className="w-5 h-5" />,
       previewColor: "border-green-400 bg-green-50"
     },
@@ -57,7 +65,7 @@ export function VirtualStore({ currentPoints, onPurchase, onOpenChest }: Virtual
       price: 500,
       category: "badge_frame",
       rarity: "epic",
-      owned: false,
+      owned: ownedItemIds.includes("golden_frame"),
       icon: <Crown className="w-5 h-5" />,
       previewColor: "border-yellow-400 bg-yellow-50"
     },
@@ -69,11 +77,10 @@ export function VirtualStore({ currentPoints, onPurchase, onOpenChest }: Virtual
       price: 1000,
       category: "badge_frame",
       rarity: "legendary",
-      owned: false,
+      owned: ownedItemIds.includes("rainbow_frame"),
       icon: <Sparkles className="w-5 h-5" />,
       previewColor: "border-purple-400 bg-gradient-to-r from-pink-50 to-purple-50"
     },
-
     // Streak Effects
     {
       id: "fire_streak",
@@ -83,7 +90,7 @@ export function VirtualStore({ currentPoints, onPurchase, onOpenChest }: Virtual
       price: 200,
       category: "streak_effect",
       rarity: "rare",
-      owned: true,
+      owned: ownedItemIds.includes("fire_streak"),
       icon: <Flame className="w-5 h-5" />,
       previewColor: "border-red-400 bg-red-50"
     },
@@ -95,7 +102,7 @@ export function VirtualStore({ currentPoints, onPurchase, onOpenChest }: Virtual
       price: 300,
       category: "streak_effect",
       rarity: "rare",
-      owned: false,
+      owned: ownedItemIds.includes("lightning_streak"),
       icon: <Zap className="w-5 h-5" />,
       previewColor: "border-blue-400 bg-blue-50"
     },
@@ -107,11 +114,10 @@ export function VirtualStore({ currentPoints, onPurchase, onOpenChest }: Virtual
       price: 750,
       category: "streak_effect",
       rarity: "epic",
-      owned: false,
+      owned: ownedItemIds.includes("cosmic_streak"),
       icon: <Star className="w-5 h-5" />,
       previewColor: "border-purple-400 bg-purple-50"
     },
-
     // Wallpapers
     {
       id: "forest_wallpaper",
@@ -121,7 +127,7 @@ export function VirtualStore({ currentPoints, onPurchase, onOpenChest }: Virtual
       price: 100,
       category: "wallpaper",
       rarity: "common",
-      owned: false,
+      owned: ownedItemIds.includes("forest_wallpaper"),
       icon: <div className="w-5 h-5 bg-green-400 rounded" />,
       previewColor: "border-green-400 bg-green-50"
     },
@@ -133,11 +139,10 @@ export function VirtualStore({ currentPoints, onPurchase, onOpenChest }: Virtual
       price: 150,
       category: "wallpaper",
       rarity: "common",
-      owned: false,
+      owned: ownedItemIds.includes("ocean_wallpaper"),
       icon: <div className="w-5 h-5 bg-blue-400 rounded" />,
       previewColor: "border-blue-400 bg-blue-50"
     },
-
     // Boosts
     {
       id: "point_multiplier",
@@ -147,7 +152,7 @@ export function VirtualStore({ currentPoints, onPurchase, onOpenChest }: Virtual
       price: 300,
       category: "boost",
       rarity: "rare",
-      owned: false,
+      owned: ownedItemIds.includes("point_multiplier"),
       icon: <Zap className="w-5 h-5" />,
       previewColor: "border-yellow-400 bg-yellow-50"
     },
@@ -159,11 +164,10 @@ export function VirtualStore({ currentPoints, onPurchase, onOpenChest }: Virtual
       price: 250,
       category: "boost",
       rarity: "rare",
-      owned: false,
+      owned: ownedItemIds.includes("streak_shield"),
       icon: <Shield className="w-5 h-5" />,
       previewColor: "border-green-400 bg-green-50"
     },
-
     // Stickers
     {
       id: "eco_sticker_pack",
@@ -173,7 +177,7 @@ export function VirtualStore({ currentPoints, onPurchase, onOpenChest }: Virtual
       price: 80,
       category: "sticker",
       rarity: "common",
-      owned: false,
+      owned: ownedItemIds.includes("eco_sticker_pack"),
       icon: <Heart className="w-5 h-5" />,
       previewColor: "border-green-400 bg-green-50"
     }
@@ -230,11 +234,11 @@ export function VirtualStore({ currentPoints, onPurchase, onOpenChest }: Virtual
   const getRarityBadge = (rarity: string) => {
     const colors = {
       common: "bg-gray-100 text-gray-700",
-      rare: "bg-blue-100 text-blue-700", 
+      rare: "bg-blue-100 text-blue-700",
       epic: "bg-purple-100 text-purple-700",
       legendary: "bg-gradient-to-r from-yellow-100 to-pink-100 text-purple-700"
     };
-    
+
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${colors[rarity as keyof typeof colors] || colors.common}`}>
         {rarity}
@@ -259,7 +263,7 @@ export function VirtualStore({ currentPoints, onPurchase, onOpenChest }: Virtual
       <div className="text-center">
         <h2 className="text-2xl font-bold mb-2">🛍️ Eco Market</h2>
         <p className="text-gray-600">Spend your eco points on amazing rewards!</p>
-        
+
         {/* Points Display */}
         <div className="bg-gradient-to-r from-[#2ECC71] to-[#27AE60] rounded-xl p-4 mt-4 text-white">
           <div className="flex items-center justify-center gap-2">
@@ -276,11 +280,10 @@ export function VirtualStore({ currentPoints, onPurchase, onOpenChest }: Virtual
           <button
             key={category.id}
             onClick={() => setActiveCategory(category.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium whitespace-nowrap transition-colors ${
-              activeCategory === category.id
-                ? "bg-[#2ECC71] text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium whitespace-nowrap transition-colors ${activeCategory === category.id
+              ? "bg-[#2ECC71] text-white"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
           >
             {category.icon}
             {category.label}
@@ -325,7 +328,7 @@ export function VirtualStore({ currentPoints, onPurchase, onOpenChest }: Virtual
                   </div>
                 </div>
 
-                <Button 
+                <Button
                   onClick={() => onOpenChest?.(chest.id)}
                   className="w-full bg-[#2ECC71] hover:bg-[#27AE60] text-white"
                   disabled={currentPoints < chest.price}
@@ -372,8 +375,16 @@ export function VirtualStore({ currentPoints, onPurchase, onOpenChest }: Virtual
               </div>
 
               {!item.owned && (
-                <Button 
-                  onClick={() => onPurchase?.(item.id, item.price)}
+                <Button
+                  onClick={async () => {
+                    try {
+                      const result = await api.purchaseItem(item.id, item.price);
+                      setOwnedItemIds(result.ownedItems);
+                      onPurchase?.(item.id, item.price);
+                    } catch (err: any) {
+                      alert(err.message);
+                    }
+                  }}
                   className="w-full bg-[#2ECC71] hover:bg-[#27AE60] text-white"
                   disabled={currentPoints < item.price}
                 >
