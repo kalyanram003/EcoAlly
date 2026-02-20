@@ -68,3 +68,4 @@ gradle/
 # pnpm-lock.yaml
 
 BACKEND_IMPLEMENTATION_GUIDE.md
+guide.md
