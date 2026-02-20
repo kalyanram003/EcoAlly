@@ -1,10 +1,10 @@
-package com.ecolearn.service;
+package com.backend.ecoally.service;
 
-import com.ecolearn.exception.AppException;
-import com.ecolearn.model.Quest;
-import com.ecolearn.model.QuestProgress;
-import com.ecolearn.repository.QuestProgressRepository;
-import com.ecolearn.repository.QuestRepository;
+import com.backend.ecoally.exception.AppException;
+import com.backend.ecoally.model.Quest;
+import com.backend.ecoally.model.QuestProgress;
+import com.backend.ecoally.repository.QuestProgressRepository;
+import com.backend.ecoally.repository.QuestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

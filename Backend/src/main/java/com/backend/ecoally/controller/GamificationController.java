@@ -1,11 +1,11 @@
-package com.ecolearn.controller;
+package com.backend.ecoally.controller;
 
-import com.ecolearn.dto.response.ApiResponse;
-import com.ecolearn.exception.AppException;
-import com.ecolearn.model.Student;
-import com.ecolearn.model.User;
-import com.ecolearn.repository.StudentRepository;
-import com.ecolearn.service.QuestService;
+import com.backend.ecoally.dto.response.ApiResponse;
+import com.backend.ecoally.exception.AppException;
+import com.backend.ecoally.model.Student;
+import com.backend.ecoally.model.User;
+import com.backend.ecoally.repository.StudentRepository;
+import com.backend.ecoally.service.QuestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

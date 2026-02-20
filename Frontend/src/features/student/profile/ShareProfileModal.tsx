@@ -13,8 +13,8 @@ export function ShareProfileModal({ isOpen, onClose, userProfile }: ShareProfile
 
   if (!isOpen) return null;
 
-  const shareText = `Check out my eco journey on EcoLearn! 🌱 I'm Level ${userProfile.level} with ${userProfile.totalPoints.toLocaleString()} eco points! Join me in making a difference for our planet! 🌍`;
-  const shareUrl = `https://ecolearn.app/profile/${userProfile.id}`;
+  const shareText = `Check out my eco journey on EcoAlly! 🌱 I'm Level ${userProfile.level} with ${userProfile.totalPoints.toLocaleString()} eco points! Join me in making a difference for our planet! 🌍`;
+  const shareUrl = `https://EcoAlly.app/profile/${userProfile.id}`;
 
   const fallbackCopyTextToClipboard = (text: string): boolean => {
     const textArea = document.createElement("textarea");
@@ -70,7 +70,7 @@ export function ShareProfileModal({ isOpen, onClose, userProfile }: ShareProfile
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `${userProfile.name}'s EcoLearn Profile`,
+          title: `${userProfile.name}'s EcoAlly Profile`,
           text: shareText,
           url: shareUrl
         });

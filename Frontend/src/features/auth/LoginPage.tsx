@@ -131,7 +131,7 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
           <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
             <span className="text-4xl">🌱</span>
           </div>
-          <h1 className="text-white text-3xl font-bold mb-2">EcoLearn</h1>
+          <h1 className="text-white text-3xl font-bold mb-2">EcoAlly</h1>
           <p className="text-white/80 text-lg">
             Welcome back, {selectedRole}! {selectedRole === "student" ? "Continue your eco journey!" : `Enter your ${selectedRole} credentials.`}
           </p>
@@ -386,7 +386,7 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
             <div className="bg-white/10 rounded-lg p-3">
               <div className="text-sm space-y-1 text-white/90">
                 <p><strong>Email:</strong> alex.johnson@email.com</p>
-                <p><strong>Password:</strong> EcoLearn123!</p>
+                <p><strong>Password:</strong> EcoAlly123!</p>
               </div>
             </div>
           )}

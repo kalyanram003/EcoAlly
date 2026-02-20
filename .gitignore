@@ -66,3 +66,5 @@ gradle/
 # package-lock.json
 # yarn.lock
 # pnpm-lock.yaml
+
+BACKEND_IMPLEMENTATION_GUIDE.md

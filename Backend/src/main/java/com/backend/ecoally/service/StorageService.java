@@ -1,4 +1,4 @@
-package com.ecolearn.service;
+package com.backend.ecoally.service;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;

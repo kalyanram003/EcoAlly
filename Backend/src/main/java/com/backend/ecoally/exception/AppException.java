@@ -1,4 +1,4 @@
-package com.ecolearn.exception;
+package com.backend.ecoally.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

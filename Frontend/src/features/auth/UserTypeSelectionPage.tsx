@@ -89,7 +89,7 @@ export function UserTypeSelectionPage({ onComplete, onBack }: UserTypeSelectionP
             <span className="text-2xl">👥</span>
           </div>
           <h1 className="text-white text-2xl font-bold mb-2">Choose Your Role</h1>
-          <p className="text-white/80">Select how you'll be using EcoLearn</p>
+          <p className="text-white/80">Select how you'll be using EcoAlly</p>
         </div>
 
         {/* User Type Cards */}

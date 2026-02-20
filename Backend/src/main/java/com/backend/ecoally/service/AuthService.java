@@ -1,11 +1,11 @@
-package com.ecolearn.service;
+package com.backend.ecoally.service;
 
-import com.ecolearn.dto.request.LoginRequest;
-import com.ecolearn.dto.request.RegisterRequest;
-import com.ecolearn.exception.AppException;
-import com.ecolearn.model.*;
-import com.ecolearn.repository.*;
-import com.ecolearn.security.JwtUtils;
+import com.backend.ecoally.dto.request.LoginRequest;
+import com.backend.ecoally.dto.request.RegisterRequest;
+import com.backend.ecoally.exception.AppException;
+import com.backend.ecoally.model.*;
+import com.backend.ecoally.repository.*;
+import com.backend.ecoally.security.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

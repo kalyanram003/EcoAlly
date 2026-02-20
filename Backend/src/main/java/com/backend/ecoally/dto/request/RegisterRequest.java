@@ -1,6 +1,6 @@
-package com.ecolearn.dto.request;
+package com.backend.ecoally.dto.request;
 
-import com.ecolearn.model.User;
+import com.backend.ecoally.model.User;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 

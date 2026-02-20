@@ -1,10 +1,10 @@
-package com.ecolearn.controller;
+package com.backend.ecoally.controller;
 
-import com.ecolearn.dto.request.LoginRequest;
-import com.ecolearn.dto.request.RegisterRequest;
-import com.ecolearn.dto.response.ApiResponse;
-import com.ecolearn.model.User;
-import com.ecolearn.service.AuthService;
+import com.backend.ecoally.dto.request.LoginRequest;
+import com.backend.ecoally.dto.request.RegisterRequest;
+import com.backend.ecoally.dto.response.ApiResponse;
+import com.backend.ecoally.model.User;
+import com.backend.ecoally.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

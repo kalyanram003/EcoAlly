@@ -1,4 +1,4 @@
-package com.ecolearn.model;
+package com.backend.ecoally.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

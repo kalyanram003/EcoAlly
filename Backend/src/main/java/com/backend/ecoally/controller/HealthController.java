@@ -1,6 +1,6 @@
-package com.ecolearn.controller;
+package com.backend.ecoally.controller;
 
-import com.ecolearn.dto.response.ApiResponse;
+import com.backend.ecoally.dto.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

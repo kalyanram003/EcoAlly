@@ -24,7 +24,7 @@ const mockUsers = [
     email: "alex.johnson@email.com",
     phone: "+1 (555) 123-4567",
     username: "EcoWarrior2024",
-    password: "EcoLearn123!",
+    password: "EcoAlly123!",
     firstName: "Alex",
     lastName: "Johnson",
     dateOfBirth: "2008-06-15",

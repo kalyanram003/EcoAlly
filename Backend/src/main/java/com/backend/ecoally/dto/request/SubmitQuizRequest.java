@@ -1,4 +1,4 @@
-package com.ecolearn.dto.request;
+package com.backend.ecoally.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

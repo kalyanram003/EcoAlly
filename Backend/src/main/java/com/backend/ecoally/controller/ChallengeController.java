@@ -1,14 +1,14 @@
-package com.ecolearn.controller;
+package com.backend.ecoally.controller;
 
-import com.ecolearn.dto.request.CreateChallengeRequest;
-import com.ecolearn.dto.request.ReviewSubmissionRequest;
-import com.ecolearn.dto.response.ApiResponse;
-import com.ecolearn.exception.AppException;
-import com.ecolearn.model.*;
-import com.ecolearn.repository.*;
-import com.ecolearn.service.PointsService;
-import com.ecolearn.service.StorageService;
-import com.ecolearn.service.StreakService;
+import com.backend.ecoally.dto.request.CreateChallengeRequest;
+import com.backend.ecoally.dto.request.ReviewSubmissionRequest;
+import com.backend.ecoally.dto.response.ApiResponse;
+import com.backend.ecoally.exception.AppException;
+import com.backend.ecoally.model.*;
+import com.backend.ecoally.repository.*;
+import com.backend.ecoally.service.PointsService;
+import com.backend.ecoally.service.StorageService;
+import com.backend.ecoally.service.StreakService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

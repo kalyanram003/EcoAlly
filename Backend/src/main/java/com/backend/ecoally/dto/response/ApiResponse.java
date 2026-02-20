@@ -1,4 +1,4 @@
-package com.ecolearn.dto.response;
+package com.backend.ecoally.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;

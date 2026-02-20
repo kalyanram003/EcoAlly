@@ -1,6 +1,6 @@
-package com.ecolearn.config;
+package com.backend.ecoally.config;
 
-import com.ecolearn.security.JwtAuthFilter;
+import com.backend.ecoally.security.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

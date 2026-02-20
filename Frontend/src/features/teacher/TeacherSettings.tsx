@@ -390,11 +390,11 @@ export function TeacherSettings({ currentUser, onLogout }: TeacherSettingsProps)
           </Card>
 
           <Card className="p-6">
-            <h3 className="font-medium text-gray-900 mb-4">About EcoLearn Teacher</h3>
+            <h3 className="font-medium text-gray-900 mb-4">About EcoAlly Teacher</h3>
             <div className="space-y-2 text-sm text-gray-600">
               <p><strong>Version:</strong> 2.1.0</p>
               <p><strong>Last Updated:</strong> March 15, 2024</p>
-              <p><strong>Support Email:</strong> teacher-support@ecolearn.com</p>
+              <p><strong>Support Email:</strong> teacher-support@EcoAlly.com</p>
               <p><strong>Platform Status:</strong> All systems operational</p>
             </div>
           </Card>

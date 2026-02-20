@@ -177,7 +177,7 @@ export function SignUpPage({ onSignUp, onBackToLogin }: SignUpPageProps) {
           <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
             <span className="text-2xl">🌱</span>
           </div>
-          <h1 className="text-white text-2xl font-bold mb-2">Join EcoLearn</h1>
+          <h1 className="text-white text-2xl font-bold mb-2">Join EcoAlly</h1>
           <p className="text-white/80">Start your eco-learning journey today!</p>
         </div>
 

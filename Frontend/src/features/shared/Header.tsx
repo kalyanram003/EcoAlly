@@ -23,7 +23,7 @@ export function Header({ setActiveTab }: HeaderProps) {
           <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm">
             <span className="text-[#2ECC71] text-lg">🌱</span>
           </div>
-          <h1 className="text-white text-xl font-semibold">EcoLearn</h1>
+          <h1 className="text-white text-xl font-semibold">EcoAlly</h1>
         </button>
         
         <div className="flex items-center gap-4">

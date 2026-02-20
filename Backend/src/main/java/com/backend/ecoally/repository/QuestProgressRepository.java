@@ -1,6 +1,6 @@
-package com.ecolearn.repository;
+package com.backend.ecoally.repository;
 
-import com.ecolearn.model.QuestProgress;
+import com.backend.ecoally.model.QuestProgress;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import java.time.LocalDateTime;
 import java.util.Optional;

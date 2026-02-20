@@ -1,6 +1,6 @@
-package com.ecolearn.exception;
+package com.backend.ecoally.exception;
 
-import com.ecolearn.dto.response.ApiResponse;
+import com.backend.ecoally.dto.response.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;

@@ -48,7 +48,7 @@ export function TeacherHeader({
             <span className="text-white text-lg">🌱</span>
           </div>
           <div>
-            <h1 className="font-semibold text-gray-900">EcoLearn Teacher</h1>
+            <h1 className="font-semibold text-gray-900">EcoAlly Teacher</h1>
             <p className="text-sm text-gray-500">Welcome, {currentUser.firstName}</p>
           </div>
         </div>

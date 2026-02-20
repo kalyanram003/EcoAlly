@@ -1,4 +1,4 @@
-package com.ecolearn.config;
+package com.backend.ecoally.config;
 
 import com.cloudinary.Cloudinary;
 import org.springframework.beans.factory.annotation.Value;

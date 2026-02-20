@@ -243,7 +243,7 @@ export function QRScannerPage({ onBack }: QRScannerPageProps) {
         <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
           <h3 className="font-semibold text-blue-800 mb-2">💡 How it works:</h3>
           <div className="space-y-1 text-sm text-blue-700">
-            <p>• Look for EcoLearn QR codes around your campus</p>
+            <p>• Look for EcoAlly QR codes around your campus</p>
             <p>• Scan to unlock exclusive eco tips</p>
             <p>• Earn 25-40 eco points per tip discovered</p>
             <p>• Share tips with friends and family!</p>

@@ -1,4 +1,4 @@
-package com.ecolearn.security;
+package com.backend.ecoally.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

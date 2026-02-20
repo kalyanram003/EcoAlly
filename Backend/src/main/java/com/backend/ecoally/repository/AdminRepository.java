@@ -1,6 +1,6 @@
-package com.ecolearn.repository;
+package com.backend.ecoally.repository;
 
-import com.ecolearn.model.Admin;
+import com.backend.ecoally.model.Admin;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.Optional;
 

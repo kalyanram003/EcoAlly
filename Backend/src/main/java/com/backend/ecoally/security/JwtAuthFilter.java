@@ -1,7 +1,7 @@
-package com.ecolearn.security;
+package com.backend.ecoally.security;
 
-import com.ecolearn.model.User;
-import com.ecolearn.repository.UserRepository;
+import com.backend.ecoally.model.User;
+import com.backend.ecoally.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

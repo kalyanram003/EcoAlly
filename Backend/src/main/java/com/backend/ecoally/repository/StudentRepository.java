@@ -1,6 +1,6 @@
-package com.ecolearn.repository;
+package com.backend.ecoally.repository;
 
-import com.ecolearn.model.Student;
+import com.backend.ecoally.model.Student;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.Optional;
 

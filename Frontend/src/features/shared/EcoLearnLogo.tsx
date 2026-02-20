@@ -1,9 +1,9 @@
-interface EcoLearnLogoProps {
+interface EcoAllyLogoProps {
   size?: "sm" | "md" | "lg" | "xl";
   className?: string;
 }
 
-export function EcoLearnLogo({ size = "md", className = "" }: EcoLearnLogoProps) {
+export function EcoAllyLogo({ size = "md", className = "" }: EcoAllyLogoProps) {
   const sizeClasses = {
     sm: "h-8 w-auto",
     md: "h-12 w-auto", 
@@ -60,7 +60,7 @@ export function EcoLearnLogo({ size = "md", className = "" }: EcoLearnLogoProps)
       {/* App Name */}
       <div className="flex flex-col">
         <span className={`font-bold text-[#2ECC71] ${textSizes[size]} leading-none`}>
-          EcoLearn
+          EcoAlly
         </span>
         {size === "lg" || size === "xl" ? (
           <span className="text-xs text-gray-500 leading-none mt-0.5">

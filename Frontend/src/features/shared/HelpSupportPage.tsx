@@ -21,10 +21,10 @@ export function HelpSupportPage({ onBack }: HelpSupportPageProps) {
         },
         {
           q: "What are the different user types?",
-          a: "EcoLearn supports three user types: Students (participate in activities), Teachers (create content and monitor progress), and Admins (manage institutional settings)."
+          a: "EcoAlly supports three user types: Students (participate in activities), Teachers (create content and monitor progress), and Admins (manage institutional settings)."
         },
         {
-          q: "How do I join my school on EcoLearn?",
+          q: "How do I join my school on EcoAlly?",
           a: "During registration, enter your institution's ID or name. Your teacher or admin will need to approve your account."
         }
       ]
@@ -55,7 +55,7 @@ export function HelpSupportPage({ onBack }: HelpSupportPageProps) {
       questions: [
         {
           q: "How do QR codes work?",
-          a: "Scan QR codes around your school or community using the built-in scanner. Each code reveals an eco-tip and rewards you with points. Look for EcoLearn QR codes on bulletin boards, classrooms, and outdoor areas."
+          a: "Scan QR codes around your school or community using the built-in scanner. Each code reveals an eco-tip and rewards you with points. Look for EcoAlly QR codes on bulletin boards, classrooms, and outdoor areas."
         },
         {
           q: "Can I compete with my friends?",
@@ -134,7 +134,7 @@ export function HelpSupportPage({ onBack }: HelpSupportPageProps) {
           </button>
           <div className="ml-2">
             <h1 className="text-xl font-semibold text-gray-900">Help & Support</h1>
-            <p className="text-sm text-gray-600">Get help with EcoLearn</p>
+            <p className="text-sm text-gray-600">Get help with EcoAlly</p>
           </div>
         </div>
 
@@ -250,7 +250,7 @@ export function HelpSupportPage({ onBack }: HelpSupportPageProps) {
           </h3>
           <div className="space-y-3">
             <a href="#" className="block p-3 rounded-lg hover:bg-gray-50 transition-colors">
-              <h4 className="font-medium text-gray-900">EcoLearn User Guide</h4>
+              <h4 className="font-medium text-gray-900">EcoAlly User Guide</h4>
               <p className="text-sm text-gray-600">Complete guide to using all features</p>
             </a>
             <a href="#" className="block p-3 rounded-lg hover:bg-gray-50 transition-colors">
@@ -259,7 +259,7 @@ export function HelpSupportPage({ onBack }: HelpSupportPageProps) {
             </a>
             <a href="#" className="block p-3 rounded-lg hover:bg-gray-50 transition-colors">
               <h4 className="font-medium text-gray-900">Community Forum</h4>
-              <p className="text-sm text-gray-600">Connect with other EcoLearn users</p>
+              <p className="text-sm text-gray-600">Connect with other EcoAlly users</p>
             </a>
           </div>
         </div>

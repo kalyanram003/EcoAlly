@@ -78,7 +78,7 @@ Contact your teacher or school administrator to exercise these rights.`
     {
       title: "Acceptable Use",
       icon: <Users className="w-5 h-5" />,
-      content: `By using EcoLearn, you agree to:
+      content: `By using EcoAlly, you agree to:
       
 • Use the platform for educational purposes only
 • Respect other users and maintain a positive environment
@@ -93,7 +93,7 @@ Contact your teacher or school administrator to exercise these rights.`
       content: `When you submit content (photos, videos, text):
       
 • You retain ownership of your original content
-• You grant EcoLearn permission to use it for educational purposes
+• You grant EcoAlly permission to use it for educational purposes
 • Content must be appropriate and related to environmental topics
 • We may remove content that violates our guidelines
 • You're responsible for ensuring you have rights to submit content`
@@ -101,7 +101,7 @@ Contact your teacher or school administrator to exercise these rights.`
     {
       title: "Academic Integrity",
       icon: <Shield className="w-5 h-5" />,
-      content: `EcoLearn promotes honest learning:
+      content: `EcoAlly promotes honest learning:
       
 • Complete quizzes and challenges independently
 • Submit only your own work for challenges
@@ -114,7 +114,7 @@ Contact your teacher or school administrator to exercise these rights.`
       icon: <AlertTriangle className="w-5 h-5" />,
       content: `Please note that:
       
-• EcoLearn may occasionally be unavailable for maintenance
+• EcoAlly may occasionally be unavailable for maintenance
 • We strive for 99.9% uptime but cannot guarantee continuous access
 • Your school may restrict access during certain hours
 • Some features may be limited based on your user type
@@ -201,7 +201,7 @@ You'll receive notice before any account termination when possible.`
             <div>
               <h2 className="font-semibold text-gray-900 mb-3">Your Privacy Matters</h2>
               <p className="text-gray-600 text-sm leading-relaxed">
-                EcoLearn is committed to protecting the privacy of students, teachers, and educational institutions. 
+                EcoAlly is committed to protecting the privacy of students, teachers, and educational institutions. 
                 This policy explains what information we collect, how we use it, and your rights regarding your data. 
                 We follow strict educational privacy standards including COPPA and FERPA guidelines.
               </p>
@@ -210,7 +210,7 @@ You'll receive notice before any account termination when possible.`
             <div>
               <h2 className="font-semibold text-gray-900 mb-3">Terms of Service</h2>
               <p className="text-gray-600 text-sm leading-relaxed">
-                By using EcoLearn, you agree to these terms of service. These terms outline your rights and 
+                By using EcoAlly, you agree to these terms of service. These terms outline your rights and 
                 responsibilities when using our educational platform. Please read them carefully and discuss 
                 any questions with your teacher or school administrator.
               </p>
@@ -244,7 +244,7 @@ You'll receive notice before any account termination when possible.`
           </div>
           <p className="text-white/90 text-sm mb-4">
             If you have questions about privacy or terms, please contact your teacher or school administrator. 
-            They can help clarify any concerns and ensure your experience with EcoLearn is safe and positive.
+            They can help clarify any concerns and ensure your experience with EcoAlly is safe and positive.
           </p>
           <div className="bg-white/20 rounded-lg p-3">
             <p className="text-sm">
@@ -260,7 +260,7 @@ You'll receive notice before any account termination when possible.`
             <h3 className="font-medium text-amber-800">Important Notice</h3>
           </div>
           <p className="text-amber-700 text-sm">
-            EcoLearn is designed for educational use under school supervision. Students under 13 require 
+            EcoAlly is designed for educational use under school supervision. Students under 13 require 
             parental consent and teacher oversight for account creation and platform usage.
           </p>
         </div>

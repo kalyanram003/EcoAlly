@@ -1,6 +1,6 @@
-package com.ecolearn.dto.request;
+package com.backend.ecoally.dto.request;
 
-import com.ecolearn.model.Challenge;
+import com.backend.ecoally.model.Challenge;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
