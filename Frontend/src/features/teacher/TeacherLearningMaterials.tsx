@@ -30,7 +30,7 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
   const categories = [
     "Water Conservation",
     "Renewable Energy",
-    "Climate Change", 
+    "Climate Change",
     "Biodiversity",
     "Pollution Control",
     "Sustainable Living",
@@ -145,18 +145,23 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
   return (
     <div className="p-4 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold text-gray-900">Learning Materials</h2>
-          <p className="text-sm text-gray-600">Share educational content with your students</p>
+      <div className="flex flex-col space-y-4">
+        <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg text-sm">
+          🚧 <strong>Demo Mode:</strong> This page currently displays mock data. Backend integration for learning materials is coming soon.
         </div>
-        <Button 
-          onClick={() => setShowAddMaterial(true)}
-          className="bg-[#2ECC71] hover:bg-[#27AE60] text-white"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Add Material
-        </Button>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">Learning Materials</h2>
+            <p className="text-sm text-gray-600">Share educational content with your students</p>
+          </div>
+          <Button
+            onClick={() => setShowAddMaterial(true)}
+            className="bg-[#2ECC71] hover:bg-[#27AE60] text-white"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Material
+          </Button>
+        </div>
       </div>
 
       {/* Material Types Overview */}
@@ -214,7 +219,7 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
                   <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
                     <Icon className={`w-6 h-6 ${getTypeColor(material.type)}`} />
                   </div>
-                  
+
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between mb-2">
                       <div>
@@ -308,12 +313,11 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
                     return (
                       <button
                         key={type.id}
-                        onClick={() => setMaterialForm({...materialForm, type: type.id})}
-                        className={`flex items-center space-x-2 p-3 rounded-lg border-2 transition-all ${
-                          materialForm.type === type.id
+                        onClick={() => setMaterialForm({ ...materialForm, type: type.id })}
+                        className={`flex items-center space-x-2 p-3 rounded-lg border-2 transition-all ${materialForm.type === type.id
                             ? "border-[#2ECC71] bg-[#2ECC71]/5"
                             : "border-gray-200 hover:border-gray-300"
-                        }`}
+                          }`}
                       >
                         <Icon className={`w-5 h-5 ${type.color}`} />
                         <span className="text-sm font-medium">{type.name}</span>
@@ -331,7 +335,7 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
                 <input
                   type="text"
                   value={materialForm.title}
-                  onChange={(e) => setMaterialForm({...materialForm, title: e.target.value})}
+                  onChange={(e) => setMaterialForm({ ...materialForm, title: e.target.value })}
                   placeholder="Enter material title"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71]"
                 />
@@ -344,7 +348,7 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
                 </label>
                 <textarea
                   value={materialForm.description}
-                  onChange={(e) => setMaterialForm({...materialForm, description: e.target.value})}
+                  onChange={(e) => setMaterialForm({ ...materialForm, description: e.target.value })}
                   placeholder="Describe the learning material"
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71]"
@@ -358,7 +362,7 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
                 </label>
                 <select
                   value={materialForm.category}
-                  onChange={(e) => setMaterialForm({...materialForm, category: e.target.value})}
+                  onChange={(e) => setMaterialForm({ ...materialForm, category: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71]"
                 >
                   <option value="">Select Category</option>
@@ -390,7 +394,7 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
                   <input
                     type="url"
                     value={materialForm.fileUrl}
-                    onChange={(e) => setMaterialForm({...materialForm, fileUrl: e.target.value})}
+                    onChange={(e) => setMaterialForm({ ...materialForm, fileUrl: e.target.value })}
                     placeholder="Enter YouTube URL or upload video file"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71]"
                   />
@@ -405,7 +409,7 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
                   <input
                     type="url"
                     value={materialForm.fileUrl}
-                    onChange={(e) => setMaterialForm({...materialForm, fileUrl: e.target.value})}
+                    onChange={(e) => setMaterialForm({ ...materialForm, fileUrl: e.target.value })}
                     placeholder="https://example.com"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71]"
                   />
@@ -433,7 +437,7 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
                 <input
                   type="text"
                   value={materialForm.tags}
-                  onChange={(e) => setMaterialForm({...materialForm, tags: e.target.value})}
+                  onChange={(e) => setMaterialForm({ ...materialForm, tags: e.target.value })}
                   placeholder="e.g., water, conservation, tips"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71]"
                 />
@@ -441,13 +445,13 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
 
               {/* Action Buttons */}
               <div className="flex items-center space-x-3 pt-4">
-                <Button 
+                <Button
                   onClick={handleAddMaterial}
                   className="flex-1 bg-[#2ECC71] hover:bg-[#27AE60] text-white"
                 >
                   Share with Class
                 </Button>
-                <Button 
+                <Button
                   onClick={() => setShowAddMaterial(false)}
                   variant="outline"
                   className="flex-1"

@@ -31,23 +31,25 @@ export function QuizTab() {
   const [showResults, setShowResults] = useState(false);
 
   useEffect(() => {
-    api
-      .getQuizzes()
-      .then((data) => {
-        const mapped: Quiz[] = data.map((q: any) => ({
+    Promise.all([api.getQuizzes(), api.getMyAttempts()])
+      .then(([quizData, attemptsData]) => {
+        const completedQuizIds = new Set(
+          attemptsData
+            .filter((a: any) => a.score >= 50) // Or whatever completion logic you need
+            .map((a: any) => a.quizId)
+        );
+
+        const mapped: Quiz[] = quizData.map((q: any) => ({
           id: q.id,
           title: q.title,
           description: q.description ?? "",
-          // backend sends an array; frontend expects a count
           questions: Array.isArray(q.questions) ? q.questions.length : (q.questions ?? 0),
-          // derive rough point value from difficulty
           points:
             q.difficulty === "EASY" ? 50 : q.difficulty === "MEDIUM" ? 100 : 150,
-          // "EASY" → "Easy"
           difficulty: (q.difficulty
             ? q.difficulty.charAt(0) + q.difficulty.slice(1).toLowerCase()
             : "Easy") as "Easy" | "Medium" | "Hard",
-          completed: false,
+          completed: completedQuizIds.has(q.id),
           icon: "🌿",
           color: "bg-green-100",
         }));

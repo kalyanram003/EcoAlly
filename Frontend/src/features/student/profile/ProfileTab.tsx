@@ -115,7 +115,12 @@ export function ProfileTab({
     api.getProfile().then((data) => {
       setUserProfile({
         id: data.userId ?? "",
-        name: `${data.firstName ?? ""} ${data.lastName ?? ""}`.trim() || data.username || "Student",
+        name:
+          data.name ??
+          data.fullName ??
+          (`${data.firstName ?? ""} ${data.lastName ?? ""}`.trim() ||
+            data.username ||
+            "Student"),
         email: data.email ?? "",
         avatar: data.avatarUrl ?? "👤",
         level: Math.max(1, Math.floor(userPoints / 200) + 1),
@@ -564,7 +569,7 @@ export function ProfileTab({
 
       {activeSection === "store" && (
         <VirtualStore
-          currentPoints={userCoins}
+          currentCoins={userCoins}
           onPurchase={onPurchase}
           onOpenChest={(chestId) => console.log(`Opening chest: ${chestId}`)}
         />

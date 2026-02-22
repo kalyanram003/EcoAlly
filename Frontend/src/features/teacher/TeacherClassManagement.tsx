@@ -68,26 +68,30 @@ export function TeacherClassManagement({ currentUser, selectedClass, onClassChan
   return (
     <div className="p-4 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold text-gray-900">Class Management</h2>
-          <p className="text-sm text-gray-600">Manage your classes and student groups</p>
+      <div className="flex flex-col space-y-4">
+        <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg text-sm">
+          🚧 <strong>Demo Mode:</strong> This page currently displays mock data. Backend integration for class management is coming soon.
         </div>
-        <Button 
-          onClick={() => setShowAddClass(true)}
-          className="bg-[#2ECC71] hover:bg-[#27AE60] text-white"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Add Class
-        </Button>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">Class Management</h2>
+            <p className="text-sm text-gray-600">Manage your classes and student groups</p>
+          </div>
+          <Button
+            onClick={() => setShowAddClass(true)}
+            className="bg-[#2ECC71] hover:bg-[#27AE60] text-white"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Class
+          </Button>
+        </div>
       </div>
 
       {/* Classes Grid */}
       <div className="space-y-4">
         {classes.map((classData) => (
-          <Card key={classData.id} className={`p-4 cursor-pointer transition-all ${
-            selectedClass === classData.id ? "ring-2 ring-[#2ECC71] bg-[#2ECC71]/5" : "hover:shadow-md"
-          }`}>
+          <Card key={classData.id} className={`p-4 cursor-pointer transition-all ${selectedClass === classData.id ? "ring-2 ring-[#2ECC71] bg-[#2ECC71]/5" : "hover:shadow-md"
+            }`}>
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center space-x-3">
                 <div className="w-12 h-12 bg-[#2ECC71] rounded-lg flex items-center justify-center">
@@ -98,13 +102,12 @@ export function TeacherClassManagement({ currentUser, selectedClass, onClassChan
                   <p className="text-sm text-gray-600">{classData.subject}</p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => onClassChange(classData.id)}
-                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                  selectedClass === classData.id 
-                    ? "bg-[#2ECC71] text-white" 
+                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${selectedClass === classData.id
+                    ? "bg-[#2ECC71] text-white"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+                  }`}
               >
                 {selectedClass === classData.id ? "Current" : "Select"}
               </button>
@@ -133,7 +136,7 @@ export function TeacherClassManagement({ currentUser, selectedClass, onClassChan
                 <span className="text-xs text-gray-600">{classData.progress}%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
+                <div
                   className="bg-[#2ECC71] h-2 rounded-full transition-all duration-300"
                   style={{ width: `${classData.progress}%` }}
                 />
@@ -172,7 +175,7 @@ export function TeacherClassManagement({ currentUser, selectedClass, onClassChan
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl p-6 w-full max-w-sm">
             <h3 className="font-semibold text-gray-900 mb-4">Add New Class</h3>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -186,7 +189,7 @@ export function TeacherClassManagement({ currentUser, selectedClass, onClassChan
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71]"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Subject
@@ -199,7 +202,7 @@ export function TeacherClassManagement({ currentUser, selectedClass, onClassChan
                   <option>Physics</option>
                 </select>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Schedule
@@ -213,13 +216,13 @@ export function TeacherClassManagement({ currentUser, selectedClass, onClassChan
             </div>
 
             <div className="flex items-center space-x-3 mt-6">
-              <Button 
+              <Button
                 onClick={handleAddClass}
                 className="flex-1 bg-[#2ECC71] hover:bg-[#27AE60] text-white"
               >
                 Create Class
               </Button>
-              <Button 
+              <Button
                 onClick={() => setShowAddClass(false)}
                 variant="outline"
                 className="flex-1"

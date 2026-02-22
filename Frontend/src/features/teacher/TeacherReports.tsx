@@ -61,18 +61,23 @@ export function TeacherReports({ currentUser, selectedClass }: TeacherReportsPro
   return (
     <div className="p-4 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold text-gray-900">Class Reports</h2>
-          <p className="text-sm text-gray-600">Analyze student performance and engagement</p>
+      <div className="flex flex-col space-y-4">
+        <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg text-sm">
+          🚧 <strong>Demo Mode:</strong> This page currently displays mock data. Backend integration for reporting is coming soon.
         </div>
-        <Button 
-          onClick={generateReport}
-          className="bg-[#2ECC71] hover:bg-[#27AE60] text-white"
-        >
-          <Download className="w-4 h-4 mr-2" />
-          Export Report
-        </Button>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">Class Reports</h2>
+            <p className="text-sm text-gray-600">Analyze student performance and engagement</p>
+          </div>
+          <Button
+            onClick={generateReport}
+            className="bg-[#2ECC71] hover:bg-[#27AE60] text-white"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Export Report
+          </Button>
+        </div>
       </div>
 
       {/* Report Controls */}
@@ -80,7 +85,7 @@ export function TeacherReports({ currentUser, selectedClass }: TeacherReportsPro
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-medium text-gray-900">Report Configuration</h3>
         </div>
-        
+
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -97,7 +102,7 @@ export function TeacherReports({ currentUser, selectedClass }: TeacherReportsPro
               <option value="progress">Learning Progress</option>
             </select>
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Time Range
@@ -129,7 +134,7 @@ export function TeacherReports({ currentUser, selectedClass }: TeacherReportsPro
                 <Users className="w-8 h-8 text-[#2ECC71]" />
               </div>
             </Card>
-            
+
             <Card className="p-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -139,7 +144,7 @@ export function TeacherReports({ currentUser, selectedClass }: TeacherReportsPro
                 <TrendingUp className="w-8 h-8 text-[#2ECC71]" />
               </div>
             </Card>
-            
+
             <Card className="p-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -149,7 +154,7 @@ export function TeacherReports({ currentUser, selectedClass }: TeacherReportsPro
                 <BarChart3 className="w-8 h-8 text-blue-600" />
               </div>
             </Card>
-            
+
             <Card className="p-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -269,7 +274,7 @@ export function TeacherReports({ currentUser, selectedClass }: TeacherReportsPro
                     <span className="text-sm text-gray-600">{category.completion}% completion</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
+                    <div
                       className="bg-[#2ECC71] h-2 rounded-full transition-all duration-300"
                       style={{ width: `${category.completion}%` }}
                     />
@@ -311,7 +316,7 @@ export function TeacherReports({ currentUser, selectedClass }: TeacherReportsPro
           <p className="text-sm text-gray-600 mb-4">
             Select specific students to generate detailed individual progress reports
           </p>
-          
+
           <div className="space-y-2 mb-4">
             {topStudents.map((student, index) => (
               <label key={index} className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer">
@@ -321,7 +326,7 @@ export function TeacherReports({ currentUser, selectedClass }: TeacherReportsPro
               </label>
             ))}
           </div>
-          
+
           <Button className="w-full bg-[#2ECC71] hover:bg-[#27AE60] text-white">
             Generate Individual Reports
           </Button>

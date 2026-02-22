@@ -167,7 +167,7 @@ export function SocialFeatures({ onJoinTeam, onGiveKudo }: SocialFeaturesProps) 
     const diff = deadline.getTime() - now.getTime();
     const days = Math.floor(diff / (24 * 60 * 60 * 1000));
     const hours = Math.floor((diff % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
-    
+
     if (days > 0) return `${days}d ${hours}h`;
     return `${hours}h`;
   };
@@ -177,7 +177,7 @@ export function SocialFeatures({ onJoinTeam, onGiveKudo }: SocialFeaturesProps) 
     const diff = now.getTime() - timestamp.getTime();
     const hours = Math.floor(diff / (60 * 60 * 1000));
     const days = Math.floor(diff / (24 * 60 * 60 * 1000));
-    
+
     if (days > 0) return `${days}d ago`;
     if (hours > 0) return `${hours}h ago`;
     return "Just now";
@@ -186,36 +186,36 @@ export function SocialFeatures({ onJoinTeam, onGiveKudo }: SocialFeaturesProps) 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="text-center">
+      <div className="text-center mb-6">
         <h2 className="text-2xl font-bold mb-2">🤝 Social Hub</h2>
-        <p className="text-gray-600">Team up and support each other's eco journey!</p>
+        <p className="text-gray-600 mb-4">Team up and support each other's eco journey!</p>
+        <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg text-sm mb-4">
+          🚧 <strong>Coming Soon:</strong> Social features (kudos, teams) are not yet backed by the database. Actions here will not be saved.
+        </div>
       </div>
 
       {/* Tab Navigation */}
       <div className="flex gap-1 p-1 bg-gray-100 rounded-lg">
         <button
           onClick={() => setActiveTab("teams")}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md font-medium transition-colors ${
-            activeTab === "teams" ? "bg-blue-500 text-white" : "bg-transparent text-gray-600"
-          }`}
+          className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md font-medium transition-colors ${activeTab === "teams" ? "bg-blue-500 text-white" : "bg-transparent text-gray-600"
+            }`}
         >
           <Users className="w-4 h-4" />
           Teams
         </button>
         <button
           onClick={() => setActiveTab("coop")}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md font-medium transition-colors ${
-            activeTab === "coop" ? "bg-green-500 text-white" : "bg-transparent text-gray-600"
-          }`}
+          className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md font-medium transition-colors ${activeTab === "coop" ? "bg-green-500 text-white" : "bg-transparent text-gray-600"
+            }`}
         >
           <Target className="w-4 h-4" />
           Co-op
         </button>
         <button
           onClick={() => setActiveTab("kudos")}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md font-medium transition-colors ${
-            activeTab === "kudos" ? "bg-pink-500 text-white" : "bg-transparent text-gray-600"
-          }`}
+          className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md font-medium transition-colors ${activeTab === "kudos" ? "bg-pink-500 text-white" : "bg-transparent text-gray-600"
+            }`}
         >
           <Heart className="w-4 h-4" />
           Kudos
@@ -267,9 +267,8 @@ export function SocialFeatures({ onJoinTeam, onGiveKudo }: SocialFeaturesProps) 
             </h4>
             <div className="space-y-3">
               {currentUserTeam.members.map((member) => (
-                <div key={member.id} className={`flex items-center justify-between p-3 rounded-lg ${
-                  member.isCurrentUser ? "bg-green-50 border border-green-200" : "bg-gray-50"
-                }`}>
+                <div key={member.id} className={`flex items-center justify-between p-3 rounded-lg ${member.isCurrentUser ? "bg-green-50 border border-green-200" : "bg-gray-50"
+                  }`}>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
                       <span className="text-lg">{member.avatar}</span>
@@ -341,7 +340,7 @@ export function SocialFeatures({ onJoinTeam, onGiveKudo }: SocialFeaturesProps) 
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-3">
-                  <div 
+                  <div
                     className="bg-green-500 h-3 rounded-full transition-all duration-500"
                     style={{ width: `${Math.min((challenge.currentValue / challenge.targetValue) * 100, 100)}%` }}
                   />
@@ -372,14 +371,13 @@ export function SocialFeatures({ onJoinTeam, onGiveKudo }: SocialFeaturesProps) 
             </h4>
             <div className="space-y-2">
               {[currentUserTeam, ...availableTeams].sort((a, b) => b.weeklyPoints - a.weeklyPoints).map((team, index) => (
-                <div key={team.id} className={`flex items-center justify-between p-3 rounded-lg ${
-                  team.id === currentUserTeam.id ? "bg-green-50 border border-green-200" : "bg-gray-50"
-                }`}>
+                <div key={team.id} className={`flex items-center justify-between p-3 rounded-lg ${team.id === currentUserTeam.id ? "bg-green-50 border border-green-200" : "bg-gray-50"
+                  }`}>
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 flex items-center justify-center">
-                      {index === 0 ? <Crown className="w-5 h-5 text-yellow-500" /> : 
-                       index === 1 ? <Trophy className="w-5 h-5 text-gray-400" /> :
-                       <span className="font-bold text-gray-500">#{index + 1}</span>}
+                      {index === 0 ? <Crown className="w-5 h-5 text-yellow-500" /> :
+                        index === 1 ? <Trophy className="w-5 h-5 text-gray-400" /> :
+                          <span className="font-bold text-gray-500">#{index + 1}</span>}
                     </div>
                     <span className="text-lg">{team.emoji}</span>
                     <div>
@@ -398,7 +396,7 @@ export function SocialFeatures({ onJoinTeam, onGiveKudo }: SocialFeaturesProps) 
       {activeTab === "kudos" && (
         <div className="space-y-4">
           {/* Give Kudos Button */}
-          <Button 
+          <Button
             onClick={() => setShowKudoForm(!showKudoForm)}
             className="w-full bg-pink-500 hover:bg-pink-600 text-white"
           >
@@ -418,7 +416,7 @@ export function SocialFeatures({ onJoinTeam, onGiveKudo }: SocialFeaturesProps) 
                 rows={3}
               />
               <div className="flex gap-2 mt-3">
-                <Button 
+                <Button
                   onClick={() => {
                     onGiveKudo?.("teammate", kudoMessage);
                     setKudoMessage("");
@@ -429,7 +427,7 @@ export function SocialFeatures({ onJoinTeam, onGiveKudo }: SocialFeaturesProps) 
                 >
                   Send Kudos
                 </Button>
-                <Button 
+                <Button
                   variant="outline"
                   onClick={() => setShowKudoForm(false)}
                 >

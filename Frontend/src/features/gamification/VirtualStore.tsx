@@ -262,14 +262,14 @@ export function VirtualStore({ currentCoins, onPurchase, onOpenChest }: VirtualS
       {/* Header */}
       <div className="text-center">
         <h2 className="text-2xl font-bold mb-2">🛍️ Eco Market</h2>
-        <p className="text-gray-600">Spend your eco points on amazing rewards!</p>
+        <p className="text-gray-600">Spend your eco coins on amazing rewards!</p>
 
-        {/* Points Display */}
+        {/* Coins Display */}
         <div className="bg-gradient-to-r from-[#2ECC71] to-[#27AE60] rounded-xl p-4 mt-4 text-white">
           <div className="flex items-center justify-center gap-2">
             <Coins className="w-6 h-6" />
-            <span className="text-2xl font-bold">{currentPoints.toLocaleString()}</span>
-            <span className="text-white/80">Eco Points</span>
+            <span className="text-2xl font-bold">{currentCoins.toLocaleString()}</span>
+            <span className="text-white/80">Eco Coins</span>
           </div>
         </div>
       </div>
@@ -331,10 +331,10 @@ export function VirtualStore({ currentCoins, onPurchase, onOpenChest }: VirtualS
                 <Button
                   onClick={() => onOpenChest?.(chest.id)}
                   className="w-full bg-[#2ECC71] hover:bg-[#27AE60] text-white"
-                  disabled={currentPoints < chest.price}
+                  disabled={currentCoins < chest.price}
                 >
                   <Gift className="w-4 h-4 mr-2" />
-                  Open Chest - {chest.price} points
+                  Open Chest - {chest.price} coins
                 </Button>
               </div>
             ))}
@@ -386,10 +386,10 @@ export function VirtualStore({ currentCoins, onPurchase, onOpenChest }: VirtualS
                     }
                   }}
                   className="w-full bg-[#2ECC71] hover:bg-[#27AE60] text-white"
-                  disabled={currentPoints < item.price}
+                  disabled={currentCoins < item.price}
                 >
                   <ShoppingCart className="w-4 h-4 mr-2" />
-                  Purchase - {item.price} points
+                  Purchase - {item.price} coins
                 </Button>
               )}
 
@@ -420,13 +420,13 @@ export function VirtualStore({ currentCoins, onPurchase, onOpenChest }: VirtualS
           <div>
             <span className="text-gray-600">Can afford:</span>
             <div className="font-bold text-green-600">
-              {filteredItems.filter(item => !item.owned && currentPoints >= item.price).length} items
+              {filteredItems.filter(item => !item.owned && currentCoins >= item.price).length} items
             </div>
           </div>
           <div>
             <span className="text-gray-600">Next unlock:</span>
             <div className="font-bold text-blue-600">
-              {filteredItems.find(item => !item.owned && currentPoints < item.price)?.price || 0} points
+              {filteredItems.find(item => !item.owned && currentCoins < item.price)?.price || 0} coins
             </div>
           </div>
         </div>

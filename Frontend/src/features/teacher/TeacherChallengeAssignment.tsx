@@ -167,18 +167,23 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
   return (
     <div className="p-4 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold text-gray-900">Challenge Assignment</h2>
-          <p className="text-sm text-gray-600">Create and assign challenges to your class</p>
+      <div className="flex flex-col space-y-4">
+        <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg text-sm">
+          🚧 <strong>Demo Mode:</strong> This page currently displays mock data. Backend integration for assignment creation is coming soon.
         </div>
-        <Button 
-          onClick={() => setShowCreateChallenge(true)}
-          className="bg-[#2ECC71] hover:bg-[#27AE60] text-white"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Create Challenge
-        </Button>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">Challenge Assignment</h2>
+            <p className="text-sm text-gray-600">Create and assign challenges to your class</p>
+          </div>
+          <Button
+            onClick={() => setShowCreateChallenge(true)}
+            className="bg-[#2ECC71] hover:bg-[#27AE60] text-white"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Create Challenge
+          </Button>
+        </div>
       </div>
 
       {/* Challenge Types Overview */}
@@ -240,7 +245,7 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
                   <span className="text-sm text-gray-600">{challenge.completed}/{challenge.participants} students</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
+                  <div
                     className="bg-[#2ECC71] h-2 rounded-full transition-all duration-300"
                     style={{ width: `${(challenge.completed / challenge.participants) * 100}%` }}
                   />
@@ -310,13 +315,12 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
                         key={type.id}
                         onClick={() => {
                           setSelectedChallengeType(type.id);
-                          setChallengeForm({...challengeForm, type: type.id});
+                          setChallengeForm({ ...challengeForm, type: type.id });
                         }}
-                        className={`flex items-center space-x-2 p-3 rounded-lg border-2 transition-all ${
-                          selectedChallengeType === type.id
+                        className={`flex items-center space-x-2 p-3 rounded-lg border-2 transition-all ${selectedChallengeType === type.id
                             ? "border-[#2ECC71] bg-[#2ECC71]/5"
                             : "border-gray-200 hover:border-gray-300"
-                        }`}
+                          }`}
                       >
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${type.color}`}>
                           <Icon className="w-4 h-4" />
@@ -338,7 +342,7 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
                     {predefinedChallenges[selectedChallengeType as keyof typeof predefinedChallenges]?.map((template, index) => (
                       <button
                         key={index}
-                        onClick={() => setChallengeForm({...challengeForm, title: template})}
+                        onClick={() => setChallengeForm({ ...challengeForm, title: template })}
                         className="w-full text-left p-2 text-sm text-gray-700 hover:bg-gray-50 rounded border border-gray-200"
                       >
                         {template}
@@ -356,7 +360,7 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
                 <input
                   type="text"
                   value={challengeForm.title}
-                  onChange={(e) => setChallengeForm({...challengeForm, title: e.target.value})}
+                  onChange={(e) => setChallengeForm({ ...challengeForm, title: e.target.value })}
                   placeholder="Enter challenge title"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71]"
                 />
@@ -369,7 +373,7 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
                 </label>
                 <textarea
                   value={challengeForm.description}
-                  onChange={(e) => setChallengeForm({...challengeForm, description: e.target.value})}
+                  onChange={(e) => setChallengeForm({ ...challengeForm, description: e.target.value })}
                   placeholder="Describe the challenge objectives and instructions"
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71]"
@@ -384,7 +388,7 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
                   </label>
                   <select
                     value={challengeForm.difficulty}
-                    onChange={(e) => setChallengeForm({...challengeForm, difficulty: e.target.value})}
+                    onChange={(e) => setChallengeForm({ ...challengeForm, difficulty: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71]"
                   >
                     <option value="easy">Easy</option>
@@ -399,7 +403,7 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
                   <input
                     type="number"
                     value={challengeForm.duration}
-                    onChange={(e) => setChallengeForm({...challengeForm, duration: e.target.value})}
+                    onChange={(e) => setChallengeForm({ ...challengeForm, duration: e.target.value })}
                     min="1"
                     max="30"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71]"
@@ -416,7 +420,7 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
                   <input
                     type="number"
                     value={challengeForm.points}
-                    onChange={(e) => setChallengeForm({...challengeForm, points: parseInt(e.target.value)})}
+                    onChange={(e) => setChallengeForm({ ...challengeForm, points: parseInt(e.target.value) })}
                     min="10"
                     max="500"
                     step="10"
@@ -430,7 +434,7 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
                   <input
                     type="date"
                     value={challengeForm.deadline}
-                    onChange={(e) => setChallengeForm({...challengeForm, deadline: e.target.value})}
+                    onChange={(e) => setChallengeForm({ ...challengeForm, deadline: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71]"
                   />
                 </div>
@@ -438,14 +442,14 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
 
               {/* Action Buttons */}
               <div className="flex items-center space-x-3 pt-4">
-                <Button 
+                <Button
                   onClick={handleCreateChallenge}
                   className="flex-1 bg-[#2ECC71] hover:bg-[#27AE60] text-white"
                 >
                   <Send className="w-4 h-4 mr-2" />
                   Assign to Class
                 </Button>
-                <Button 
+                <Button
                   onClick={() => setShowCreateChallenge(false)}
                   variant="outline"
                   className="flex-1"

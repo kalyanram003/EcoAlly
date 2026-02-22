@@ -168,26 +168,31 @@ const LOCAL_GAME_CHALLENGES: Challenge[] = [
 export function ChallengesTab() {
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(null);
+  const [loading, setLoading] = useState(true); // Added loading state
 
   useEffect(() => {
-    api
-      .getChallenges()
-      .then((data) => {
-        const fromApi: Challenge[] = data.map((c: any) => ({
+    Promise.all([api.getChallenges(), api.getMySubmissions()])
+      .then(([challengeData, submissionsData]) => {
+        const completedSubmissionIds = new Set(
+          submissionsData
+            // Check status if there is an approval process, or just that a submission exists
+            .filter((s: any) => s.status === "APPROVED" || s.status === "PENDING" || s.status === "REJECTED" || s.id)
+            .map((s: any) => s.challengeId)
+        );
+
+        const fromApi: Challenge[] = challengeData.map((c: any) => ({
           id: c.id,
           title: c.title,
           description: c.description ?? "",
           points: c.points ?? 0,
-          // "EASY" → "Easy"
+          type: (c.type ? c.type.toLowerCase() : "action") as Challenge["type"],
           difficulty: (c.difficulty
             ? c.difficulty.charAt(0) + c.difficulty.slice(1).toLowerCase()
-            : "Easy") as "Easy" | "Medium" | "Hard",
-          // "PHOTO" → "photo"
-          type: (c.type ? c.type.toLowerCase() : "action") as Challenge["type"],
+            : "Medium") as "Easy" | "Medium" | "Hard",
           duration: c.duration ?? "1 Hour",
-          completed: false,
+          completed: completedSubmissionIds.has(c.id),
           participants: 0,
-          icon: c.icon ?? "🌿",
+          icon: c.icon ?? "🌍",
           color: c.color ?? "bg-green-100",
           requirements: c.requirements ?? [],
           tips: c.tips ?? [],
