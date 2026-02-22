@@ -117,16 +117,15 @@ export function LeaderboardTab() {
   const sortedData = getSortedData();
 
   return (
-    <div className="p-4">
-      {/* Header */}
-      <div className="text-center mb-6">
-        <h1 className="text-2xl font-semibold mb-2">Leaderboard</h1>
-        <p className="text-gray-600">See how you rank against other eco-warriors!</p>
+    <div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Leaderboard</h1>
+        <p className="text-gray-500 text-sm mt-1">See how you rank among your peers</p>
       </div>
 
       {/* Current User Stats */}
       {currentUser && (
-        <div className="bg-gradient-to-r from-[#2ECC71] to-[#27AE60] rounded-xl p-4 mb-6 text-white">
+        <div className="bg-gradient-to-r from-[var(--forest-600)] to-[var(--forest-700)] rounded-xl p-4 mb-6 text-white">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
@@ -161,11 +160,12 @@ export function LeaderboardTab() {
       )}
 
       {/* Category Tabs - global leaderboard only */}
-      <div className="flex gap-2 mb-6 overflow-x-auto">
+      <div className="overflow-x-auto pb-2 mb-6">
+        <div className="bg-white rounded-2xl p-1 border border-[var(--border)] inline-flex gap-1">
         <button
           onClick={() => setActiveCategory("total")}
           className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap flex items-center gap-2 ${activeCategory === "total"
-            ? "bg-[#2ECC71] text-white"
+            ? "bg-[var(--forest-600)] text-white"
             : "bg-gray-100 text-gray-600"
             }`}
         >
@@ -175,7 +175,7 @@ export function LeaderboardTab() {
         <button
           onClick={() => setActiveCategory("challenges")}
           className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${activeCategory === "challenges"
-            ? "bg-[#2ECC71] text-white"
+            ? "bg-[var(--forest-600)] text-white"
             : "bg-gray-100 text-gray-600"
             }`}
         >
@@ -184,12 +184,13 @@ export function LeaderboardTab() {
         <button
           onClick={() => setActiveCategory("quizzes")}
           className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${activeCategory === "quizzes"
-            ? "bg-[#2ECC71] text-white"
+            ? "bg-[var(--forest-600)] text-white"
             : "bg-gray-100 text-gray-600"
             }`}
         >
           🧠 Quizzes
         </button>
+        </div>
       </div>
 
       {/* Top 3 Podium */}
@@ -235,15 +236,16 @@ export function LeaderboardTab() {
       </div>
 
       {/* Full Rankings List */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div className="p-4 border-b border-gray-100">
-          <h3 className="font-semibold">Full Rankings</h3>
-        </div>
-        <div className="divide-y divide-gray-100">
+      <div className="overflow-x-auto rounded-2xl border border-[var(--border)] shadow-[var(--shadow-xs)]">
+        <div className="bg-white min-w-0">
+          <div className="p-4 border-b border-gray-100">
+            <h3 className="font-semibold">Full Rankings</h3>
+          </div>
+          <div className="divide-y divide-gray-100">
           {sortedData.map((user, index) => (
             <div
               key={user.id}
-              className={`p-4 flex items-center gap-4 ${user.isCurrentUser ? "bg-[#2ECC71]/10 border-l-4 border-[#2ECC71]" : ""
+              className={`p-4 flex items-center gap-4 ${user.isCurrentUser ? "bg-[var(--forest-50)] border-l-4 border-[var(--forest-600)]" : ""
                 }`}
             >
               <div className="flex-shrink-0">
@@ -256,9 +258,9 @@ export function LeaderboardTab() {
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <h4 className={`font-medium ${user.isCurrentUser ? "text-[#2ECC71]" : ""}`}>
+                  <h4 className={`font-medium ${user.isCurrentUser ? "text-[var(--forest-600)]" : ""}`}>
                     {user.name}
-                    {user.isCurrentUser && <span className="ml-2 text-xs bg-[#2ECC71] text-white px-2 py-1 rounded-full">You</span>}
+                    {user.isCurrentUser && <span className="ml-2 text-xs bg-[var(--forest-600)] text-white px-2 py-1 rounded-full">You</span>}
                   </h4>
                   <div className="text-right">
                     <div className="font-semibold">{getCategoryValue(user)}</div>
@@ -278,6 +280,7 @@ export function LeaderboardTab() {
               </div>
             </div>
           ))}
+          </div>
         </div>
       </div>
 

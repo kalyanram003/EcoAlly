@@ -129,7 +129,7 @@ export function TeacherSettings({ currentUser, onLogout }: TeacherSettingsProps)
                     value={formData.firstName}
                     onChange={(e) => setFormData({...formData, firstName: e.target.value})}
                     disabled={!isEditing}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71] disabled:bg-gray-50"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[var(--forest-600)] focus:border-[var(--forest-600)] disabled:bg-gray-50"
                   />
                 </div>
                 <div>
@@ -141,7 +141,7 @@ export function TeacherSettings({ currentUser, onLogout }: TeacherSettingsProps)
                     value={formData.lastName}
                     onChange={(e) => setFormData({...formData, lastName: e.target.value})}
                     disabled={!isEditing}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71] disabled:bg-gray-50"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[var(--forest-600)] focus:border-[var(--forest-600)] disabled:bg-gray-50"
                   />
                 </div>
               </div>
@@ -155,7 +155,7 @@ export function TeacherSettings({ currentUser, onLogout }: TeacherSettingsProps)
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
                   disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71] disabled:bg-gray-50"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[var(--forest-600)] focus:border-[var(--forest-600)] disabled:bg-gray-50"
                 />
               </div>
 
@@ -168,7 +168,7 @@ export function TeacherSettings({ currentUser, onLogout }: TeacherSettingsProps)
                   value={formData.phone}
                   onChange={(e) => setFormData({...formData, phone: e.target.value})}
                   disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71] disabled:bg-gray-50"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[var(--forest-600)] focus:border-[var(--forest-600)] disabled:bg-gray-50"
                 />
               </div>
 
@@ -181,7 +181,7 @@ export function TeacherSettings({ currentUser, onLogout }: TeacherSettingsProps)
                   value={formData.instituteName}
                   onChange={(e) => setFormData({...formData, instituteName: e.target.value})}
                   disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71] disabled:bg-gray-50"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[var(--forest-600)] focus:border-[var(--forest-600)] disabled:bg-gray-50"
                 />
               </div>
 
@@ -207,7 +207,7 @@ export function TeacherSettings({ currentUser, onLogout }: TeacherSettingsProps)
                   value={formData.subjects}
                   onChange={(e) => setFormData({...formData, subjects: e.target.value})}
                   disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71] disabled:bg-gray-50"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[var(--forest-600)] focus:border-[var(--forest-600)] disabled:bg-gray-50"
                 />
               </div>
 
@@ -220,7 +220,7 @@ export function TeacherSettings({ currentUser, onLogout }: TeacherSettingsProps)
                   onChange={(e) => setFormData({...formData, bio: e.target.value})}
                   disabled={!isEditing}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71] disabled:bg-gray-50"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[var(--forest-600)] focus:border-[var(--forest-600)] disabled:bg-gray-50"
                 />
               </div>
             </div>
@@ -229,8 +229,8 @@ export function TeacherSettings({ currentUser, onLogout }: TeacherSettingsProps)
           <Card className="p-6">
             <h3 className="font-medium text-gray-900 mb-4">Account Statistics</h3>
             <div className="grid grid-cols-2 gap-4">
-              <div className="text-center p-3 bg-[#2ECC71]/10 rounded-lg">
-                <div className="text-2xl font-bold text-[#2ECC71]">4</div>
+              <div className="text-center p-3 bg-[var(--forest-50)] rounded-lg">
+                <div className="text-2xl font-bold text-[var(--forest-600)]">4</div>
                 <div className="text-sm text-gray-600">Classes</div>
               </div>
               <div className="text-center p-3 bg-blue-100 rounded-lg">
@@ -277,7 +277,7 @@ export function TeacherSettings({ currentUser, onLogout }: TeacherSettingsProps)
                     onChange={(e) => handleNotificationChange(key, e.target.checked)}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#2ECC71]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#2ECC71]"></div>
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[var(--forest-600)]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--forest-600)]"></div>
                 </label>
               </div>
             ))}
@@ -299,7 +299,7 @@ export function TeacherSettings({ currentUser, onLogout }: TeacherSettingsProps)
                   <input
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter current password"
-                    className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71]"
+                    className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-[var(--forest-600)] focus:border-[var(--forest-600)]"
                   />
                   <button
                     type="button"
@@ -321,7 +321,7 @@ export function TeacherSettings({ currentUser, onLogout }: TeacherSettingsProps)
                 <input
                   type="password"
                   placeholder="Enter new password"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71]"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[var(--forest-600)] focus:border-[var(--forest-600)]"
                 />
               </div>
               <div>
@@ -331,10 +331,10 @@ export function TeacherSettings({ currentUser, onLogout }: TeacherSettingsProps)
                 <input
                   type="password"
                   placeholder="Confirm new password"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71]"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[var(--forest-600)] focus:border-[var(--forest-600)]"
                 />
               </div>
-              <Button className="w-full bg-[#2ECC71] hover:bg-[#27AE60] text-white">
+              <Button className="w-full bg-[var(--forest-600)] hover:bg-[var(--forest-700)] text-white">
                 Update Password
               </Button>
             </div>
@@ -350,7 +350,7 @@ export function TeacherSettings({ currentUser, onLogout }: TeacherSettingsProps)
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input type="checkbox" defaultChecked className="sr-only peer" />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#2ECC71]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#2ECC71]"></div>
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[var(--forest-600)]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--forest-600)]"></div>
                 </label>
               </div>
               <div className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
@@ -360,7 +360,7 @@ export function TeacherSettings({ currentUser, onLogout }: TeacherSettingsProps)
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input type="checkbox" className="sr-only peer" />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#2ECC71]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#2ECC71]"></div>
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[var(--forest-600)]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--forest-600)]"></div>
                 </label>
               </div>
             </div>

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { TeacherHeader } from "./TeacherHeader";
+import { TeacherWebHeader } from "./TeacherWebHeader";
+import { TeacherSidebar } from "./TeacherSidebar";
 import { TeacherOverview } from "./TeacherOverview";
 import { TeacherClassManagement } from "./TeacherClassManagement";
 import { TeacherStudentProgress } from "./TeacherStudentProgress";
@@ -21,7 +22,7 @@ export function TeacherDashboard({ currentUser, onLogout }: TeacherDashboardProp
     switch (activeSection) {
       case "overview":
         return (
-          <TeacherOverview 
+          <TeacherOverview
             currentUser={currentUser}
             selectedClass={selectedClass}
             onSectionChange={setActiveSection}
@@ -29,7 +30,7 @@ export function TeacherDashboard({ currentUser, onLogout }: TeacherDashboardProp
         );
       case "classes":
         return (
-          <TeacherClassManagement 
+          <TeacherClassManagement
             currentUser={currentUser}
             selectedClass={selectedClass}
             onClassChange={setSelectedClass}
@@ -37,42 +38,42 @@ export function TeacherDashboard({ currentUser, onLogout }: TeacherDashboardProp
         );
       case "students":
         return (
-          <TeacherStudentProgress 
+          <TeacherStudentProgress
             currentUser={currentUser}
             selectedClass={selectedClass}
           />
         );
       case "challenges":
         return (
-          <TeacherChallengeAssignment 
+          <TeacherChallengeAssignment
             currentUser={currentUser}
             selectedClass={selectedClass}
           />
         );
       case "materials":
         return (
-          <TeacherLearningMaterials 
+          <TeacherLearningMaterials
             currentUser={currentUser}
             selectedClass={selectedClass}
           />
         );
       case "reports":
         return (
-          <TeacherReports 
+          <TeacherReports
             currentUser={currentUser}
             selectedClass={selectedClass}
           />
         );
       case "settings":
         return (
-          <TeacherSettings 
+          <TeacherSettings
             currentUser={currentUser}
             onLogout={onLogout}
           />
         );
       default:
         return (
-          <TeacherOverview 
+          <TeacherOverview
             currentUser={currentUser}
             selectedClass={selectedClass}
             onSectionChange={setActiveSection}
@@ -82,17 +83,27 @@ export function TeacherDashboard({ currentUser, onLogout }: TeacherDashboardProp
   };
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] flex flex-col max-w-md mx-auto">
-      <TeacherHeader 
+    <div className="min-h-screen bg-[#F4F6F5] flex flex-col">
+      <TeacherWebHeader
         currentUser={currentUser}
         activeSection={activeSection}
         setActiveSection={setActiveSection}
         selectedClass={selectedClass}
         setSelectedClass={setSelectedClass}
+        onLogout={onLogout}
       />
-      
-      <div className="flex-1 overflow-y-auto">
-        {renderContent()}
+      <div className="flex flex-1 overflow-hidden">
+        <TeacherSidebar
+          activeSection={activeSection}
+          setActiveSection={setActiveSection}
+          currentUser={currentUser}
+          onLogout={onLogout}
+        />
+        <main className="flex-1 overflow-y-auto">
+          <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+            {renderContent()}
+          </div>
+        </main>
       </div>
     </div>
   );

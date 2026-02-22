@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Mail, Phone, User, Lock, Eye, EyeOff, ArrowRight, ArrowLeft, Check, X, AlertCircle, Zap } from "lucide-react";
+import { Mail, Phone, User, Lock, Eye, EyeOff, ArrowRight, ArrowLeft, Check, X, AlertCircle, Zap, Leaf } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
@@ -162,27 +162,73 @@ export function SignUpPage({ onSignUp, onBackToLogin }: SignUpPageProps) {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#2ECC71] via-[#27AE60] to-[#1E8449] flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
+    <div className="min-h-screen flex">
+      {/* ── LEFT BRAND PANEL ── desktop only */}
+      <div className="hidden lg:flex flex-col justify-between w-[44%] bg-gradient-to-br from-[var(--forest-700)] to-[var(--forest-600)] relative overflow-hidden p-10 xl:p-14">
+        <div className="absolute inset-0 opacity-[0.08]" style={{
+          backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)',
+          backgroundSize: '28px 28px'
+        }} />
+        <div className="absolute top-[-80px] right-[-80px] w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-[-60px] left-[-40px] w-48 h-48 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+
+        {/* Geometric frame decorations */}
+        <div className="absolute bottom-16 right-10 w-32 h-32 border border-white/15 pointer-events-none" />
+        <div className="absolute bottom-12 right-14 w-32 h-32 border border-white/10 pointer-events-none" />
+
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="bg-white/20 rounded-full p-2 backdrop-blur-sm">
+            <Leaf className="w-6 h-6 text-white" />
+          </div>
+          <span className="text-2xl font-bold text-white tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>EcoVibe</span>
+        </div>
+
+        <div className="relative z-10">
+          <h2 className="text-4xl xl:text-5xl font-bold text-white mb-5 leading-tight" style={{ fontFamily: 'var(--font-display)' }}>
+            Join 50,000+<br />eco learners.
+          </h2>
+          <p className="text-[var(--forest-100)] text-lg leading-relaxed mb-10">
+            Create your free account and start earning eco-points, badges, and making real-world impact.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            {[
+              { icon: '🏆', label: 'Earn Eco-Points' },
+              { icon: '🎖️', label: 'Unlock Badges' },
+              { icon: '🌍', label: 'Real Impact' },
+            ].map(f => (
+              <div key={f.label} className="bg-white/10 border border-white/20 backdrop-blur-sm rounded-2xl px-4 py-3 flex items-center gap-2">
+                <span className="text-xl">{f.icon}</span>
+                <span className="text-white text-sm font-medium">{f.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="relative z-10 text-[var(--forest-100)]/60 text-sm">
+          &copy; 2025 EcoVibe. Making the planet greener.
+        </div>
+      </div>
+
+      {/* ── RIGHT FORM PANEL ── */}
+      <div className="flex-1 flex flex-col items-center justify-center bg-[var(--bg-base)] px-6 py-12 lg:px-12 xl:px-16 overflow-y-auto">
+        <div className="lg:hidden flex items-center gap-2 mb-8">
+          <div className="bg-[var(--forest-600)] rounded-full p-1.5">
+            <Leaf className="w-5 h-5 text-white" />
+          </div>
+          <span className="text-xl font-bold text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>EcoVibe</span>
+        </div>
+
+        <div className="w-full max-w-md">
           <button
             onClick={onBackToLogin}
-            className="flex items-center text-white/80 hover:text-white mb-4 transition-colors"
+            className="flex items-center text-gray-600 hover:text-gray-900 mb-6 transition-colors"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Login
           </button>
-          
-          <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <span className="text-2xl">🌱</span>
-          </div>
-          <h1 className="text-white text-2xl font-bold mb-2">Join EcoAlly</h1>
-          <p className="text-white/80">Start your eco-learning journey today!</p>
-        </div>
 
-        {/* Sign Up Form */}
-        <div className="bg-white rounded-2xl p-6 shadow-xl">
+          {/* Sign Up Form */}
+          <div className="bg-white rounded-2xl p-6 shadow-xl">
           <form onSubmit={handleSignUp} className="space-y-6">
             {/* Signup Method Toggle */}
             <div className="flex bg-gray-100 rounded-lg p-1">
@@ -191,7 +237,7 @@ export function SignUpPage({ onSignUp, onBackToLogin }: SignUpPageProps) {
                 onClick={() => setSignupMethod("email")}
                 className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
                   signupMethod === "email"
-                    ? "bg-white text-[#2ECC71] shadow-sm"
+                    ? "bg-white text-[var(--forest-600)] shadow-sm"
                     : "text-gray-600 hover:text-gray-800"
                 }`}
               >
@@ -203,7 +249,7 @@ export function SignUpPage({ onSignUp, onBackToLogin }: SignUpPageProps) {
                 onClick={() => setSignupMethod("phone")}
                 className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
                   signupMethod === "phone"
-                    ? "bg-white text-[#2ECC71] shadow-sm"
+                    ? "bg-white text-[var(--forest-600)] shadow-sm"
                     : "text-gray-600 hover:text-gray-800"
                 }`}
               >
@@ -352,7 +398,7 @@ export function SignUpPage({ onSignUp, onBackToLogin }: SignUpPageProps) {
             {/* Sign Up Button */}
             <Button
               type="submit"
-              className="w-full bg-[#2ECC71] hover:bg-[#27AE60] text-white py-3 rounded-xl font-medium transition-colors"
+              className="w-full bg-[var(--forest-600)] hover:bg-[var(--forest-700)] text-white py-3 rounded-xl font-medium transition-colors"
             >
               Create Account
               <ArrowRight className="w-4 h-4 ml-2" />
@@ -366,7 +412,7 @@ export function SignUpPage({ onSignUp, onBackToLogin }: SignUpPageProps) {
               <button
                 type="button"
                 onClick={onBackToLogin}
-                className="text-[#2ECC71] hover:text-[#27AE60] font-medium"
+                className="text-[var(--forest-600)] hover:text-[var(--forest-700)] font-medium"
               >
                 Sign in instead
               </button>
@@ -374,8 +420,8 @@ export function SignUpPage({ onSignUp, onBackToLogin }: SignUpPageProps) {
           </div>
         </div>
 
-        {/* Example Username Help */}
-        <div className="mt-4 bg-white/10 backdrop-blur-sm rounded-xl p-4 text-white">
+          {/* Example Username Help */}
+        <div className="mt-4 bg-[var(--forest-50)] border border-[var(--sage-300)] rounded-xl p-4 text-gray-800">
           <h3 className="font-medium mb-3">🧪 Quick Fill Demo Data:</h3>
           
           {/* Demo Data Buttons */}
@@ -383,7 +429,7 @@ export function SignUpPage({ onSignUp, onBackToLogin }: SignUpPageProps) {
             <button
               type="button"
               onClick={() => fillDemoData("student")}
-              className="w-full bg-white/20 hover:bg-white/30 text-white p-2 rounded-lg transition-colors text-sm flex items-center justify-between"
+              className="w-full bg-[var(--forest-100)] hover:bg-[var(--sage-100)] text-[var(--forest-700)] p-2 rounded-lg transition-colors text-sm flex items-center justify-between"
             >
               <span>👨‍🎓 Student Data</span>
               <Zap className="w-4 h-4" />
@@ -392,7 +438,7 @@ export function SignUpPage({ onSignUp, onBackToLogin }: SignUpPageProps) {
             <button
               type="button"
               onClick={() => fillDemoData("teacher")}
-              className="w-full bg-white/20 hover:bg-white/30 text-white p-2 rounded-lg transition-colors text-sm flex items-center justify-between"
+              className="w-full bg-[var(--forest-100)] hover:bg-[var(--sage-100)] text-[var(--forest-700)] p-2 rounded-lg transition-colors text-sm flex items-center justify-between"
             >
               <span>👨‍🏫 Teacher Data</span>
               <Zap className="w-4 h-4" />
@@ -401,22 +447,23 @@ export function SignUpPage({ onSignUp, onBackToLogin }: SignUpPageProps) {
             <button
               type="button"
               onClick={() => fillDemoData("admin")}
-              className="w-full bg-white/20 hover:bg-white/30 text-white p-2 rounded-lg transition-colors text-sm flex items-center justify-between"
+              className="w-full bg-[var(--forest-100)] hover:bg-[var(--sage-100)] text-[var(--forest-700)] p-2 rounded-lg transition-colors text-sm flex items-center justify-between"
             >
               <span>👨‍💼 Admin Data</span>
               <Zap className="w-4 h-4" />
             </button>
           </div>
           
-          <div className="border-t border-white/20 pt-3">
+          <div className="border-t border-[var(--sage-300)] pt-3">
             <h4 className="font-medium mb-2">💡 Username Examples:</h4>
-            <div className="text-sm space-y-1 text-white/90">
+            <div className="text-sm space-y-1 text-gray-700">
               <p>✅ EcoWarrior123</p>
               <p>✅ Green_Learner!</p>
               <p>✅ Earth@Care</p>
               <p>❌ eco warrior (no spaces)</p>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

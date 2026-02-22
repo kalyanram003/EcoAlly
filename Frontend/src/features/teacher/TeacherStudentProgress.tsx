@@ -91,13 +91,13 @@ export function TeacherStudentProgress({ currentUser, selectedClass }: TeacherSt
               placeholder="Search students..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71]"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-[var(--forest-600)] focus:border-[var(--forest-600)]"
             />
           </div>
           <select
             value={filterBy}
             onChange={(e) => setFilterBy(e.target.value as any)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71]"
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-[var(--forest-600)] focus:border-[var(--forest-600)]"
           >
             <option value="all">All Students</option>
             <option value="excelling">Excelling</option>
@@ -140,7 +140,7 @@ export function TeacherStudentProgress({ currentUser, selectedClass }: TeacherSt
 
               <div className="grid grid-cols-4 gap-3 mb-3">
                 <div className="text-center">
-                  <div className="text-lg font-bold text-[#2ECC71]">{student.totalPoints}</div>
+                  <div className="text-lg font-bold text-[var(--forest-600)]">{student.totalPoints}</div>
                   <div className="text-xs text-gray-600">Points</div>
                 </div>
                 <div className="text-center">
@@ -206,8 +206,8 @@ export function TeacherStudentProgress({ currentUser, selectedClass }: TeacherSt
 
             <div className="p-6 space-y-6">
               <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-3 bg-[#2ECC71]/10 rounded-lg">
-                  <div className="text-2xl font-bold text-[#2ECC71]">{selectedStudent.totalPoints}</div>
+                <div className="text-center p-3 bg-[var(--forest-50)] rounded-lg">
+                  <div className="text-2xl font-bold text-[var(--forest-600)]">{selectedStudent.totalPoints}</div>
                   <div className="text-sm text-gray-600">Total Points</div>
                 </div>
                 <div className="text-center p-3 bg-blue-100 rounded-lg">
@@ -260,7 +260,7 @@ export function TeacherStudentProgress({ currentUser, selectedClass }: TeacherSt
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className={`text-sm font-medium ${activity.completed ? "text-[#2ECC71]" : "text-red-600"
+                          <div className={`text-sm font-medium ${activity.completed ? "text-[var(--forest-600)]" : "text-red-600"
                             }`}>
                             {activity.completed ? `+${activity.points}` : "0"}
                           </div>

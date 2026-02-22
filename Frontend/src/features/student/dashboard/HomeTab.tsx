@@ -48,99 +48,70 @@ export function HomeTab({
   };
 
   return (
-    <div className="pb-4">
+    <div className="space-y-6">
       <DashboardCards
         userPoints={userPoints}
         currentStreak={currentStreak}
         onNavigateToRanking={handleNavigateToRanking}
         onNavigateToStreaks={handleNavigateToStreaks}
       />
-      <div className="px-4 mb-6">
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-8 h-8 bg-[#2ECC71]/10 rounded-lg flex items-center justify-center">
-              <span className="text-lg">📚</span>
+
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="xl:col-span-2 space-y-6">
+          <div className="bg-white rounded-2xl p-5 lg:p-6 border border-[var(--border)] shadow-[var(--shadow-xs)]">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-9 h-9 bg-[var(--forest-50)] rounded-xl flex items-center justify-center">
+                <span className="text-lg">📚</span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Learning Hub</h3>
+                <p className="text-gray-500 text-xs">Explore topics and build your eco knowledge</p>
+              </div>
             </div>
-            <h3 className="font-semibold">Learning Hub</h3>
-          </div>
-          <p className="text-gray-600 text-sm mb-4">Explore topics and build your eco knowledge</p>
-          <div className="overflow-x-auto pb-2">
-            <div className="flex gap-3 w-max">
-              <button
-                onClick={() => handleNavigateToNotes("waste-management")}
-                className="bg-blue-50 p-3 rounded-lg text-left hover:bg-blue-100 transition-colors min-w-[140px]"
-              >
-                <div className="text-lg mb-1">♻️</div>
-                <div className="text-sm font-medium">Waste Management</div>
-              </button>
-              <button
-                onClick={() => handleNavigateToNotes("carbon-footprint")}
-                className="bg-green-50 p-3 rounded-lg text-left hover:bg-green-100 transition-colors min-w-[140px]"
-              >
-                <div className="text-lg mb-1">🌍</div>
-                <div className="text-sm font-medium">Carbon Footprint</div>
-              </button>
-              <button
-                onClick={() => handleNavigateToNotes("renewable-energy")}
-                className="bg-yellow-50 p-3 rounded-lg text-left hover:bg-yellow-100 transition-colors min-w-[140px]"
-              >
-                <div className="text-lg mb-1">⚡</div>
-                <div className="text-sm font-medium">Renewable Energy</div>
-              </button>
-              <button
-                onClick={() => handleNavigateToNotes("sustainable-living")}
-                className="bg-purple-50 p-3 rounded-lg text-left hover:bg-purple-100 transition-colors min-w-[140px]"
-              >
-                <div className="text-lg mb-1">🌱</div>
-                <div className="text-sm font-medium">Sustainable Living</div>
-              </button>
-              <button
-                onClick={() => handleNavigateToNotes("water-conservation")}
-                className="bg-cyan-50 p-3 rounded-lg text-left hover:bg-cyan-100 transition-colors min-w-[140px]"
-              >
-                <div className="text-lg mb-1">💧</div>
-                <div className="text-sm font-medium">Water Conservation</div>
-              </button>
-              <button
-                onClick={() => handleNavigateToNotes("biodiversity")}
-                className="bg-pink-50 p-3 rounded-lg text-left hover:bg-pink-100 transition-colors min-w-[140px]"
-              >
-                <div className="text-lg mb-1">🦋</div>
-                <div className="text-sm font-medium">Biodiversity</div>
-              </button>
-              <button
-                onClick={() => handleNavigateToNotes("climate-change")}
-                className="bg-red-50 p-3 rounded-lg text-left hover:bg-red-100 transition-colors min-w-[140px]"
-              >
-                <div className="text-lg mb-1">🌡️</div>
-                <div className="text-sm font-medium">Climate Change</div>
-              </button>
-              <button
-                onClick={() => handleNavigateToNotes("eco-transportation")}
-                className="bg-indigo-50 p-3 rounded-lg text-left hover:bg-indigo-100 transition-colors min-w-[140px]"
-              >
-                <div className="text-lg mb-1">🚲</div>
-                <div className="text-sm font-medium">Eco Transport</div>
-              </button>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+              {[
+                { id: "waste-management",   emoji: "♻️", label: "Waste Management",   bg: "bg-blue-50  hover:bg-blue-100" },
+                { id: "carbon-footprint",   emoji: "🌍", label: "Carbon Footprint",   bg: "bg-green-50 hover:bg-green-100" },
+                { id: "renewable-energy",   emoji: "⚡", label: "Renewable Energy",   bg: "bg-yellow-50 hover:bg-yellow-100" },
+                { id: "sustainable-living", emoji: "🌱", label: "Sustainable Living", bg: "bg-purple-50 hover:bg-purple-100" },
+                { id: "water-conservation", emoji: "💧", label: "Water Conservation", bg: "bg-cyan-50   hover:bg-cyan-100" },
+                { id: "biodiversity",       emoji: "🦋", label: "Biodiversity",       bg: "bg-pink-50   hover:bg-pink-100" },
+                { id: "climate-change",     emoji: "🌡️", label: "Climate Change",     bg: "bg-red-50    hover:bg-red-100" },
+                { id: "eco-transportation", emoji: "🚲", label: "Eco Transport",      bg: "bg-indigo-50 hover:bg-indigo-100" },
+              ].map(topic => (
+                <button
+                  key={topic.id}
+                  onClick={() => handleNavigateToNotes(topic.id)}
+                  className={`${topic.bg} p-3 rounded-xl text-left transition-colors`}
+                >
+                  <div className="text-xl mb-1">{topic.emoji}</div>
+                  <div className="text-xs font-medium text-gray-700 leading-tight">{topic.label}</div>
+                </button>
+              ))}
             </div>
           </div>
+
+          <EnhancedGameOverview
+            userPoints={userPoints}
+            currentStreak={currentStreak}
+            onOpenProgression={onOpenProgression}
+            onOpenQuests={onOpenQuests}
+            onOpenStore={onOpenStore}
+            onOpenSocial={onOpenSocial}
+          />
+
+          <TasksList />
+        </div>
+
+        <div className="space-y-6">
+          <QuickActions
+            setActiveTab={setActiveTab}
+            setProfileSection={setProfileSection}
+            onOpenQRScanner={onOpenQRScanner}
+          />
+          <Badges />
         </div>
       </div>
-      <EnhancedGameOverview
-        userPoints={userPoints}
-        currentStreak={currentStreak}
-        onOpenProgression={onOpenProgression}
-        onOpenQuests={onOpenQuests}
-        onOpenStore={onOpenStore}
-        onOpenSocial={onOpenSocial}
-      />
-      <QuickActions
-        setActiveTab={setActiveTab}
-        setProfileSection={setProfileSection}
-        onOpenQRScanner={onOpenQRScanner}
-      />
-      <TasksList />
-      <Badges />
     </div>
   );
 }

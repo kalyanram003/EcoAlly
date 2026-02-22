@@ -1,3 +1,84 @@
+/* ========================================
+   ECOVIBE DESIGN TOKENS
+   ======================================== */
+:root {
+  /* ── PRIMARY BRAND (Forest) ─────────────────────────── */
+  --forest-900: #1a2e1a;   /* Deep forest — headings, logo */
+  --forest-700: #2d4a2d;   /* Dark green — nav active, CTAs */
+  --forest-600: #3d6b3d;   /* Forest green — primary buttons */
+  --forest-500: #4e8c4e;   /* Mid green — hover states */
+  --forest-400: #6aaa6a;   /* Leaf green — accents */
+  --forest-100: #e8f0e8;   /* Pale green — subtle bg */
+  --forest-50:  #f2f7f2;   /* Near white green — card bg */
+
+  /* ── SAGE / MUTED ──────────────────────────── */
+  --sage-600:   #7a9e7a;   /* Sage — secondary text, muted */
+  --sage-300:   #b5cdb5;   /* Light sage — borders */
+  --sage-100:   #deeade;   /* Very light sage — tag bg */
+  --sage-50:    #f4f8f4;   /* Sage tint — page background */
+
+  /* ── WARM STONE / CREAM ────────────────────── */
+  --stone-900:  #2c2416;   /* Near-black warm — body text */
+  --stone-700:  #5c4a2a;   /* Dark warm brown — subheadings */
+  --stone-400:  #a08060;   /* Warm tan — stats, numbers */
+  --stone-200:  #e8d8c0;   /* Light stone — decorative borders */
+  --stone-100:  #f5ede0;   /* Warm cream — hero section bg */
+  --stone-50:   #faf7f2;   /* Off-white warm — card alt bg */
+
+  /* ── ACCENT YELLOWY-GREEN (Moss) ──────────────────── */
+  --moss-500:   #8a9e2a;   /* Moss yellow-green — highlights */
+  --moss-100:   #f0f5d0;   /* Pale moss — feature card bg */
+
+  /* ── SURFACE SYSTEM ────────────────────────── */
+  --bg-base:       #f8faf8;    /* Page background — very pale sage */
+  --bg-card:       #ffffff;    /* Card surface */
+  --bg-muted:      var(--sage-50);
+  --border:        var(--sage-300);   /* Fixed border color */
+  --border-light:  #eef3ee;
+
+  /* ── TEXT ──────────────────────────────────── */
+  --text-primary:   var(--stone-900);
+  --text-secondary: var(--sage-600);
+  --text-muted:     #9aaa9a;
+
+  /* ── SHADOWS (green-tinted) ────────────────── */
+  --shadow-xs: 0 1px 2px rgba(45,74,45,.04);
+  --shadow-sm: 0 2px 8px rgba(45,74,45,.06);
+  --shadow-md: 0 4px 24px rgba(45,74,45,.08);
+  --shadow-lg: 0 8px 40px rgba(45,74,45,.12);
+
+  /* ── LAYOUT ─────────────────────────────────── */
+  --header-height: 64px;
+  --sidebar-width: 248px;
+
+  /* ── TYPOGRAPHY ─────────────────────────────── */
+  --font-display: 'DM Serif Display', 'Playfair Display', Georgia, serif;
+  --font-body:    'DM Sans', 'Inter', system-ui, sans-serif;
+
+  /* ── EASING ─────────────────────────────────── */
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Gradient text — used in LandingPage hero */
+.gradient-text {
+  background: linear-gradient(135deg, #16a34a 0%, #0d9488 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Sidebar scrollbar */
+.sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.sidebar-scroll::-webkit-scrollbar { width: 4px; }
+.sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -126,6 +207,7 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-body);
   }
 }
 
@@ -186,4 +268,12 @@
 
 html {
   font-size: var(--font-size);
+}
+
+/* ========================================
+   OVERRIDE SHADCN/RADIX DEFAULTS
+   ======================================== */
+:root {
+  --border: var(--sage-300) !important;
+  --bg-base: #f8faf8 !important;
 }

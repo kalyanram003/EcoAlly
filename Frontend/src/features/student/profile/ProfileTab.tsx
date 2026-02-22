@@ -281,8 +281,11 @@ export function ProfileTab({
 
   return (
     <div className="p-4 pb-20">
-      {/* Enhanced Profile Header */}
-      <div className="relative bg-gradient-to-br from-[#2ECC71] via-[#27AE60] to-[#1E8449] rounded-2xl p-6 mb-6 text-white overflow-hidden">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* ── LEFT: User card + nav ── */}
+        <div className="lg:col-span-1 space-y-4">
+          {/* Enhanced Profile Header */}
+          <div className="relative bg-gradient-to-br from-[var(--forest-600)] via-[var(--forest-700)] to-[var(--forest-900)] rounded-2xl p-6 text-white overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-4 right-4 w-20 h-20 rounded-full border-2 border-white/20"></div>
@@ -309,7 +312,7 @@ export function ProfileTab({
                   onClick={() => setShowEditModal(true)}
                   className="absolute -bottom-1 -right-1 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow"
                 >
-                  <Camera className="w-4 h-4 text-[#2ECC71]" />
+                  <Camera className="w-4 h-4 text-[var(--forest-600)]" />
                 </button>
               </div>
               <div>
@@ -357,13 +360,13 @@ export function ProfileTab({
         </div>
       </div>
 
-      {/* Enhanced Section Navigation */}
-      <div className="mb-6">
-        <div className="flex gap-2 overflow-x-auto pb-2 px-1">
+          {/* Section Navigation */}
+          <div className="bg-white rounded-2xl border border-[var(--border)] shadow-[var(--shadow-xs)] overflow-hidden p-2">
+            <div className="flex gap-2 overflow-x-auto pb-2 lg:flex-col lg:overflow-visible">
           <button
             onClick={() => setActiveSection("overview")}
             className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium whitespace-nowrap transition-colors ${activeSection === "overview"
-              ? "bg-[#2ECC71] text-white shadow-md"
+              ? "bg-[var(--forest-600)] text-white shadow-md"
               : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
           >
@@ -373,7 +376,7 @@ export function ProfileTab({
           <button
             onClick={() => setActiveSection("progression")}
             className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium whitespace-nowrap transition-colors ${activeSection === "progression"
-              ? "bg-[#2ECC71] text-white shadow-md"
+              ? "bg-[var(--forest-600)] text-white shadow-md"
               : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
           >
@@ -383,7 +386,7 @@ export function ProfileTab({
           <button
             onClick={() => setActiveSection("notes")}
             className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium whitespace-nowrap transition-colors ${activeSection === "notes"
-              ? "bg-[#2ECC71] text-white shadow-md"
+              ? "bg-[var(--forest-600)] text-white shadow-md"
               : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
           >
@@ -393,7 +396,7 @@ export function ProfileTab({
           <button
             onClick={() => setActiveSection("quests")}
             className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium whitespace-nowrap transition-colors ${activeSection === "quests"
-              ? "bg-[#2ECC71] text-white shadow-md"
+              ? "bg-[var(--forest-600)] text-white shadow-md"
               : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
           >
@@ -403,7 +406,7 @@ export function ProfileTab({
           <button
             onClick={() => setActiveSection("streaks")}
             className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium whitespace-nowrap transition-colors ${activeSection === "streaks"
-              ? "bg-[#2ECC71] text-white shadow-md"
+              ? "bg-[var(--forest-600)] text-white shadow-md"
               : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
           >
@@ -413,7 +416,7 @@ export function ProfileTab({
           <button
             onClick={() => setActiveSection("store")}
             className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium whitespace-nowrap transition-colors ${activeSection === "store"
-              ? "bg-[#2ECC71] text-white shadow-md"
+              ? "bg-[var(--forest-600)] text-white shadow-md"
               : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
           >
@@ -423,7 +426,7 @@ export function ProfileTab({
           <button
             onClick={() => setActiveSection("social")}
             className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium whitespace-nowrap transition-colors ${activeSection === "social"
-              ? "bg-[#2ECC71] text-white shadow-md"
+              ? "bg-[var(--forest-600)] text-white shadow-md"
               : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
           >
@@ -433,7 +436,7 @@ export function ProfileTab({
           <button
             onClick={() => setActiveSection("achievements")}
             className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium whitespace-nowrap transition-colors ${activeSection === "achievements"
-              ? "bg-[#2ECC71] text-white shadow-md"
+              ? "bg-[var(--forest-600)] text-white shadow-md"
               : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
           >
@@ -443,16 +446,19 @@ export function ProfileTab({
           <button
             onClick={() => setActiveSection("settings")}
             className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium whitespace-nowrap transition-colors ${activeSection === "settings"
-              ? "bg-[#2ECC71] text-white shadow-md"
+              ? "bg-[var(--forest-600)] text-white shadow-md"
               : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
           >
             <Settings className="w-4 h-4" />
             Settings
           </button>
+            </div>
+          </div>
         </div>
-      </div>
 
+        {/* ── RIGHT: Section content ── */}
+        <div className="lg:col-span-3">
       {/* Content Sections */}
       {activeSection === "overview" && (
         <div className="space-y-6">
@@ -464,7 +470,7 @@ export function ProfileTab({
             </div>
             <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
               <div
-                className="bg-[#2ECC71] h-3 rounded-full transition-all duration-300"
+                className="bg-[var(--forest-600)] h-3 rounded-full transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -477,17 +483,17 @@ export function ProfileTab({
           <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <Target className="w-5 h-5 text-[#2ECC71]" />
+                <Target className="w-5 h-5 text-[var(--forest-600)]" />
                 <h3 className="font-semibold">Weekly Goal</h3>
               </div>
-              <button className="text-[#2ECC71] text-sm font-medium">
+              <button className="text-[var(--forest-600)] text-sm font-medium">
                 <Edit className="w-4 h-4 inline mr-1" />
                 Edit
               </button>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
               <div
-                className="bg-[#2ECC71] h-3 rounded-full transition-all duration-300"
+                className="bg-[var(--forest-600)] h-3 rounded-full transition-all duration-300"
                 style={{ width: `${Math.min(weeklyProgressPercentage, 100)}%` }}
               />
             </div>
@@ -529,7 +535,7 @@ export function ProfileTab({
             <div className="space-y-3">
               {earnedAchievements.slice(-3).reverse().map((achievement) => (
                 <div key={achievement.id} className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-[#2ECC71]/10 rounded-lg flex items-center justify-center">
+                  <div className="w-10 h-10 bg-[var(--forest-50)] rounded-lg flex items-center justify-center">
                     <span className="text-lg">{achievement.icon}</span>
                   </div>
                   <div className="flex-1">
@@ -588,7 +594,7 @@ export function ProfileTab({
           <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
-                <div className="text-2xl font-semibold text-[#2ECC71]">{earnedAchievements.length}</div>
+                <div className="text-2xl font-semibold text-[var(--forest-600)]">{earnedAchievements.length}</div>
                 <div className="text-sm text-gray-600">Earned</div>
               </div>
               <div>
@@ -606,14 +612,14 @@ export function ProfileTab({
           {earnedAchievements.length > 0 && (
             <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
               <h3 className="font-semibold mb-4 flex items-center gap-2">
-                <Trophy className="w-5 h-5 text-[#2ECC71]" />
+                <Trophy className="w-5 h-5 text-[var(--forest-600)]" />
                 Earned Badges
               </h3>
               <div className="grid grid-cols-2 gap-3">
                 {earnedAchievements.map((achievement) => (
-                  <div key={achievement.id} className="relative border-2 border-[#2ECC71]/30 rounded-xl p-4 bg-gradient-to-br from-[#2ECC71]/5 to-[#27AE60]/10 hover:shadow-md transition-all duration-200">
+                  <div key={achievement.id} className="relative border-2 border-[var(--forest-600)]/30 rounded-xl p-4 bg-gradient-to-br from-[var(--forest-50)] to-[var(--forest-100)]/50 hover:shadow-md transition-all duration-200">
                     <div className="absolute top-2 right-2">
-                      <div className="w-6 h-6 bg-[#2ECC71] rounded-full flex items-center justify-center">
+                      <div className="w-6 h-6 bg-[var(--forest-600)] rounded-full flex items-center justify-center">
                         <Star className="w-3 h-3 text-white fill-current" />
                       </div>
                     </div>
@@ -625,7 +631,7 @@ export function ProfileTab({
                     <h4 className="text-sm text-center mb-1 text-gray-900">{achievement.title}</h4>
                     <p className="text-xs text-gray-600 text-center leading-tight">{achievement.description}</p>
                     {achievement.earnedDate && (
-                      <p className="text-xs text-[#2ECC71] text-center mt-2 bg-[#2ECC71]/10 rounded-full px-2 py-1">
+                      <p className="text-xs text-[var(--forest-600)] text-center mt-2 bg-[var(--forest-50)] rounded-full px-2 py-1">
                         {new Date(achievement.earnedDate).toLocaleDateString()}
                       </p>
                     )}
@@ -675,14 +681,14 @@ export function ProfileTab({
           {/* Topic Navigation */}
           <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
             <div className="flex items-center gap-2 mb-4">
-              <BookOpen className="w-5 h-5 text-[#2ECC71]" />
+              <BookOpen className="w-5 h-5 text-[var(--forest-600)]" />
               <h3 className="font-semibold">Learning Topics</h3>
             </div>
             <div className="flex gap-2 overflow-x-auto pb-2">
               <button
                 onClick={() => setSelectedTopic(null)}
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${selectedTopic === null
-                  ? "bg-[#2ECC71] text-white shadow-md"
+                  ? "bg-[var(--forest-600)] text-white shadow-md"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
               >
@@ -691,7 +697,7 @@ export function ProfileTab({
               <button
                 onClick={() => setSelectedTopic("waste-management")}
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${selectedTopic === "waste-management"
-                  ? "bg-[#2ECC71] text-white shadow-md"
+                  ? "bg-[var(--forest-600)] text-white shadow-md"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
               >
@@ -700,7 +706,7 @@ export function ProfileTab({
               <button
                 onClick={() => setSelectedTopic("carbon-footprint")}
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${selectedTopic === "carbon-footprint"
-                  ? "bg-[#2ECC71] text-white shadow-md"
+                  ? "bg-[var(--forest-600)] text-white shadow-md"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
               >
@@ -709,7 +715,7 @@ export function ProfileTab({
               <button
                 onClick={() => setSelectedTopic("renewable-energy")}
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${selectedTopic === "renewable-energy"
-                  ? "bg-[#2ECC71] text-white shadow-md"
+                  ? "bg-[var(--forest-600)] text-white shadow-md"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
               >
@@ -718,7 +724,7 @@ export function ProfileTab({
               <button
                 onClick={() => setSelectedTopic("sustainable-living")}
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${selectedTopic === "sustainable-living"
-                  ? "bg-[#2ECC71] text-white shadow-md"
+                  ? "bg-[var(--forest-600)] text-white shadow-md"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
               >
@@ -727,7 +733,7 @@ export function ProfileTab({
               <button
                 onClick={() => setSelectedTopic("water-conservation")}
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${selectedTopic === "water-conservation"
-                  ? "bg-[#2ECC71] text-white shadow-md"
+                  ? "bg-[var(--forest-600)] text-white shadow-md"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
               >
@@ -736,7 +742,7 @@ export function ProfileTab({
               <button
                 onClick={() => setSelectedTopic("biodiversity")}
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${selectedTopic === "biodiversity"
-                  ? "bg-[#2ECC71] text-white shadow-md"
+                  ? "bg-[var(--forest-600)] text-white shadow-md"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
               >
@@ -745,7 +751,7 @@ export function ProfileTab({
               <button
                 onClick={() => setSelectedTopic("climate-change")}
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${selectedTopic === "climate-change"
-                  ? "bg-[#2ECC71] text-white shadow-md"
+                  ? "bg-[var(--forest-600)] text-white shadow-md"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
               >
@@ -754,7 +760,7 @@ export function ProfileTab({
               <button
                 onClick={() => setSelectedTopic("eco-transportation")}
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${selectedTopic === "eco-transportation"
-                  ? "bg-[#2ECC71] text-white shadow-md"
+                  ? "bg-[var(--forest-600)] text-white shadow-md"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
               >
@@ -1185,6 +1191,8 @@ export function ProfileTab({
           </div>
         </div>
       )}
+        </div>
+      </div>
 
       {/* Modals */}
       {showEditModal && (

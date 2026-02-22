@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import * as api from "./lib/api";
-import { Header } from "./features/shared/Header";
 import { HomeTab } from "./features/student/dashboard/HomeTab";
 import { QuizTab } from "./features/student/quiz/QuizTab";
 import { ChallengesTab } from "./features/student/challenges/ChallengesTab";
@@ -18,6 +18,9 @@ import { VirtualStore } from "./features/gamification/VirtualStore";
 import { SocialFeatures } from "./features/gamification/SocialFeatures";
 import { QRScannerPage } from "./features/shared/QRScannerPage";
 import { TeacherDashboard } from "./features/teacher/TeacherDashboard";
+import { LandingPage } from "./features/landing/LandingPage";
+import { WebHeader } from "./features/shared/WebHeader";
+import { SidebarNav } from "./features/shared/SidebarNav";
 
 // Demo data for easy signup testing
 export const demoSignupData = {
@@ -107,6 +110,7 @@ export const demoSignupData = {
 export default function App() {
   // Authentication state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showLanding, setShowLanding] = useState(true);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [authView, setAuthView] = useState<"login" | "signup" | "userInfo">("login");
 
@@ -201,6 +205,7 @@ export default function App() {
     setIsLoggedIn(false);
     setCurrentUser(null);
     setActiveTab("home");
+    setShowLanding(true);
   };
 
   // ── Navigation helpers ────────────────────────────────────────────────────
@@ -239,6 +244,12 @@ export default function App() {
   const handleJoinTeam = (teamId: string) => {
     console.log(`Joined team: ${teamId}`);
   };
+
+  // ── Scroll to top on tab change ────────────────────────────────────────────
+  useEffect(() => {
+    const mainEl = document.querySelector('main.scroll-container');
+    if (mainEl) mainEl.scrollTop = 0;
+  }, [activeTab]);
 
   // ── Tab rendering ─────────────────────────────────────────────────────────
   const renderTabContent = () => {
@@ -304,7 +315,17 @@ export default function App() {
     }
   };
 
-  // ── Auth screens ──────────────────────────────────────────────────────────
+  // ── Landing page (shown before any auth action) ───────────────────────────
+  if (!isLoggedIn && showLanding) {
+    return (
+      <LandingPage
+        onGetStarted={() => setShowLanding(false)}
+        onLogin={() => setShowLanding(false)}
+      />
+    );
+  }
+
+  // ── Auth screens (shown after user clicks Get Started / Sign In) ──────────
   if (!isLoggedIn) {
     if (authView === "signup") {
       return (
@@ -345,15 +366,49 @@ export default function App() {
 
   // Student app
   return (
-    <div className="min-h-screen bg-[#F9FAFB] flex flex-col max-w-md mx-auto relative">
-      <Header setActiveTab={setActiveTab} />
+    <div className="min-h-screen bg-[var(--bg-base)] flex flex-col">
+      {/* Top navbar — visible on all screen sizes */}
+      <WebHeader
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        userPoints={userPoints}
+        currentStreak={currentStreak}
+        onLogout={handleLogout}
+        currentUser={currentUser}
+      />
 
-      <div className="flex-1 overflow-y-auto pb-20">
-        {renderTabContent()}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar — hidden on mobile, visible on lg+ */}
+        <SidebarNav
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          userPoints={userPoints}
+          currentStreak={currentStreak}
+          onLogout={handleLogout}
+          currentUser={currentUser}
+        />
+
+        {/* Main content area */}
+        <main className="flex-1 overflow-y-auto scroll-container">
+          <div className="max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 pb-24 lg:pb-10">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab + (showQRScanner ? '-qr' : '')}
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              >
+                {renderTabContent()}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </main>
       </div>
 
+      {/* Bottom nav — mobile only */}
       {!showQRScanner && (
-        <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md">
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40">
           <BottomNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
         </div>
       )}

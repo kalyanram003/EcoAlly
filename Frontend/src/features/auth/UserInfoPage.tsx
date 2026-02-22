@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, ArrowRight, User, Calendar, MapPin, Phone, Mail, GraduationCap, Home, Briefcase, Users, School, Building } from "lucide-react";
+import { ArrowLeft, ArrowRight, User, Calendar, MapPin, Phone, Mail, GraduationCap, Home, Briefcase, Users, School, Building, Leaf } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
@@ -16,7 +16,7 @@ interface UserInfoData {
   city: string;
   address: string;
   userType: string;
-  
+
   // Guardian Info
   guardianName: string;
   guardianRelationship: string;
@@ -24,7 +24,7 @@ interface UserInfoData {
   guardianPhone: string;
   guardianAddress: string;
   guardianOccupation: string;
-  
+
   // Institute Info
   instituteName: string;
   instituteCity: string;
@@ -32,7 +32,7 @@ interface UserInfoData {
   academicRollNo: string;
   gradeYear: string;
   sectionCourse: string;
-  
+
   // Role-specific fields
   facultyId?: string;
   adminId?: string;
@@ -84,7 +84,7 @@ export function UserInfoPage({ initialData, onComplete, onBack }: UserInfoPagePr
     rolePassword: ""
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  
+
   // Helper to get institute type from ID
   const getInstituteType = (id: string) => {
     const institute = mockInstitutes.find(inst => inst.id === id);
@@ -126,7 +126,7 @@ export function UserInfoPage({ initialData, onComplete, onBack }: UserInfoPagePr
       if (!formData.instituteName.trim()) newErrors.instituteName = "Institute name is required";
       if (!formData.instituteCity.trim()) newErrors.instituteCity = "Institute city is required";
       if (!formData.instituteId.trim()) newErrors.instituteId = "Institute ID is required";
-      
+
       // Role-specific validation
       if (formData.userType === "student") {
         if (!formData.academicRollNo.trim()) newErrors.academicRollNo = "Academic roll number is required";
@@ -178,25 +178,23 @@ export function UserInfoPage({ initialData, onComplete, onBack }: UserInfoPagePr
   const renderStepIndicator = () => {
     const totalSteps = getTotalSteps();
     const steps = Array.from({ length: totalSteps }, (_, i) => i + 1);
-    
+
     return (
       <div className="flex items-center justify-center mb-8">
         {steps.map((step) => (
           <div key={step} className="flex items-center">
             <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                step <= currentStep
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step <= currentStep
                   ? "bg-[#2ECC71] text-white"
                   : "bg-gray-200 text-gray-500"
-              }`}
+                }`}
             >
               {step}
             </div>
             {step < totalSteps && (
               <div
-                className={`w-12 h-1 mx-2 ${
-                  step < currentStep ? "bg-[#2ECC71]" : "bg-gray-200"
-                }`}
+                className={`w-12 h-1 mx-2 ${step < currentStep ? "bg-[#2ECC71]" : "bg-gray-200"
+                  }`}
               />
             )}
           </div>
@@ -344,7 +342,7 @@ export function UserInfoPage({ initialData, onComplete, onBack }: UserInfoPagePr
             <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
           )}
         </div>
-        
+
         <div>
           <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">
             Last Name *
@@ -386,9 +384,8 @@ export function UserInfoPage({ initialData, onComplete, onBack }: UserInfoPagePr
           id="gender"
           value={formData.gender}
           onChange={(e) => handleInputChange("gender", e.target.value)}
-          className={`mt-1 w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2ECC71]/50 ${
-            errors.gender ? "border-red-500" : ""
-          }`}
+          className={`mt-1 w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2ECC71]/50 ${errors.gender ? "border-red-500" : ""
+            }`}
         >
           <option value="">Select gender</option>
           <option value="male">Male</option>
@@ -472,9 +469,8 @@ export function UserInfoPage({ initialData, onComplete, onBack }: UserInfoPagePr
           id="userType"
           value={formData.userType}
           onChange={(e) => handleInputChange("userType", e.target.value)}
-          className={`mt-1 w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2ECC71]/50 ${
-            errors.userType ? "border-red-500" : ""
-          }`}
+          className={`mt-1 w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2ECC71]/50 ${errors.userType ? "border-red-500" : ""
+            }`}
         >
           <option value="">Select your role</option>
           <option value="student">Student</option>
@@ -526,9 +522,8 @@ export function UserInfoPage({ initialData, onComplete, onBack }: UserInfoPagePr
           id="guardianRelationship"
           value={formData.guardianRelationship}
           onChange={(e) => handleInputChange("guardianRelationship", e.target.value)}
-          className={`mt-1 w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2ECC71]/50 ${
-            errors.guardianRelationship ? "border-red-500" : ""
-          }`}
+          className={`mt-1 w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2ECC71]/50 ${errors.guardianRelationship ? "border-red-500" : ""
+            }`}
         >
           <option value="">Select relationship</option>
           <option value="mother">Mother</option>
@@ -615,7 +610,7 @@ export function UserInfoPage({ initialData, onComplete, onBack }: UserInfoPagePr
 
   const renderInstituteInfo = () => {
     const instituteType = getInstituteType(formData.instituteId);
-    
+
     return (
       <div className="space-y-4">
         {/* Quick Fill Buttons for Institute */}
@@ -736,9 +731,8 @@ export function UserInfoPage({ initialData, onComplete, onBack }: UserInfoPagePr
                 id="gradeYear"
                 value={formData.gradeYear}
                 onChange={(e) => handleInputChange("gradeYear", e.target.value)}
-                className={`mt-1 w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2ECC71]/50 ${
-                  errors.gradeYear ? "border-red-500" : ""
-                }`}
+                className={`mt-1 w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2ECC71]/50 ${errors.gradeYear ? "border-red-500" : ""
+                  }`}
               >
                 <option value="">Select {instituteType === "school" ? "grade" : "year"}</option>
                 {instituteType === "school" ? (
@@ -780,9 +774,8 @@ export function UserInfoPage({ initialData, onComplete, onBack }: UserInfoPagePr
                   id="sectionCourse"
                   value={formData.sectionCourse}
                   onChange={(e) => handleInputChange("sectionCourse", e.target.value)}
-                  className={`mt-1 w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2ECC71]/50 ${
-                    errors.sectionCourse ? "border-red-500" : ""
-                  }`}
+                  className={`mt-1 w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2ECC71]/50 ${errors.sectionCourse ? "border-red-500" : ""
+                    }`}
                 >
                   <option value="">Select section</option>
                   <option value="Section A">Section A</option>
@@ -795,9 +788,8 @@ export function UserInfoPage({ initialData, onComplete, onBack }: UserInfoPagePr
                   id="sectionCourse"
                   value={formData.sectionCourse}
                   onChange={(e) => handleInputChange("sectionCourse", e.target.value)}
-                  className={`mt-1 w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2ECC71]/50 ${
-                    errors.sectionCourse ? "border-red-500" : ""
-                  }`}
+                  className={`mt-1 w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2ECC71]/50 ${errors.sectionCourse ? "border-red-500" : ""
+                    }`}
                 >
                   <option value="">Select course</option>
                   <option value="Environmental Studies">Environmental Studies</option>
@@ -897,56 +889,150 @@ export function UserInfoPage({ initialData, onComplete, onBack }: UserInfoPagePr
   };
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] p-4">
-      <div className="max-w-md mx-auto bg-white rounded-2xl shadow-lg p-6">
-        {/* Header */}
-        <div className="flex items-center mb-6">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onBack}
-            className="p-2 -ml-2"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div className="ml-2">
-            <h1 className="text-xl font-semibold text-gray-900">Create Account</h1>
-            <p className="text-sm text-gray-500">{getStepTitle()}</p>
+    <div className="min-h-screen flex">
+      {/* ── LEFT BRAND PANEL ── desktop only */}
+      <div className="hidden lg:flex flex-col justify-between w-[44%] bg-gradient-to-br from-[var(--forest-700)] to-[var(--forest-600)] relative overflow-hidden p-10 xl:p-14">
+        <div className="absolute inset-0 opacity-[0.08]" style={{
+          backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)',
+          backgroundSize: '28px 28px'
+        }} />
+        <div className="absolute top-[-80px] right-[-80px] w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-[-60px] left-[-40px] w-48 h-48 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+
+        {/* Geometric frame decorations */}
+        <div className="absolute bottom-16 right-10 w-32 h-32 border border-white/15 pointer-events-none" />
+        <div className="absolute bottom-12 right-14 w-32 h-32 border border-white/10 pointer-events-none" />
+
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="bg-white/20 rounded-full p-2 backdrop-blur-sm">
+            <Leaf className="w-6 h-6 text-white" />
+          </div>
+          <span className="text-2xl font-bold text-white tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>EcoVibe</span>
+        </div>
+
+        <div className="relative z-10">
+          <h2 className="text-4xl xl:text-5xl font-bold text-white mb-5 leading-tight" style={{ fontFamily: 'var(--font-display)' }}>
+            Almost there!
+          </h2>
+          <p className="text-[var(--forest-100)] text-lg leading-relaxed mb-10">
+            Just a few more details to personalize your EcoVibe experience.
+          </p>
+          <div className="space-y-3">
+            {[
+              { step: '01', label: 'Create Account', done: true },
+              { step: '02', label: 'Personal Info', done: false, current: true },
+              { step: '03', label: 'Start Learning', done: false },
+            ].map(s => (
+              <div key={s.step} className={`flex items-center gap-3 ${s.done ? 'opacity-60' : ''}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${
+                  s.done ? 'bg-white/30 text-white' :
+                  s.current ? 'bg-white text-[var(--forest-700)]' :
+                  'bg-white/10 text-white/50 border border-white/20'
+                }`}>
+                  {s.done ? '✓' : s.step}
+                </div>
+                <span className={`text-sm font-medium ${s.current ? 'text-white' : 'text-[var(--forest-100)]/70'}`}>
+                  {s.label}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Step Indicator */}
-        {renderStepIndicator()}
+        <div className="relative z-10 text-[var(--forest-100)]/60 text-sm">
+          &copy; 2025 EcoVibe. Making the planet greener.
+        </div>
+      </div>
 
-        {/* Form Content */}
-        <div className="mb-8">
-          {currentStep === 1 && renderPersonalInfo()}
-          {currentStep === 2 && formData.userType === "student" && renderGuardianInfo()}
-          {currentStep === 2 && formData.userType !== "student" && renderInstituteInfo()}
-          {currentStep === 3 && formData.userType === "student" && renderInstituteInfo()}
+      {/* ── RIGHT FORM PANEL ── */}
+      <div className="flex-1 flex flex-col items-center justify-center bg-[var(--bg-base)] px-6 py-12 lg:px-12 xl:px-16 overflow-y-auto">
+        <div className="lg:hidden flex items-center gap-2 mb-8">
+          <div className="bg-[var(--forest-600)] rounded-full p-1.5">
+            <Leaf className="w-5 h-5 text-white" />
+          </div>
+          <span className="text-xl font-bold text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>EcoVibe</span>
         </div>
 
-        {/* Navigation Buttons */}
-        <div className="flex gap-3">
-          {currentStep > 1 && (
+        <div className="w-full max-w-md mx-auto bg-white rounded-2xl shadow-lg p-6">
+          {/* Header */}
+          <div className="flex items-center mb-6">
             <Button
-              variant="outline"
-              onClick={handlePrevious}
-              className="flex-1 py-3"
+              variant="ghost"
+              size="sm"
+              onClick={onBack}
+              className="p-2 -ml-2"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Previous
+              <ArrowLeft className="w-5 h-5" />
             </Button>
-          )}
-          <Button
-            onClick={handleNext}
-            className="flex-1 py-3 bg-[#2ECC71] hover:bg-[#27AE60] text-white"
-          >
-            {currentStep === getTotalSteps() ? "Complete" : "Next"}
-            {currentStep < getTotalSteps() && <ArrowRight className="w-4 h-4 ml-2" />}
-          </Button>
+            <div className="ml-2">
+              <h1 className="text-xl font-semibold text-gray-900">Create Account</h1>
+              <p className="text-sm text-gray-500">{getStepTitle()}</p>
+            </div>
+          </div>
+
+          {/* Step Indicator */}
+          {renderStepIndicator()}
+
+          {/* Form Content */}
+          <div className="mb-8">
+            {currentStep === 1 && renderPersonalInfo()}
+            {currentStep === 2 && formData.userType === "student" && renderGuardianInfo()}
+            {currentStep === 2 && formData.userType !== "student" && renderInstituteInfo()}
+            {currentStep === 3 && formData.userType === "student" && renderInstituteInfo()}
+          </div>
+
+          {/* Navigation Buttons */}
+          <div className="flex gap-3">
+            {currentStep > 1 && (
+              <Button
+                variant="outline"
+                onClick={handlePrevious}
+                className="flex-1 py-3"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Previous
+              </Button>
+            )}
+            <Button
+              onClick={handleNext}
+              className="flex-1 py-3 bg-[var(--forest-600)] hover:bg-[var(--forest-700)] text-white"
+            >
+              {currentStep === getTotalSteps() ? "Complete" : "Next"}
+              {currentStep < getTotalSteps() && <ArrowRight className="w-4 h-4 ml-2" />}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
   );
 }
+
+/* Removed duplicate content */
+/* <div className="relative z-10">
+  <h2 className="text-4xl xl:text-5xl font-bold text-white mb-5 leading-tight" style={{ fontFamily: 'var(--font-display)' }}>
+    Almost there!
+  </h2>
+  <p className="text-[var(--forest-100)] text-lg leading-relaxed mb-10">
+    Just a few more details to personalize your EcoVibe experience.
+  </p>
+  <div className="space-y-3">
+    { [
+      { step: '01', label: 'Create Account', done: true },
+      { step: '02', label: 'Personal Info', done: false, current: true },
+      { step: '03', label: 'Start Learning', done: false },
+    ].map(s => (
+      <div key={s.step} className={`flex items-center gap-3 ${s.done ? 'opacity-60' : ''}`}>
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${
+          s.done ? 'bg-white/30 text-white' :
+          s.current ? 'bg-white text-[var(--forest-700)]' :
+          'bg-white/10 text-white/50 border border-white/20'
+        }`}>
+          {s.done ? '✓' : s.step}
+        </div>
+        <span className={`text-sm font-medium ${s.current ? 'text-white' : 'text-[var(--forest-100)]/70'}`}>
+          {s.label}
+        </span>
+      </div>
+    ))}
+  </div>
+</div> */

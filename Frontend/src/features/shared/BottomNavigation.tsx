@@ -24,11 +24,11 @@ export function BottomNavigation({ activeTab, setActiveTab }: BottomNavigationPr
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-colors ${
-              isActive ? 'text-[#2ECC71]' : 'text-gray-500'
+            className={`relative flex flex-col items-center gap-1 p-2 rounded-lg transition-colors ${
+              isActive ? 'text-[var(--forest-600)]' : 'text-gray-400'
             }`}
           >
-            <Icon className={`w-5 h-5 ${isActive ? 'text-[#2ECC71]' : 'text-gray-500'}`} />
+            <Icon className="w-5 h-5" />
             <span className="text-xs font-medium">{tab.label}</span>
           </button>
         );
