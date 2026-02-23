@@ -12,7 +12,7 @@ interface LoginPageProps {
 
 export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
   const [currentStep, setCurrentStep] = useState<"role" | "credentials">("role");
-  const [selectedRole, setSelectedRole] = useState<"student" | "teacher" | "admin" | null>(null);
+  const [selectedRole, setSelectedRole] = useState<"student" | "teacher" | null>(null);
   const [loginMethod, setLoginMethod] = useState<"email" | "phone">("email");
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -30,7 +30,7 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
     }
   };
 
-  const handleRoleSelect = (role: "student" | "teacher" | "admin") => {
+  const handleRoleSelect = (role: "student" | "teacher") => {
     setSelectedRole(role);
     setCurrentStep("credentials");
     setErrors({}); // Clear any existing errors
@@ -263,8 +263,8 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
                 )}
               </div>
 
-              {/* Teacher/Admin note – no extra credentials needed */}
-              {(selectedRole === "teacher" || selectedRole === "admin") && (
+              {/* Teacher note – no extra credentials needed */}
+              {selectedRole === "teacher" && (
                 <div className="text-sm text-gray-500 bg-gray-50 rounded-lg p-3">
                   ℹ️ Use your registered email/phone and password to sign in as {selectedRole}.
                 </div>
@@ -313,18 +313,6 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
                 <Chrome className="w-5 h-5 mr-3 text-red-500" />
                 Continue with Google
               </Button>
-
-              <Button
-                type="button"
-                onClick={() => handleSocialLogin("Microsoft")}
-                variant="outline"
-                className="w-full py-3 border-2 border-gray-200 hover:border-gray-300 rounded-xl"
-              >
-                <div className="w-5 h-5 mr-3 bg-blue-500 rounded flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">M</span>
-                </div>
-                Continue with Microsoft
-              </Button>
             </div>
 
             {/* Sign Up Link */}
@@ -363,17 +351,6 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
                   <p><strong>Password:</strong> Nature@123</p>
                   <p><strong>Teacher ID:</strong> FAC-SEAS-2024-15</p>
                   <p><strong>Teacher Password:</strong> Nature@123</p>
-                </div>
-              </div>
-            )}
-
-            {selectedRole === "admin" && (
-              <div className="bg-white rounded-lg p-3 border border-[var(--sage-300)]">
-                <div className="text-sm space-y-1 text-gray-700">
-                  <p><strong>Email:</strong> mike.earth@email.com</p>
-                  <p><strong>Password:</strong> Planet#2024</p>
-                  <p><strong>Admin ID:</strong> ADM-DENV-2024-001</p>
-                  <p><strong>Admin Password:</strong> Planet#2024</p>
                 </div>
               </div>
             )}

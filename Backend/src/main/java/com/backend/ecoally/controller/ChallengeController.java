@@ -6,6 +6,7 @@ import com.backend.ecoally.dto.response.ApiResponse;
 import com.backend.ecoally.exception.AppException;
 import com.backend.ecoally.model.*;
 import com.backend.ecoally.repository.*;
+import com.backend.ecoally.service.EcoLensService;
 import com.backend.ecoally.service.PointsService;
 import com.backend.ecoally.service.StorageService;
 import com.backend.ecoally.service.StreakService;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/challenges")
@@ -35,6 +37,7 @@ public class ChallengeController {
     private final StorageService storageService;
     private final PointsService pointsService;
     private final StreakService streakService;
+    private final EcoLensService ecoLensService;
 
     @PostMapping
     @PreAuthorize("hasRole('TEACHER')")
@@ -131,6 +134,8 @@ public class ChallengeController {
     public ResponseEntity<ApiResponse<ChallengeSubmission>> submitChallenge(
             @PathVariable String id,
             @RequestParam(required = false) String notes,
+            @RequestParam(required = false) Double geoLat,
+            @RequestParam(required = false) Double geoLng,
             @RequestParam(required = false) List<MultipartFile> media,
             @AuthenticationPrincipal User user) throws IOException {
 
@@ -144,6 +149,7 @@ public class ChallengeController {
         Student student = studentRepository.findByUserId(user.getId())
                 .orElseThrow(() -> AppException.notFound("Student profile not found"));
 
+        // Upload media to Cloudinary (existing logic)
         List<String> mediaUrls = new ArrayList<>();
         if (media != null && !media.isEmpty()) {
             for (MultipartFile file : media) {
@@ -152,15 +158,55 @@ public class ChallengeController {
             }
         }
 
+        // Build submission
         ChallengeSubmission submission = new ChallengeSubmission();
         submission.setStudentId(student.getId());
         submission.setChallengeId(challenge.getId());
         submission.setMediaUrls(mediaUrls);
         submission.setNotes(notes);
+        submission.setGeoLat(geoLat);
+        submission.setGeoLng(geoLng);
+
+        // ── EcoLens ML Analysis (NEW) ─────────────────────────────────────────
+        if (challenge.getType() == Challenge.ChallengeType.PHOTO && !mediaUrls.isEmpty()) {
+            Map<String, Object> mlResult = ecoLensService.analyzeImage(
+                mediaUrls.get(0), geoLat, geoLng
+            );
+
+            if (mlResult != null) {
+                double ecoScore = (double) mlResult.get("ecoScore");
+                double bonusMultiplier = (double) mlResult.get("bonusMultiplier");
+
+                submission.setEcoScore(ecoScore);
+                submission.setDetectedCategory((String) mlResult.get("detectedCategory"));
+                submission.setDetectedSpecies((String) mlResult.get("detectedSpecies"));
+                submission.setIsNativeSpecies((Boolean) mlResult.get("isNativeSpecies"));
+                submission.setBonusMultiplier(bonusMultiplier);
+                submission.setAutoDecisionReason((String) mlResult.get("autoDecisionReason"));
+                submission.setAutoProcessed(true);
+
+                String autoDecision = (String) mlResult.get("autoDecision");
+
+                if ("AUTO_APPROVED".equals(autoDecision)) {
+                    submission.setStatus(ChallengeSubmission.SubmissionStatus.APPROVED);
+                    // Award points with species bonus
+                    int basePoints = challenge.getPoints();
+                    int finalPoints = (int) (basePoints * bonusMultiplier);
+                    submission.setPointsEarned(finalPoints);
+                    pointsService.awardChallengePoints(student.getId(), finalPoints);
+
+                } else if ("AUTO_REJECTED".equals(autoDecision)) {
+                    submission.setStatus(ChallengeSubmission.SubmissionStatus.REJECTED);
+
+                } else {
+                    // PENDING_REVIEW — teacher manually reviews edge cases
+                    submission.setStatus(ChallengeSubmission.SubmissionStatus.PENDING);
+                }
+            }
+            // If mlResult == null (ML service down), stays PENDING for manual review
+        }
 
         ChallengeSubmission saved = submissionRepository.save(submission);
-
-        // Update streak
         streakService.updateStreak(student.getId());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(saved));

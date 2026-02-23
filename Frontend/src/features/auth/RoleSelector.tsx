@@ -3,11 +3,11 @@ import { User, GraduationCap, Shield, Leaf } from "lucide-react";
 import { Button } from "../../components/ui/button";
 
 interface RoleSelectorProps {
-  onRoleSelect: (role: "student" | "teacher" | "admin") => void;
+  onRoleSelect: (role: "student" | "teacher") => void;
 }
 
 export function RoleSelector({ onRoleSelect }: RoleSelectorProps) {
-  const [selectedRole, setSelectedRole] = useState<"student" | "teacher" | "admin" | null>(null);
+  const [selectedRole, setSelectedRole] = useState<"student" | "teacher" | null>(null);
 
   const roles = [
     {
@@ -25,14 +25,6 @@ export function RoleSelector({ onRoleSelect }: RoleSelectorProps) {
       icon: GraduationCap,
       color: "bg-purple-500",
       hoverColor: "hover:bg-purple-600"
-    },
-    {
-      id: "admin" as const,
-      title: "Admin",
-      description: "I manage the institution",
-      icon: Shield,
-      color: "bg-orange-500",
-      hoverColor: "hover:bg-orange-600"
     }
   ];
 
@@ -70,8 +62,8 @@ export function RoleSelector({ onRoleSelect }: RoleSelectorProps) {
                 key={role.id}
                 onClick={() => setSelectedRole(role.id)}
                 className={`p-4 rounded-xl border-2 transition-all ${isSelected
-                    ? "border-[var(--forest-600)] bg-[var(--forest-50)]"
-                    : "border-[var(--border-light)] hover:border-[var(--sage-300)]"
+                  ? "border-[var(--forest-600)] bg-[var(--forest-50)]"
+                  : "border-[var(--border-light)] hover:border-[var(--sage-300)]"
                   }`}
               >
                 <div className="flex flex-col items-center text-center gap-3 py-2">

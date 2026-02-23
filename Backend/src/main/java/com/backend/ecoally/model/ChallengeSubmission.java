@@ -32,6 +32,17 @@ public class ChallengeSubmission {
     private String reviewedBy; // Teacher ID
     private String reviewNotes;
 
+    // ── EcoLens ML Fields (NEW) ───────────────────────────────────────────────
+    private Double ecoScore;
+    private String detectedCategory;
+    private String detectedSpecies;
+    private Boolean isNativeSpecies;
+    private Double geoLat;
+    private Double geoLng;
+    private Double bonusMultiplier = 1.0;
+    private String autoDecisionReason;
+    private Boolean autoProcessed = false;
+
     @CreatedDate
     private LocalDateTime createdAt;
 
