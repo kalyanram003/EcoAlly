@@ -24,7 +24,7 @@ interface LandingPageProps {
 
 const fadeUp = {
     hidden: { opacity: 0, y: 40 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const } }
 };
 
 const staggerContainer = {
@@ -71,14 +71,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin 
                         <div className="bg-[var(--forest-600)] rounded-full p-1.5 flex items-center justify-center">
                             <Leaf className="w-5 h-5 text-white" />
                         </div>
-                        <span className="text-xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>EcoVibe</span>
+                        <span className="text-xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>EcoAlly</span>
                     </div>
 
                     {/* Desktop Nav Links */}
                     <div className="hidden md:flex items-center gap-8">
                         <button onClick={() => scrollToSection('features')} className="text-sm font-medium text-gray-600 hover:text-[var(--forest-600)] transition-colors">Features</button>
                         <button onClick={() => scrollToSection('how-it-works')} className="text-sm font-medium text-gray-600 hover:text-[var(--forest-600)] transition-colors">How It Works</button>
-                        <button onClick={() => scrollToSection('impact')} className="text-sm font-medium text-gray-600 hover:text-[var(--forest-600)] transition-colors">Impact</button>
                         <button onClick={() => scrollToSection('for-teachers')} className="text-sm font-medium text-gray-600 hover:text-[var(--forest-600)] transition-colors">For Teachers</button>
                     </div>
 
@@ -110,7 +109,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin 
                             <div className="flex flex-col p-4 space-y-4">
                                 <button onClick={() => scrollToSection('features')} className="text-left text-gray-600 font-medium py-2 border-b border-gray-50">Features</button>
                                 <button onClick={() => scrollToSection('how-it-works')} className="text-left text-gray-600 font-medium py-2 border-b border-gray-50">How It Works</button>
-                                <button onClick={() => scrollToSection('impact')} className="text-left text-gray-600 font-medium py-2 border-b border-gray-50">Impact</button>
                                 <button onClick={() => scrollToSection('for-teachers')} className="text-left text-gray-600 font-medium py-2 border-b border-gray-50">For Teachers</button>
                                 <div className="flex flex-col gap-3 pt-2">
                                     <button onClick={onLogin} className="w-full py-2.5 text-center text-gray-600 font-medium border border-gray-200 rounded-full hover:bg-gray-50">Sign In</button>
@@ -175,15 +173,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin 
                             </button>
                         </motion.div>
 
-                        <motion.div variants={fadeUp} className="flex items-center gap-4 text-sm text-gray-500 font-medium">
-                            <div className="flex -space-x-2">
-                                <div className="w-8 h-8 rounded-full border-2 border-white bg-[var(--forest-100)] flex items-center justify-center text-xs font-bold text-[var(--forest-700)]">S</div>
-                                <div className="w-8 h-8 rounded-full border-2 border-white bg-[var(--sage-100)] flex items-center justify-center text-xs font-bold text-[var(--sage-600)]">M</div>
-                                <div className="w-8 h-8 rounded-full border-2 border-white bg-[var(--stone-100)] flex items-center justify-center text-xs font-bold text-[var(--stone-400)]">J</div>
-                                <div className="w-8 h-8 rounded-full border-2 border-white bg-[var(--moss-100)] flex items-center justify-center text-xs font-bold text-[var(--moss-500)]">A</div>
-                            </div>
-                            <span>12,000+ students already learning</span>
-                        </motion.div>
                     </motion.div>
 
                     {/* Right Side: Visual Components */}
@@ -203,7 +192,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin 
                                         <div className="w-12 h-12 bg-white/20 backdrop-blur-md border border-white/30 rounded-full flex items-center justify-center text-lg font-bold">AL</div>
                                         <div>
                                             <div className="text-sm text-white/80 font-medium">Welcome back,</div>
-                                            <div className="font-bold text-lg leading-tight">Alex L.</div>
+                                            <div className="font-bold text-lg leading-tight">Kalyan</div>
                                         </div>
                                     </div>
                                     <div className="bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
@@ -406,46 +395,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin 
                 </div>
             </section>
 
-            {/* 5. Impact Stats */}
-            <section id="impact" className="py-24 bg-white">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <motion.div
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true, amount: 0.15 }}
-                        variants={fadeUp}
-                        className="text-center mb-16"
-                    >
-                        <span className="text-[var(--forest-600)] uppercase tracking-widest text-sm font-bold block mb-3">Impact</span>
-                        <h2 className="text-4xl sm:text-5xl font-bold text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>Numbers that matter</h2>
-                    </motion.div>
-
-                    <motion.div
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true, amount: 0.15 }}
-                        variants={staggerContainer}
-                        className="grid grid-cols-2 lg:grid-cols-4 gap-6"
-                    >
-                        {[
-                            { icon: Users, value: '50K+', label: 'Active Students', bg: 'bg-[var(--forest-50)]', text: 'text-[var(--forest-600)]' },
-                            { icon: Zap, value: '1.2M', label: 'Eco-Points Earned', bg: 'bg-[var(--moss-100)]', text: 'text-[var(--moss-500)]' },
-                            { icon: Leaf, value: '8,400+', label: 'Trees Planted', bg: 'bg-[var(--sage-100)]', text: 'text-[var(--sage-600)]' },
-                            { icon: Trophy, value: '2,500+', label: 'Schools Joined', bg: 'bg-[var(--stone-100)]', text: 'text-[var(--stone-400)]' },
-                        ].map((stat, i) => (
-                            <motion.div key={i} variants={{ hidden: { opacity: 0, scale: 0.8 }, visible: { opacity: 1, scale: 1, transition: { duration: 0.5 } } }} className="bg-white rounded-2xl p-6 border border-[var(--border-light)] text-center hover:shadow-md transition-shadow">
-                                <div className={`w-12 h-12 mx-auto rounded-xl ${stat.bg} ${stat.text} flex items-center justify-center mb-4`}>
-                                    <stat.icon className="w-6 h-6" strokeWidth={2.5} />
-                                </div>
-                                <div className="text-3xl font-bold text-gray-900 mb-1" style={{ fontFamily: 'var(--font-display)' }}>{stat.value}</div>
-                                <div className="text-sm text-gray-500">{stat.label}</div>
-                            </motion.div>
-                        ))}
-                    </motion.div>
-                </div>
-            </section>
-
-            {/* 6. For Teachers */}
+            {/* 5. For Teachers */}
             <section id="for-teachers" className="py-24 bg-gray-900 text-white overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid lg:grid-cols-2 gap-16 lg:gap-12 items-center">
@@ -561,52 +511,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin 
                 </div>
             </section>
 
-            {/* 7. Testimonials */}
-            <section className="py-24 bg-[var(--stone-50)]">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <motion.div
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true, amount: 0.15 }}
-                        variants={fadeUp}
-                        className="text-center mb-16"
-                    >
-                        <h2 className="text-4xl font-bold text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>What learners say</h2>
-                    </motion.div>
-
-                    <motion.div
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true, amount: 0.15 }}
-                        variants={staggerContainer}
-                        className="grid lg:grid-cols-3 gap-8"
-                    >
-                        {[
-                            { text: "EcoVibe made me genuinely excited about environmental science. I've planted 5 trees this month!", name: "Sarah M.", role: "Student, Grade 9", emoji: "🧑‍🎓" },
-                            { text: "The teacher dashboard is exceptional. I can track every student's progress and assign custom challenges.", name: "James K.", role: "Science Teacher", emoji: "👨‍🏫" },
-                            { text: "The streak system keeps me coming back every day. I've learned so much about sustainability.", name: "Priya R.", role: "Student, Grade 11", emoji: "👩‍🎓" },
-                        ].map((t, i) => (
-                            <motion.div key={i} variants={fadeUp} className="bg-white rounded-2xl p-6 border border-[var(--sage-300)] shadow-sm flex flex-col justify-between">
-                                <div>
-                                    <div className="flex gap-1 mb-4">
-                                        {[1, 2, 3, 4, 5].map(s => <span key={s} className="text-[var(--moss-500)]">★</span>)}
-                                    </div>
-                                    <p className="text-gray-600 text-sm leading-relaxed italic mb-6">"{t.text}"</p>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-[var(--forest-100)] flex items-center justify-center text-xl">{t.emoji}</div>
-                                    <div>
-                                        <div className="font-semibold text-gray-900 text-sm">{t.name}</div>
-                                        <div className="text-gray-500 text-xs">{t.role}</div>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </motion.div>
-                </div>
-            </section>
-
-            {/* 8. CTA Banner */}
+            {/* 6. CTA Banner */}
             <section className="py-20 relative overflow-hidden bg-gradient-to-r from-[var(--forest-700)] to-[var(--forest-600)]">
                 <div className="absolute top-0 right-1/4 w-96 h-96 bg-white/10 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2 pointer-events-none" />
                 <div className="absolute bottom-0 left-1/4 w-80 h-80 bg-white/10 blur-3xl rounded-full -translate-x-1/2 translate-y-1/2 pointer-events-none" />
@@ -629,7 +534,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin 
                 </div>
             </section>
 
-            {/* 9. Footer */}
+            {/* 7. Footer */}
             <footer className="bg-gray-900 text-white py-16">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10 lg:gap-8 mb-16">
@@ -638,7 +543,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin 
                                 <div className="bg-[var(--forest-600)] rounded-full p-1.5 flex items-center justify-center">
                                     <Leaf className="w-5 h-5 text-white" />
                                 </div>
-                                <span className="text-2xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>EcoVibe</span>
+                                <span className="text-2xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>EcoAlly</span>
                             </div>
                             <p className="text-gray-400 text-sm max-w-sm">
                                 The gamified environmental science learning platform that turns education into impactful real-world actions.
@@ -687,7 +592,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin 
 
                     <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                         <p className="text-gray-500 text-sm">
-                            © 2025 EcoVibe. Making the planet greener, one student at a time.
+                            © 2026 EcoAlly. Making the planet greener, one student at a time.
                         </p>
                         <div className="flex gap-4">
                             <a href="#" className="text-gray-500 hover:text-white transition-colors"><Globe className="w-5 h-5" /></a>

@@ -118,7 +118,7 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
           <div className="bg-white/20 rounded-full p-2 backdrop-blur-sm">
             <Leaf className="w-6 h-6 text-white" />
           </div>
-          <span className="text-2xl font-bold text-white tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>EcoVibe</span>
+          <span className="text-2xl font-bold text-white tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>EcoAlly</span>
         </div>
 
         <div className="relative z-10">
@@ -143,7 +143,7 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
         </div>
 
         <div className="relative z-10 text-[var(--forest-100)]/60 text-sm">
-          &copy; 2025 EcoVibe. Making the planet greener.
+          &copy; 2026 EcoAlly. Making the planet greener.
         </div>
       </div>
 
@@ -153,7 +153,7 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
           <div className="bg-[var(--forest-600)] rounded-full p-1.5">
             <Leaf className="w-5 h-5 text-white" />
           </div>
-          <span className="text-xl font-bold text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>EcoVibe</span>
+          <span className="text-xl font-bold text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>EcoAlly</span>
         </div>
 
         <div className="w-full max-w-md">

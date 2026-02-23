@@ -51,7 +51,7 @@ export const WebHeader: React.FC<WebHeaderProps> = ({
                     <div className="bg-[var(--forest-600)] rounded-full p-1 flex items-center justify-center">
                         <Leaf className="w-4 h-4 text-white" />
                     </div>
-                    <span className="font-bold text-gray-900 tracking-tight">EcoVibe</span>
+                    <span className="font-bold text-gray-900 tracking-tight">EcoAlly</span>
                 </div>
 
                 {/* CENTER: Nav Links (lg+ only) */}

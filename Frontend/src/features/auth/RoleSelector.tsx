@@ -44,7 +44,6 @@ export function RoleSelector({ onRoleSelect }: RoleSelectorProps) {
 
   return (
     <div className="min-h-screen bg-[var(--stone-50)] flex flex-col items-center justify-center px-6 py-12 relative overflow-hidden">
-      {/* Botanical geometric frame decorations */}
       <div className="absolute top-8 left-8 w-32 h-32 border border-[var(--sage-300)] opacity-30 pointer-events-none" />
       <div className="absolute bottom-8 right-8 w-48 h-48 border border-[var(--sage-300)] opacity-20 pointer-events-none" />
 
@@ -52,7 +51,7 @@ export function RoleSelector({ onRoleSelect }: RoleSelectorProps) {
         <div className="bg-[var(--forest-600)] rounded-full p-2">
           <Leaf className="w-6 h-6 text-white" />
         </div>
-        <span className="text-2xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>EcoVibe</span>
+        <span className="text-2xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>EcoAlly</span>
       </div>
 
       <div className="w-full max-w-2xl">

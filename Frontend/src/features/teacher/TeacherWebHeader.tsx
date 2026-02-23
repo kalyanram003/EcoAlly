@@ -62,7 +62,7 @@ export const TeacherWebHeader: React.FC<TeacherWebHeaderProps> = ({
                     <div className="bg-[var(--forest-600)] rounded-full p-1 flex items-center justify-center">
                         <Leaf className="w-4 h-4 text-white" />
                     </div>
-                    <span className="font-bold text-gray-900 tracking-tight">EcoVibe Teacher</span>
+                    <span className="font-bold text-gray-900 tracking-tight">EcoAlly Teacher</span>
                 </div>
 
                 {/* RIGHT: Class Selector, Bell, Avatar, Mobile Menu */}
