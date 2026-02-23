@@ -6,6 +6,7 @@ import { QuizTab } from "./features/student/quiz/QuizTab";
 import { ChallengesTab } from "./features/student/challenges/ChallengesTab";
 import { LeaderboardTab } from "./features/student/leaderboard/LeaderboardTab";
 import { ProfileTab } from "./features/student/profile/ProfileTab";
+import { EcoMapTab } from "./features/student/ecomap/EcoMapTab";
 import { PlaceholderTab } from "./features/shared/PlaceholderTab";
 import { BottomNavigation } from "./features/shared/BottomNavigation";
 import { LoginPage } from "./features/auth/LoginPage";
@@ -279,6 +280,8 @@ export default function App() {
         return <ChallengesTab />;
       case "ranking":
         return <LeaderboardTab />;
+      case "ecomap":
+        return <EcoMapTab />;
       case "profile":
         return (
           <ProfileTab

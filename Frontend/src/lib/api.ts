@@ -75,15 +75,33 @@ export const getMyAttempts = () => req<any[]>('/api/quizzes/my/attempts');
 // ── Challenges ───────────────────────────────────────────────────────────────
 export const getChallenges = () => req<any[]>('/api/challenges');
 
-export const submitChallenge = (id: string, notes: string, files: File[]) => {
+export const submitChallenge = (
+    id: string,
+    notes: string,
+    files: File[],
+    geo?: { lat: number; lng: number } | null
+) => {
     const form = new FormData();
     form.append('notes', notes);
     files.forEach((f) => form.append('media', f));
+    if (geo) {
+        form.append('geoLat', String(geo.lat));
+        form.append('geoLng', String(geo.lng));
+    }
     return req<any>(`/api/challenges/${id}/submit`, { method: 'POST', body: form });
 };
 
 export const getMySubmissions = () =>
     req<any[]>('/api/challenges/submissions/my');
+
+// ── EcoMap ───────────────────────────────────────────────────────────────────
+export const getEcoMapPins = (instituteId?: string) => {
+    const params = instituteId ? `?instituteId=${instituteId}` : '';
+    return req<any[]>(`/api/ecomap/pins${params}`);
+};
+
+export const getEcoMapStats = () =>
+    req<any>('/api/ecomap/stats');
 
 // ── Store ─────────────────────────────────────────────────────────────────────
 export const getOwnedItems = () => req<string[]>('/api/store/owned');

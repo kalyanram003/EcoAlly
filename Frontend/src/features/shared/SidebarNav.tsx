@@ -5,6 +5,7 @@ import {
     Target,
     Trophy,
     User,
+    Map,
     LogOut,
     Coins,
     Flame
@@ -41,6 +42,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
         { id: "home", label: "Home", icon: Home },
         { id: "quiz", label: "Quizzes", icon: Brain },
         { id: "challenges", label: "Challenges", icon: Target },
+        { id: "ecomap", label: "EcoMap", icon: Map },
         { id: "ranking", label: "Leaderboard", icon: Trophy },
         { id: "profile", label: "Profile", icon: User },
     ];

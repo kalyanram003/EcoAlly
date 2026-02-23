@@ -31,6 +31,7 @@ export const WebHeader: React.FC<WebHeaderProps> = ({
         { id: "home", label: "Home" },
         { id: "quiz", label: "Quizzes" },
         { id: "challenges", label: "Challenges" },
+        { id: "ecomap", label: "EcoMap" },
         { id: "ranking", label: "Leaderboard" },
         { id: "profile", label: "Profile" },
     ];

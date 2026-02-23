@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { ArrowLeft, Camera, Upload, CheckCircle2, X } from "lucide-react";
+import { AnimatePresence } from "framer-motion";
 import * as api from "../../../lib/api";
 import { Challenge } from "./ChallengesTab";
+import { EcoLensResultCard } from "./EcoLensResultCard";
 
 interface ChallengeSubmissionProps {
   challenge: Challenge;
@@ -15,6 +17,17 @@ interface UploadedPhoto {
   caption: string;
 }
 
+type EcoLensResult = {
+  ecoScore: number;
+  detectedCategory: string;
+  detectedSpecies: string | null;
+  isNativeSpecies: boolean | null;
+  autoDecision: string;
+  autoDecisionReason: string;
+  pointsEarned: number;
+  bonusMultiplier: number;
+};
+
 export function ChallengeSubmission({ challenge, onBack, onComplete }: ChallengeSubmissionProps) {
   const [photos, setPhotos] = useState<UploadedPhoto[]>([]);
   // Keep raw File references so we can upload them to the API
@@ -25,6 +38,25 @@ export function ChallengeSubmission({ challenge, onBack, onComplete }: Challenge
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [ecoLensResult, setEcoLensResult] = useState<EcoLensResult | null>(null);
+
+  const getGeoLocation = (): Promise<{ lat: number; lng: number } | null> => {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) {
+        resolve(null);
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (position) =>
+          resolve({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          }),
+        () => resolve(null),
+        { timeout: 5000 }
+      );
+    });
+  };
 
   const handleRequirementCheck = (index: number) => {
     const newChecked = [...checkedRequirements];
@@ -91,15 +123,62 @@ export function ChallengeSubmission({ challenge, onBack, onComplete }: Challenge
     if (!canSubmit()) return;
     setIsSubmitting(true);
     try {
-      await api.submitChallenge(challenge.id, notes, photoFiles);
-      setShowSuccess(true);
-      setTimeout(() => onComplete(), 3000);
+      const geo = await getGeoLocation();
+      const submission = await api.submitChallenge(challenge.id, notes, photoFiles, geo);
+
+      if (challenge.type === "photo" && submission) {
+        const autoDecision =
+          submission.autoProcessed && submission.status
+            ? submission.status === "APPROVED"
+              ? "AUTO_APPROVED"
+              : submission.status === "REJECTED"
+              ? "AUTO_REJECTED"
+              : "PENDING_REVIEW"
+            : "PENDING_REVIEW";
+
+        const result: EcoLensResult = {
+          ecoScore: submission.ecoScore ?? 0,
+          detectedCategory: submission.detectedCategory ?? "irrelevant",
+          detectedSpecies: submission.detectedSpecies ?? null,
+          isNativeSpecies:
+            typeof submission.isNativeSpecies === "boolean"
+              ? submission.isNativeSpecies
+              : null,
+          autoDecision,
+          autoDecisionReason:
+            submission.autoDecisionReason ??
+            "Submission received. Sent for review.",
+          pointsEarned: submission.pointsEarned ?? 0,
+          bonusMultiplier: submission.bonusMultiplier ?? 1,
+        };
+
+        setEcoLensResult(result);
+      } else {
+        setShowSuccess(true);
+        setTimeout(() => onComplete(), 3000);
+      }
     } catch (err: any) {
       alert(err.message);
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (ecoLensResult) {
+    return (
+      <div className="p-4 h-full flex flex-col items-center justify-center">
+        <AnimatePresence>
+          <EcoLensResultCard
+            result={ecoLensResult}
+            onClose={() => {
+              setEcoLensResult(null);
+              onComplete();
+            }}
+          />
+        </AnimatePresence>
+      </div>
+    );
+  }
 
   if (showSuccess) {
     return (
