@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Send, Trophy, Users, Calendar, Clock, GamepadIcon, Heart, Brain, Recycle } from "lucide-react";
 import { Card } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
+import * as api from "../../lib/api";
 
 interface TeacherChallengeAssignmentProps {
   currentUser: any;
@@ -20,6 +21,9 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
     points: 50,
     deadline: ""
   });
+  const [assignedChallenges, setAssignedChallenges] = useState<any[]>([]);
+  const [loadingChallenges, setLoadingChallenges] = useState(true);
+  const [isCreating, setIsCreating] = useState(false);
 
   const challengeTypes = [
     {
@@ -56,47 +60,12 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
     }
   ];
 
-  const assignedChallenges = [
-    {
-      id: "1",
-      title: "Water Conservation Quest",
-      type: "environmental",
-      difficulty: "easy",
-      duration: "3 days",
-      points: 75,
-      assignedDate: "2024-03-15",
-      deadline: "2024-03-18",
-      participants: 22,
-      completed: 15,
-      status: "active"
-    },
-    {
-      id: "2",
-      title: "Ecosystem Memory Game",
-      type: "games",
-      difficulty: "medium",
-      duration: "1 week",
-      points: 100,
-      assignedDate: "2024-03-12",
-      deadline: "2024-03-19",
-      participants: 28,
-      completed: 28,
-      status: "completed"
-    },
-    {
-      id: "3",
-      title: "Community Clean-Up Project",
-      type: "social",
-      difficulty: "hard",
-      duration: "2 weeks",
-      points: 150,
-      assignedDate: "2024-03-10",
-      deadline: "2024-03-24",
-      participants: 25,
-      completed: 8,
-      status: "active"
-    }
-  ];
+  useEffect(() => {
+    api.getTeacherChallenges()
+      .then((data) => setAssignedChallenges(data))
+      .catch(() => setAssignedChallenges([]))
+      .finally(() => setLoadingChallenges(false));
+  }, []);
 
   const predefinedChallenges = {
     games: [
@@ -129,10 +98,53 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
     ]
   };
 
-  const handleCreateChallenge = () => {
-    if (challengeForm.title && challengeForm.type) {
-      // Create challenge logic here
-      console.log("Creating challenge:", challengeForm);
+  const handleCreateChallenge = async () => {
+    if (!challengeForm.title || !challengeForm.type) {
+      alert("Please fill in title and challenge type");
+      return;
+    }
+
+    const typeMap: Record<string, string> = {
+      environmental: "PHOTO",
+      social: "SOCIAL",
+      creative: "ACTION",
+      games: "GAME",
+      learning: "LEARNING",
+    };
+
+    const iconMap: Record<string, string> = {
+      environmental: "🌱",
+      social: "🤝",
+      creative: "🎨",
+      games: "🎮",
+      learning: "📚",
+    };
+
+    const colorMap: Record<string, string> = {
+      environmental: "bg-green-100",
+      social: "bg-pink-100",
+      creative: "bg-blue-100",
+      games: "bg-purple-100",
+      learning: "bg-yellow-100",
+    };
+
+    setIsCreating(true);
+    try {
+      const newChallenge = await api.createChallenge({
+        title: challengeForm.title,
+        description: challengeForm.description,
+        type: typeMap[challengeForm.type] ?? "ACTION",
+        difficulty: challengeForm.difficulty,
+        points: challengeForm.points,
+        duration: `${challengeForm.duration} day${challengeForm.duration === "1" ? "" : "s"}`,
+        requirements: [],
+        tips: [],
+        icon: iconMap[challengeForm.type] ?? "🌍",
+        color: colorMap[challengeForm.type] ?? "bg-green-100",
+        isPublished: true,
+      });
+
+      setAssignedChallenges((prev) => [newChallenge, ...prev]);
       setShowCreateChallenge(false);
       setChallengeForm({
         title: "",
@@ -143,15 +155,11 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
         points: 50,
         deadline: ""
       });
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active": return "bg-green-100 text-green-600";
-      case "completed": return "bg-blue-100 text-blue-600";
-      case "upcoming": return "bg-yellow-100 text-yellow-600";
-      default: return "bg-gray-100 text-gray-600";
+      alert(`✅ Challenge "${newChallenge.title}" created and assigned to students!`);
+    } catch (err: any) {
+      alert(`Failed to create challenge: ${err.message}`);
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -214,7 +222,11 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
       <div>
         <h3 className="font-medium text-gray-900 mb-3">Assigned Challenges</h3>
         <div className="space-y-3">
-          {assignedChallenges.map((challenge) => (
+          {loadingChallenges ? (
+            <div className="text-sm text-gray-500">Loading challenges...</div>
+          ) : assignedChallenges.length === 0 ? (
+            <div className="text-sm text-gray-500">No challenges assigned yet.</div>
+          ) : assignedChallenges.map((challenge) => (
             <Card key={challenge.id} className="p-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center space-x-3">
@@ -224,13 +236,19 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
                   <div>
                     <h4 className="font-medium text-gray-900">{challenge.title}</h4>
                     <p className="text-sm text-gray-600">
-                      {challengeTypes.find(t => t.id === challenge.type)?.name}
+                      {challengeTypes.find(t => t.id === challenge.type)?.name ?? challenge.type}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(challenge.status)}`}>
-                    {challenge.status.charAt(0).toUpperCase() + challenge.status.slice(1)}
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      challenge.isPublished
+                        ? "bg-green-100 text-green-700"
+                        : "bg-gray-100 text-gray-600"
+                    }`}
+                  >
+                    {challenge.isPublished ? "Published" : "Draft"}
                   </span>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(challenge.difficulty)}`}>
                     {challenge.difficulty.charAt(0).toUpperCase() + challenge.difficulty.slice(1)}
@@ -241,13 +259,17 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
               {/* Progress Bar */}
               <div className="mb-3">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm text-gray-600">Completion Progress</span>
-                  <span className="text-sm text-gray-600">{challenge.completed}/{challenge.participants} students</span>
+                  <span className="text-sm text-gray-600">Submissions</span>
+                  <span className="text-sm text-gray-600">
+                    {challenge.totalSubmissions ?? 0} submissions
+                  </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
                     className="bg-[#2ECC71] h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${(challenge.completed / challenge.participants) * 100}%` }}
+                    style={{
+                      width: `${(challenge.totalSubmissions ?? 0) > 0 ? 100 : 0}%`,
+                    }}
                   />
                 </div>
               </div>
@@ -444,10 +466,15 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
               <div className="flex items-center space-x-3 pt-4">
                 <Button
                   onClick={handleCreateChallenge}
-                  className="flex-1 bg-[#2ECC71] hover:bg-[#27AE60] text-white"
+                  disabled={isCreating}
+                  className="flex-1 bg-[#2ECC71] hover:bg-[#27AE60] text-white disabled:opacity-50"
                 >
-                  <Send className="w-4 h-4 mr-2" />
-                  Assign to Class
+                  {isCreating ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                  ) : (
+                    <Send className="w-4 h-4 mr-2" />
+                  )}
+                  {isCreating ? "Creating..." : "Assign to Class"}
                 </Button>
                 <Button
                   onClick={() => setShowCreateChallenge(false)}

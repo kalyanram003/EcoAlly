@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Users, Plus, Settings, BarChart3, Calendar, Clock } from "lucide-react";
 import { Card } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
+import * as api from "../../lib/api";
 
 interface TeacherClassManagementProps {
   currentUser: any;
@@ -12,6 +13,8 @@ interface TeacherClassManagementProps {
 export function TeacherClassManagement({ currentUser, selectedClass, onClassChange }: TeacherClassManagementProps) {
   const [showAddClass, setShowAddClass] = useState(false);
   const [newClassName, setNewClassName] = useState("");
+  const [students, setStudents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const classes = [
     {
@@ -55,6 +58,13 @@ export function TeacherClassManagement({ currentUser, selectedClass, onClassChan
       lastActivity: "6 hours ago"
     }
   ];
+
+  useEffect(() => {
+    api.getTeacherStudents()
+      .then(setStudents)
+      .catch(() => setStudents([]))
+      .finally(() => setLoading(false));
+  }, []);
 
   const handleAddClass = () => {
     if (newClassName.trim()) {
@@ -240,7 +250,7 @@ export function TeacherClassManagement({ currentUser, selectedClass, onClassChan
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center p-3 bg-[#2ECC71]/10 rounded-lg">
             <div className="text-2xl font-bold text-[#2ECC71]">
-              {classes.reduce((sum, cls) => sum + cls.students, 0)}
+              {students.length}
             </div>
             <div className="text-sm text-gray-600">Total Students</div>
           </div>

@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BarChart3, Download, Calendar, Filter, TrendingUp, Users, Trophy, Clock } from "lucide-react";
 import { Card } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
+import * as api from "../../lib/api";
 
 interface TeacherReportsProps {
   currentUser: any;
@@ -12,14 +13,29 @@ export function TeacherReports({ currentUser, selectedClass }: TeacherReportsPro
   const [reportType, setReportType] = useState<"overview" | "individual" | "activity" | "progress">("overview");
   const [timeRange, setTimeRange] = useState<"week" | "month" | "semester">("month");
 
+  const [reportData, setReportData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      api.getTeacherOverview(),
+      api.getTeacherStudents(),
+    ])
+      .then(([overview, students]) => {
+        setReportData({ overview, students });
+      })
+      .catch(() => setReportData(null))
+      .finally(() => setLoading(false));
+  }, []);
+
   const overviewData = {
-    totalStudents: 28,
-    activeStudents: 22,
+    totalStudents: reportData?.overview?.totalStudents ?? 0,
+    activeStudents: reportData?.overview?.activeToday ?? 0,
     avgProgress: 78,
-    completedChallenges: 156,
+    completedChallenges: reportData?.overview?.totalSubmissions ?? 0,
     totalPoints: 45600,
     avgTimeSpent: "2.5h",
-    topPerformer: "Sarah Chen",
+    topPerformer: reportData?.overview?.topPerformers?.[0]?.name ?? "Top Student",
     strugglingStudents: 3
   };
 
@@ -129,7 +145,9 @@ export function TeacherReports({ currentUser, selectedClass }: TeacherReportsPro
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Total Students</p>
-                  <p className="text-2xl font-bold text-gray-900">{overviewData.totalStudents}</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {overviewData.totalStudents}
+                  </p>
                 </div>
                 <Users className="w-8 h-8 text-[#2ECC71]" />
               </div>
@@ -139,7 +157,9 @@ export function TeacherReports({ currentUser, selectedClass }: TeacherReportsPro
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Active Students</p>
-                  <p className="text-2xl font-bold text-[#2ECC71]">{overviewData.activeStudents}</p>
+                  <p className="text-2xl font-bold text-[#2ECC71]">
+                    {overviewData.activeStudents}
+                  </p>
                 </div>
                 <TrendingUp className="w-8 h-8 text-[#2ECC71]" />
               </div>

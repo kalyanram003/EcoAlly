@@ -8,6 +8,7 @@ import com.backend.ecoally.repository.ChallengeSubmissionRepository;
 import com.backend.ecoally.repository.StudentRepository;
 import com.backend.ecoally.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,7 +44,7 @@ public class EcoMapController {
 
         // Fetch approved submissions that have geo coordinates
         List<ChallengeSubmission> submissions = submissionRepository
-                .findApprovedGeoTaggedSubmissions(limit);
+                .findApprovedGeoTaggedSubmissions(PageRequest.of(0, limit));
 
         List<Map<String, Object>> pins = new ArrayList<>();
 
@@ -100,7 +101,8 @@ public class EcoMapController {
      */
     @GetMapping("/stats")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getEcoMapStats() {
-        List<ChallengeSubmission> all = submissionRepository.findApprovedGeoTaggedSubmissions(10000);
+        List<ChallengeSubmission> all = submissionRepository
+                .findApprovedGeoTaggedSubmissions(PageRequest.of(0, 10000));
 
         long totalPins = all.stream().filter(s -> s.getGeoLat() != null).count();
         long nativeSpeciesCount = all.stream()

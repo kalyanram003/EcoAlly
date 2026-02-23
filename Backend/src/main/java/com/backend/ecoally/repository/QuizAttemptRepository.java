@@ -9,5 +9,7 @@ public interface QuizAttemptRepository extends MongoRepository<QuizAttempt, Stri
 
     long countByStudentId(String studentId);
 
+    long countByQuizId(String quizId);
+
     List<QuizAttempt> findTop5ByOrderByCreatedAtDesc();
 }

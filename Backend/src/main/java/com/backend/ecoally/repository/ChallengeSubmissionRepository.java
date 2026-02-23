@@ -1,6 +1,7 @@
 package com.backend.ecoally.repository;
 
 import com.backend.ecoally.model.ChallengeSubmission;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
@@ -20,5 +21,7 @@ public interface ChallengeSubmissionRepository extends MongoRepository<Challenge
 
     // Fetch approved submissions that have GPS coordinates and were auto-processed by EcoLens
     @Query("{ 'status': 'APPROVED', 'geoLat': { $ne: null }, 'geoLng': { $ne: null }, 'autoProcessed': true }")
-    List<ChallengeSubmission> findApprovedGeoTaggedSubmissions(int limit);
+    List<ChallengeSubmission> findApprovedGeoTaggedSubmissions(Pageable pageable);
+
+    long countByChallengeId(String challengeId);
 }

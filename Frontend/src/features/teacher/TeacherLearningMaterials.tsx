@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Upload, FileText, Video, Image, Link, Download, Eye, Trash2, Edit } from "lucide-react";
 import { Card } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
+import * as api from "../../lib/api";
 
 interface TeacherLearningMaterialsProps {
   currentUser: any;
@@ -19,6 +20,8 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
     fileUrl: "",
     tags: ""
   });
+  const [myQuizzes, setMyQuizzes] = useState<any[]>([]);
+  const [loadingQuizzes, setLoadingQuizzes] = useState(true);
 
   const materialTypes = [
     { id: "document", name: "Document", icon: FileText, color: "text-blue-600" },
@@ -112,6 +115,13 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
       sharedTo: ["Grade 10-A"]
     }
   ];
+
+  useEffect(() => {
+    api.getTeacherQuizzes()
+      .then(setMyQuizzes)
+      .catch(() => setMyQuizzes([]))
+      .finally(() => setLoadingQuizzes(false));
+  }, []);
 
   const handleAddMaterial = () => {
     if (materialForm.title && materialForm.type && materialForm.category) {
@@ -283,6 +293,39 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
             );
           })}
         </div>
+      </div>
+
+      {/* My Quizzes */}
+      <div>
+        <h3 className="font-medium text-gray-900 mb-3">My Quizzes</h3>
+        {loadingQuizzes ? (
+          <div className="text-center py-8 text-gray-400">Loading quizzes...</div>
+        ) : myQuizzes.length === 0 ? (
+          <div className="text-center py-8 text-gray-400">
+            <p className="text-4xl mb-2">📝</p>
+            <p>No quizzes created yet. Create your first quiz in the quizzes section.</p>
+          </div>
+        ) : (
+          myQuizzes.map((quiz) => (
+            <div key={quiz.id} className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm mb-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-semibold text-gray-800">{quiz.title}</h4>
+                  <p className="text-sm text-gray-500">
+                    {quiz.questionCount} questions · {quiz.difficulty} · {quiz.totalAttempts} attempts
+                  </p>
+                </div>
+                <span
+                  className={`text-xs px-2 py-1 rounded-full ${
+                    quiz.isPublished ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
+                  }`}
+                >
+                  {quiz.isPublished ? "Published" : "Draft"}
+                </span>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Add Material Modal */}

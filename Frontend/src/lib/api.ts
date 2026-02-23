@@ -148,3 +148,47 @@ export const reviewSubmission = (
 
 export const createQuiz = (quiz: any) =>
     req<any>('/api/quizzes', { method: 'POST', body: JSON.stringify(quiz) });
+
+// ── Teacher: Challenge Management ─────────────────────────────────────────────
+export const createChallenge = (data: {
+  title: string;
+  description: string;
+  type: string;
+  difficulty: string;
+  points: number;
+  duration: string;
+  requirements: string[];
+  tips: string[];
+  icon: string;
+  color: string;
+  isPublished: boolean;
+}) =>
+  req<any>('/api/challenges', {
+    method: 'POST',
+    body: JSON.stringify({
+      ...data,
+      difficulty: data.difficulty.toUpperCase(),   // backend expects EASY/MEDIUM/HARD
+      type: data.type.toUpperCase(),               // backend expects PHOTO/ACTION/SOCIAL/LEARNING/GAME
+    }),
+  });
+
+export const updateChallenge = (id: string, data: any) =>
+  req<any>(`/api/challenges/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+
+export const deleteChallenge = (id: string) =>
+  req<void>(`/api/challenges/${id}`, { method: 'DELETE' });
+
+// ── Teacher: Own Content ──────────────────────────────────────────────────────
+export const getTeacherQuizzes = () => req<any[]>('/api/teacher/quizzes');
+
+export const getTeacherChallenges = () => req<any[]>('/api/teacher/challenges');
+
+// ── Teacher: Quiz Management ──────────────────────────────────────────────────
+export const deleteQuiz = (id: string) =>
+  req<void>(`/api/quizzes/${id}`, { method: 'DELETE' });
+
+export const publishQuiz = (id: string) =>
+  req<any>(`/api/quizzes/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({ isPublished: true }),
+  });

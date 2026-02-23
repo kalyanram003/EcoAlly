@@ -96,9 +96,10 @@ public class QuestService {
                     });
 
             if (!progress.isCompleted()) {
-                int newProgress = Math.min(progress.getProgress() + increment, quest.getMaxProgress());
+                int maxProgress = quest.getTarget();
+                int newProgress = Math.min(progress.getProgress() + increment, maxProgress);
                 progress.setProgress(newProgress);
-                if (newProgress >= quest.getMaxProgress()) {
+                if (newProgress >= maxProgress) {
                     progress.setCompleted(true);
                     progress.setCompletedAt(LocalDateTime.now());
                 }

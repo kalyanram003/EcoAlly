@@ -5,6 +5,7 @@ from PIL import Image
 import numpy as np
 import requests
 from io import BytesIO
+import os
 
 # ── Categories your model classifies ──────────────────────────────────────────
 ECO_CATEGORIES = [
@@ -62,6 +63,12 @@ class EcoLensClassifier:
             nn.Dropout(p=0.2, inplace=False),
             nn.Linear(in_features, len(ECO_CATEGORIES))
         )
+
+        # Load fine-tuned weights if available (from PART 6 training)
+        weights_path = "model/weights/ecolens_finetuned.pth"
+        if os.path.exists(weights_path):
+            model.load_state_dict(torch.load(weights_path, map_location=self.device))
+            print("[EcoLens] Loaded fine-tuned weights ✓")
 
         model = model.to(self.device)
         model.eval()
