@@ -37,7 +37,7 @@ public class LeaderboardController {
         if (students.size() > limit) {
             students = students.subList(0, limit);
         }
-        String currentStudentId = null;
+        Long currentStudentId = null;
         Student currentStudentRecord = null;
         if (currentUser != null) {
             currentStudentRecord = studentRepository.findByUserId(currentUser.getId()).orElse(null);
@@ -45,7 +45,7 @@ public class LeaderboardController {
                 currentStudentId = currentStudentRecord.getId();
             }
         }
-        final String finalCurrentStudentId = currentStudentId;
+        final Long finalCurrentStudentId = currentStudentId;
         final Student finalCurrentStudentRecord = currentStudentRecord;
         int[] rank = { 1 };
         List<Map<String, Object>> entries = students.stream().map(student -> {

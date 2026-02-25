@@ -18,7 +18,7 @@ public class StreakService {
 
     private final StudentRepository studentRepository;
 
-    public Map<String, Object> updateStreak(String studentId) {
+    public Map<String, Object> updateStreak(Long studentId) {
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> AppException.notFound("Student not found"));
 

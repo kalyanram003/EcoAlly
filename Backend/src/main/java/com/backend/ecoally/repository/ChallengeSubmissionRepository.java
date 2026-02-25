@@ -2,26 +2,32 @@ package com.backend.ecoally.repository;
 
 import com.backend.ecoally.model.ChallengeSubmission;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.Query;
-
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import java.util.List;
+import java.util.Optional;
 
-public interface ChallengeSubmissionRepository extends MongoRepository<ChallengeSubmission, String> {
+public interface ChallengeSubmissionRepository extends JpaRepository<ChallengeSubmission, Long> {
+    List<ChallengeSubmission> findByStudentId(Long studentId);
 
-    List<ChallengeSubmission> findByStudentIdOrderByCreatedAtDesc(String studentId);
+    List<ChallengeSubmission> findByStudentIdOrderByCreatedAtDesc(Long studentId);
+
+    List<ChallengeSubmission> findByChallengeId(Long challengeId);
+
+    List<ChallengeSubmission> findByStatus(ChallengeSubmission.SubmissionStatus status);
 
     List<ChallengeSubmission> findByStatusOrderByCreatedAtDesc(ChallengeSubmission.SubmissionStatus status);
 
-    long countByStudentIdAndStatus(String studentId, ChallengeSubmission.SubmissionStatus status);
+    List<ChallengeSubmission> findTop5ByOrderByCreatedAtDesc();
+
+    Optional<ChallengeSubmission> findByStudentIdAndChallengeId(Long studentId, Long challengeId);
+
+    long countByStudentIdAndStatus(Long studentId, ChallengeSubmission.SubmissionStatus status);
+
+    long countByChallengeId(Long challengeId);
 
     long countByStatus(ChallengeSubmission.SubmissionStatus status);
 
-    List<ChallengeSubmission> findTop5ByOrderByCreatedAtDesc();
-
-    // Fetch approved submissions that have GPS coordinates and were auto-processed by EcoLens
-    @Query("{ 'status': 'APPROVED', 'geoLat': { $ne: null }, 'geoLng': { $ne: null }, 'autoProcessed': true }")
+    @Query("SELECT s FROM ChallengeSubmission s WHERE s.status = 'APPROVED' AND s.geoLat IS NOT NULL AND s.geoLng IS NOT NULL ORDER BY s.createdAt DESC")
     List<ChallengeSubmission> findApprovedGeoTaggedSubmissions(Pageable pageable);
-
-    long countByChallengeId(String challengeId);
 }

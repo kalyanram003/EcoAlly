@@ -1,11 +1,16 @@
 package com.backend.ecoally.service;
 
+import com.backend.ecoally.dto.response.MLAnalysisResult;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.http.*;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,48 +19,59 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class EcoLensService {
 
-    // ML service URL — change to deployed URL in production
-    private static final String ML_SERVICE_URL = "http://localhost:8000/analyze";
+    private static final Logger log = LoggerFactory.getLogger(EcoLensService.class);
+
+    @Value("${ml.service.url:http://localhost:5000}")
+    private String mlServiceUrl;
 
     private final RestTemplate restTemplate;
-    private final ObjectMapper objectMapper;
 
-    public Map<String, Object> analyzeImage(String imageUrl, Double geoLat, Double geoLng) {
+    public MLAnalysisResult analyzeImage(
+            String imageUrl,
+            Double geoLat,
+            Double geoLng,
+            String studentId,
+            String challengeId
+    ) {
         try {
-            // Build request body
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("imageUrl", imageUrl);
             if (geoLat != null) requestBody.put("geoLat", geoLat);
             if (geoLng != null) requestBody.put("geoLng", geoLng);
+            if (studentId != null) requestBody.put("studentId", studentId);
+            if (challengeId != null) requestBody.put("challengeId", challengeId);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
-            ResponseEntity<String> response = restTemplate.postForEntity(
-                ML_SERVICE_URL, entity, String.class
+            String url = mlServiceUrl.endsWith("/")
+                    ? mlServiceUrl + "analyze"
+                    : mlServiceUrl + "/analyze";
+
+            ResponseEntity<MLAnalysisResult> response = restTemplate.postForEntity(
+                    url,
+                    entity,
+                    MLAnalysisResult.class
             );
 
-            if (response.getStatusCode() == HttpStatus.OK) {
-                JsonNode json = objectMapper.readTree(response.getBody());
-                Map<String, Object> result = new HashMap<>();
-                result.put("ecoScore", json.get("ecoScore").asDouble());
-                result.put("detectedCategory", json.get("category").asText());
-                result.put("detectedSpecies", json.has("detectedSpecies") && !json.get("detectedSpecies").isNull()
-                    ? json.get("detectedSpecies").asText() : null);
-                result.put("isNativeSpecies", json.has("isNativeSpecies") && !json.get("isNativeSpecies").isNull()
-                    ? json.get("isNativeSpecies").asBoolean() : null);
-                result.put("autoDecision", json.get("autoDecision").asText());
-                result.put("autoDecisionReason", json.get("autoDecisionReason").asText());
-                result.put("bonusMultiplier", json.get("bonusMultiplier").asDouble());
-                return result;
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                MLAnalysisResult body = response.getBody();
+                if (body.isSuccess()) {
+                    return body;
+                }
+                log.warn("[EcoLens] ML service responded with success=false: {}", body.getAutoDecisionReason());
+            } else {
+                log.warn("[EcoLens] ML service returned non-2xx status: {}", response.getStatusCode());
             }
 
         } catch (Exception e) {
             // ML service is down — degrade gracefully, let teacher review manually
-            System.err.println("[EcoLens] ML service unavailable: " + e.getMessage());
+            log.error("[EcoLens] ML service unavailable: {}", e.getMessage(), e);
         }
 
-        return null; // null = ML service unavailable, fall back to manual review
+        // null = ML service unavailable or unsuccessful, fall back to manual review
+        return null;
     }
 }
+

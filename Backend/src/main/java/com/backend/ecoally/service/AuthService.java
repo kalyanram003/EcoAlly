@@ -60,7 +60,7 @@ public class AuthService {
         // Create role-specific record
         Object roleRecord = createRoleRecord(user, req);
 
-        String token = jwtUtils.generateToken(user.getId(), user.getUserType().name());
+        String token = jwtUtils.generateToken(user.getId().toString(), user.getUserType().name());
 
         Map<String, Object> result = new HashMap<>();
         result.put("user", buildUserDto(user));
@@ -82,7 +82,7 @@ public class AuthService {
         }
 
         Object roleRecord = getRoleRecord(user);
-        String token = jwtUtils.generateToken(user.getId(), user.getUserType().name());
+        String token = jwtUtils.generateToken(user.getId().toString(), user.getUserType().name());
 
         Map<String, Object> result = new HashMap<>();
         result.put("user", buildUserDto(user));
@@ -91,7 +91,7 @@ public class AuthService {
         return result;
     }
 
-    public Map<String, Object> getMe(String userId) {
+    public Map<String, Object> getMe(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> AppException.notFound("User not found"));
 

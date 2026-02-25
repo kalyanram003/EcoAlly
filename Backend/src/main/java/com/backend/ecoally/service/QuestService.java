@@ -43,10 +43,10 @@ public class QuestService {
             }
         }
 
-        return new LocalDateTime[]{start, end};
+        return new LocalDateTime[] { start, end };
     }
 
-    public List<Map<String, Object>> getActiveQuests(String studentId) {
+    public List<Map<String, Object>> getActiveQuests(Long studentId) {
         List<Quest> quests = questRepository.findByIsActiveTrue();
         List<Map<String, Object>> result = new ArrayList<>();
 
@@ -77,8 +77,8 @@ public class QuestService {
         return result;
     }
 
-    public void updateQuestProgress(String studentId, Quest.QuestType questType, int increment) {
-        List<Quest> quests = questRepository.findByTypeAndIsActiveTrue(questType);
+    public void updateQuestProgress(Long studentId, Quest.QuestType questType, int increment) {
+        List<Quest> quests = questRepository.findByIsActiveTrueAndType(questType);
         LocalDateTime[] period = getPeriodBoundaries(questType);
 
         for (Quest quest : quests) {
@@ -108,7 +108,7 @@ public class QuestService {
         }
     }
 
-    public Map<String, Object> claimQuestReward(String studentId, String questId) {
+    public Map<String, Object> claimQuestReward(Long studentId, Long questId) {
         Quest quest = questRepository.findById(questId)
                 .orElseThrow(() -> AppException.notFound("Quest not found"));
 

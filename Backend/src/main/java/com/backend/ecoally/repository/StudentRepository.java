@@ -1,13 +1,15 @@
 package com.backend.ecoally.repository;
 
 import com.backend.ecoally.model.Student;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public interface StudentRepository extends MongoRepository<Student, String> {
-    Optional<Student> findByUserId(String userId);
+public interface StudentRepository extends JpaRepository<Student, Long> {
+    Optional<Student> findByUserId(Long userId);
+
+    boolean existsByUserId(Long userId);
 
     List<Student> findAllByOrderByPointsDesc();
 

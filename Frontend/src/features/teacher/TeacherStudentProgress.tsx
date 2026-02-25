@@ -21,7 +21,7 @@ export function TeacherStudentProgress({ currentUser, selectedClass }: TeacherSt
     api.getTeacherStudents()
       .then((data) => {
         const mapped = data.map((s: any) => ({
-          id: s.id ?? s.userId ?? s._id,
+          id: String(s.id ?? s.userId),
           name: s.name ?? (`${s.firstName ?? ""} ${s.lastName ?? ""}`.trim() || s.username || "Student"),
           avatar: s.avatarUrl ?? "👤",
           email: s.email ?? "",

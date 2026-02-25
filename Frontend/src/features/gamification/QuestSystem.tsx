@@ -33,7 +33,7 @@ export function QuestSystem({ onCompleteQuest }: QuestSystemProps) {
     api.getQuests()
       .then((data) => {
         const mapped: Quest[] = data.map((q: any) => ({
-          id: q.id ?? q._id,
+          id: String(q.id),
           // backend sends "DAILY", "WEEKLY", "EPIC" — convert to lowercase
           type: (q.type ? q.type.toLowerCase() : "daily") as "daily" | "weekly" | "epic",
           title: q.title ?? "Quest",

@@ -43,7 +43,7 @@ public class GamificationController {
         Student student = studentRepository.findByUserId(user.getId())
                 .orElseThrow(() -> AppException.notFound("Student profile not found"));
 
-        Map<String, Object> result = questService.claimQuestReward(student.getId(), id);
+        Map<String, Object> result = questService.claimQuestReward(student.getId(), Long.parseLong(id));
         return ResponseEntity.ok(ApiResponse.success(result));
     }
 

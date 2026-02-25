@@ -68,7 +68,7 @@ public class QuizController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<Quiz>> getQuizById(
-            @PathVariable String id,
+            @PathVariable Long id,
             @AuthenticationPrincipal User user) {
         Quiz quiz = quizRepository.findById(id)
                 .orElseThrow(() -> AppException.notFound("Quiz not found"));
@@ -98,12 +98,19 @@ public class QuizController {
         quiz.setPublished(request.isPublished());
         quiz.setCreatedBy(user.getId());
 
-        // Assign IDs to questions
+        // Link questions to the quiz (JPA auto-generates IDs)
         if (request.getQuestions() != null) {
-            request.getQuestions().forEach(q -> {
-                if (q.getId() == null) q.setId(UUID.randomUUID().toString());
-            });
-            quiz.setQuestions(request.getQuestions());
+            List<Question> questions = request.getQuestions().stream().map(dto -> {
+                Question q = new Question();
+                q.setQuiz(quiz);
+                q.setText(dto.getText());
+                q.setOptions(dto.getOptions());
+                q.setCorrectAnswer(dto.getCorrectAnswer());
+                q.setExplanation(dto.getExplanation());
+                q.setQuestionOrder(dto.getQuestionOrder());
+                return q;
+            }).collect(Collectors.toList());
+            quiz.setQuestions(questions);
         }
 
         Quiz saved = quizRepository.save(quiz);
@@ -113,7 +120,7 @@ public class QuizController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<ApiResponse<Quiz>> updateQuiz(
-            @PathVariable String id,
+            @PathVariable Long id,
             @RequestBody CreateQuizRequest request,
             @AuthenticationPrincipal User user) {
         Quiz quiz = quizRepository.findById(id)
@@ -123,13 +130,29 @@ public class QuizController {
             throw AppException.forbidden("Not authorized to update this quiz");
         }
 
-        if (request.getTitle() != null) quiz.setTitle(request.getTitle());
-        if (request.getDescription() != null) quiz.setDescription(request.getDescription());
-        if (request.getTopic() != null) quiz.setTopic(request.getTopic());
-        if (request.getDifficulty() != null) quiz.setDifficulty(request.getDifficulty());
+        if (request.getTitle() != null)
+            quiz.setTitle(request.getTitle());
+        if (request.getDescription() != null)
+            quiz.setDescription(request.getDescription());
+        if (request.getTopic() != null)
+            quiz.setTopic(request.getTopic());
+        if (request.getDifficulty() != null)
+            quiz.setDifficulty(request.getDifficulty());
         quiz.setTimeLimit(request.getTimeLimit());
         quiz.setPublished(request.isPublished());
-        if (request.getQuestions() != null) quiz.setQuestions(request.getQuestions());
+        if (request.getQuestions() != null) {
+            List<Question> questions = request.getQuestions().stream().map(dto -> {
+                Question q = new Question();
+                q.setQuiz(quiz);
+                q.setText(dto.getText());
+                q.setOptions(dto.getOptions());
+                q.setCorrectAnswer(dto.getCorrectAnswer());
+                q.setExplanation(dto.getExplanation());
+                q.setQuestionOrder(dto.getQuestionOrder());
+                return q;
+            }).collect(Collectors.toList());
+            quiz.setQuestions(questions);
+        }
 
         Quiz updated = quizRepository.save(quiz);
         return ResponseEntity.ok(ApiResponse.success(updated));
@@ -138,7 +161,7 @@ public class QuizController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<ApiResponse<Void>> deleteQuiz(
-            @PathVariable String id,
+            @PathVariable Long id,
             @AuthenticationPrincipal User user) {
         Quiz quiz = quizRepository.findById(id)
                 .orElseThrow(() -> AppException.notFound("Quiz not found"));
@@ -154,7 +177,7 @@ public class QuizController {
     @PostMapping("/{id}/submit")
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<ApiResponse<Map<String, Object>>> submitQuiz(
-            @PathVariable String id,
+            @PathVariable Long id,
             @RequestBody SubmitQuizRequest request,
             @AuthenticationPrincipal User user) {
 
@@ -169,9 +192,11 @@ public class QuizController {
                 .orElseThrow(() -> AppException.notFound("Student profile not found"));
 
         // Calculate score
+        // answers map uses String keys (question id as string) from the client
         int correctAnswers = 0;
-        for (Quiz.Question question : quiz.getQuestions()) {
-            Integer userAnswer = request.getAnswers().get(question.getId());
+        for (Question question : quiz.getQuestions()) {
+            String qKey = question.getId().toString();
+            Integer userAnswer = request.getAnswers().get(qKey);
             if (userAnswer != null && userAnswer == question.getCorrectAnswer()) {
                 correctAnswers++;
             }
@@ -183,7 +208,7 @@ public class QuizController {
         Map<String, Integer> rewards = pointsService.calculateQuizRewards(
                 quiz.getDifficulty().name(), score);
 
-        // Save attempt
+        // Save attempt (answers keyed by String for JSONB storage)
         QuizAttempt attempt = new QuizAttempt();
         attempt.setStudentId(student.getId());
         attempt.setQuizId(quiz.getId());
@@ -208,14 +233,15 @@ public class QuizController {
 
         // Build detailed results
         List<Map<String, Object>> questionResults = quiz.getQuestions().stream().map(q -> {
+            String qKey = q.getId().toString();
             Map<String, Object> qResult = new HashMap<>();
             qResult.put("_id", q.getId());
             qResult.put("text", q.getText());
             qResult.put("options", q.getOptions());
             qResult.put("correctAnswer", q.getCorrectAnswer());
             qResult.put("explanation", q.getExplanation());
-            qResult.put("userAnswer", request.getAnswers().get(q.getId()));
-            qResult.put("isCorrect", request.getAnswers().getOrDefault(q.getId(), -1) == q.getCorrectAnswer());
+            qResult.put("userAnswer", request.getAnswers().get(qKey));
+            qResult.put("isCorrect", Objects.equals(request.getAnswers().get(qKey), q.getCorrectAnswer()));
             return qResult;
         }).collect(Collectors.toList());
 

@@ -1,13 +1,12 @@
 package com.backend.ecoally.model;
 
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,23 +14,27 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "users")
+@Entity
+@Table(name = "users")
+@EntityListeners(AuditingEntityListener.class)
 public class User {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Indexed(unique = true, sparse = true)
+    @Column(unique = true)
     private String email;
 
-    @Indexed(unique = true, sparse = true)
+    @Column(unique = true)
     private String phone;
 
-    @Indexed(unique = true)
+    @Column(unique = true, nullable = false)
     private String username;
 
     private String password;
 
+    @Enumerated(EnumType.STRING)
     private UserType userType;
 
     private String firstName;
@@ -46,6 +49,7 @@ public class User {
     private boolean isActive = true;
 
     @CreatedDate
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate

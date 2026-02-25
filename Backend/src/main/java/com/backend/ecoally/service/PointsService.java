@@ -22,14 +22,18 @@ public class PointsService {
     }
 
     public String calculateTier(int points) {
-        if (points >= 10000) return "legend";
-        if (points >= 5000) return "master";
-        if (points >= 2000) return "guardian";
-        if (points >= 500) return "explorer";
+        if (points >= 10000)
+            return "legend";
+        if (points >= 5000)
+            return "master";
+        if (points >= 2000)
+            return "guardian";
+        if (points >= 500)
+            return "explorer";
         return "sprout";
     }
 
-    public Map<String, Object> addPoints(String studentId, int points, int coins) {
+    public Map<String, Object> addPoints(Long studentId, int points, int coins) {
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> AppException.notFound("Student not found"));
 
@@ -67,7 +71,7 @@ public class PointsService {
         return Map.of("points", points, "coins", coins);
     }
 
-    public Map<String, Object> awardChallengePoints(String studentId, int points) {
+    public Map<String, Object> awardChallengePoints(Long studentId, int points) {
         int coins = points / 5;
         return addPoints(studentId, points, coins);
     }

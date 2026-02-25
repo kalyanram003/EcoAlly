@@ -1,248 +1,428 @@
-import torch
-import torch.nn as nn
-from torchvision import models, transforms
-from PIL import Image
+"""
+ecolens_classifier.py — EcoLens CNN Classifier for EcoAlly
+===========================================================
+Architecture : MobileNetV2 fine-tuned on eco-action categories
+Species ID   : PlantNet API (POST multipart — correct v2 API usage)
+               → colour heuristic fallback when API unavailable
+Native check : geo_utils.is_species_native() with BigDataCloud geocoding
+Anti-cheat   : image_utils.detect_cheating() (no OpenCV needed)
+Caching      : in-memory hash cache for species lookups (saves API quota)
+"""
+
+import os
+import logging
+import hashlib
+from io import BytesIO
+
 import numpy as np
 import requests
-from io import BytesIO
-import os
+import torch
+import torch.nn as nn
+from PIL import Image
+from torchvision import models, transforms
 
-# ── Categories your model classifies ──────────────────────────────────────────
+from utils.geo_utils import is_species_native
+from utils.image_utils import (
+    download_image,
+    get_image_quality_score,
+    detect_cheating,
+)
+
+logger = logging.getLogger(__name__)
+
 ECO_CATEGORIES = [
-    "plant",        # 0 - trees, shrubs, flowers, crops
-    "water_body",   # 1 - river, pond, lake, ocean cleanup
-    "waste",        # 2 - garbage collection, recycling, composting
-    "wildlife",     # 3 - birds, insects, animals in nature
-    "urban_green",  # 4 - parks, gardens, green rooftops
-    "irrelevant"    # 5 - selfies, screenshots, unrelated photos
+    "plant",
+    "water_body",
+    "waste",
+    "wildlife",
+    "urban_green",
+    "irrelevant",
 ]
 
-# ── Species name lookup (simplified — expand this list for your region) ───────
-SPECIES_MAP = {
-    "plant": [
-        "Neem Tree (Azadirachta indica)",
-        "Banyan Tree (Ficus benghalensis)",
-        "Tulsi (Ocimum tenuiflorum)",
-        "Peepal Tree (Ficus religiosa)",
-        "Bamboo (Bambusoideae)",
-        "Sunflower (Helianthus annuus)",
-        "Marigold (Tagetes)",
-        "Aloe Vera (Aloe barbadensis)",
-        "Hibiscus (Hibiscus rosa-sinensis)",
-        "Rose (Rosa)",
-    ]
+PLANTNET_API_KEY = os.getenv("PLANTNET_API_KEY", "")
+PLANTNET_URL = "https://my-api.plantnet.org/v2/identify/all"
+PLANTNET_MIN_CONF = 0.15
+
+_IMAGENET_ECO_MAP = {
+    "plant": set(list(range(0, 30)) + [940, 985, 986, 987, 992, 993]),
+    "wildlife": set(list(range(80, 400))),
+    "water_body": {978, 979, 980, 955, 736, 973, 974, 975},
+    "waste": {412, 413, 440, 441, 468, 469, 530, 531},
+    "urban_green": {716, 726, 733, 866, 580, 832, 833},
 }
 
-# ── Native species for India (expand based on your target regions) ─────────────
-NATIVE_SPECIES_INDIA = [
-    "Neem Tree (Azadirachta indica)",
-    "Banyan Tree (Ficus benghalensis)",
-    "Tulsi (Ocimum tenuiflorum)",
-    "Peepal Tree (Ficus religiosa)",
-    "Bamboo (Bambusoideae)",
-]
 
 class EcoLensClassifier:
     def __init__(self):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        print(f"[EcoLens] Running on: {self.device}")
-        self.model = self._build_model()
+        logger.info(f"[EcoLens] Device: {self.device}")
+
+        self.model, self.is_finetuned = self._build_model()
         self.transform = self._build_transform()
+        self._species_cache: dict = {}
 
-    def _build_model(self):
-        """
-        MobileNetV2 with custom classification head.
-        Pretrained on ImageNet — works well for plant/nature images out of the box.
-        For better accuracy, fine-tune on PlantNet dataset (see Training Guide below).
-        """
-        model = models.mobilenet_v2(weights=models.MobileNet_V2_Weights.IMAGENET1K_V1)
-
-        # Replace the final classifier with our eco-category head
-        in_features = model.classifier[1].in_features
-        model.classifier = nn.Sequential(
-            nn.Dropout(p=0.2, inplace=False),
-            nn.Linear(in_features, len(ECO_CATEGORIES))
-        )
-
-        # Load fine-tuned weights if available (from PART 6 training)
-        weights_path = "model/weights/ecolens_finetuned.pth"
-        if os.path.exists(weights_path):
-            model.load_state_dict(torch.load(weights_path, map_location=self.device))
-            print("[EcoLens] Loaded fine-tuned weights ✓")
-
-        model = model.to(self.device)
-        model.eval()
-        return model
-
-    def _build_transform(self):
-        """Standard ImageNet preprocessing — MUST match training transforms."""
-        return transforms.Compose([
-            transforms.Resize(256),
-            transforms.CenterCrop(224),
-            transforms.ToTensor(),
-            transforms.Normalize(
-                mean=[0.485, 0.456, 0.406],
-                std=[0.229, 0.224, 0.225]
+        if self.is_finetuned:
+            logger.info("[EcoLens] ✓ Fine-tuned weights loaded")
+        else:
+            logger.warning(
+                "[EcoLens] ⚠ No fine-tuned weights — using ImageNet fallback. "
+                "Run train.py for best accuracy."
             )
-        ])
 
-    def load_image_from_url(self, url: str) -> Image.Image:
-        """Download image from Cloudinary URL and convert to PIL Image."""
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        image = Image.open(BytesIO(response.content)).convert("RGB")
-        return image
+        if not PLANTNET_API_KEY:
+            logger.warning(
+                "[EcoLens] ⚠ PLANTNET_API_KEY not set — species ID uses "
+                "colour heuristic only."
+            )
+
+    def _build_model(self) -> tuple:
+        weights_path = os.getenv(
+            "MODEL_WEIGHTS_PATH", "model/weights/ecolens_finetuned.pth"
+        )
+        is_finetuned = os.path.exists(weights_path)
+
+        if is_finetuned:
+            model = models.mobilenet_v2(weights=None)
+            in_features = model.classifier[1].in_features
+            model.classifier = nn.Sequential(
+                nn.Dropout(p=0.2),
+                nn.Linear(in_features, len(ECO_CATEGORIES)),
+            )
+            model.load_state_dict(torch.load(weights_path, map_location=self.device))
+        else:
+            model = models.mobilenet_v2(
+                weights=models.MobileNet_V2_Weights.IMAGENET1K_V1
+            )
+
+        model.to(self.device).eval()
+        return model, is_finetuned
+
+    def _build_transform(self) -> transforms.Compose:
+        return transforms.Compose(
+            [
+                transforms.Resize(256),
+                transforms.CenterCrop(224),
+                transforms.ToTensor(),
+                transforms.Normalize(
+                    mean=[0.485, 0.456, 0.406],
+                    std=[0.229, 0.224, 0.225],
+                ),
+            ]
+        )
 
     def predict(self, image_url: str, geo_lat: float = None, geo_lng: float = None) -> dict:
-        """
-        Main prediction function.
-        Returns: category, confidence, ecoScore, detectedSpecies, isNative, reason
-        """
         try:
-            image = self.load_image_from_url(image_url)
+            image = download_image(image_url)
         except Exception as e:
-            return self._error_response(f"Could not load image: {str(e)}")
+            return self._error_response(str(e))
 
-        # Run inference
+        cheat = detect_cheating(image)
+        cheat_penalty = cheat["confidence_penalty"]
+        if cheat["is_suspicious"]:
+            logger.warning(f"[EcoLens] ⚠ Suspicious: {cheat['issues']}")
+
         tensor = self.transform(image).unsqueeze(0).to(self.device)
-
         with torch.no_grad():
             logits = self.model(tensor)
-            probabilities = torch.softmax(logits, dim=1)
-            confidence, predicted_idx = torch.max(probabilities, dim=1)
+            probs = torch.softmax(logits, dim=1)
+            conf, pred_idx = torch.max(probs, dim=1)
 
-        confidence_val = float(confidence.item())
-        category = ECO_CATEGORIES[int(predicted_idx.item())]
-        category_prob = float(probabilities[0][int(predicted_idx.item())].item())
+        if self.is_finetuned:
+            category = ECO_CATEGORIES[int(pred_idx.item())]
+            category_conf = float(conf.item())
+        else:
+            category, category_conf = self._imagenet_to_eco(probs[0].cpu().numpy())
 
-        # ── EcoScore Calculation ───────────────────────────────────────────────
-        eco_score = self._calculate_eco_score(
-            category=category,
-            confidence=confidence_val,
-            image=image
-        )
+        effective_conf = max(0.0, category_conf - (cheat_penalty / 100))
 
-        # ── Species Detection (if plant category) ─────────────────────────────
         detected_species = None
-        is_native = None
-        if category == "plant" and confidence_val > 0.5:
-            detected_species = self._identify_species(image)
-            is_native = detected_species in NATIVE_SPECIES_INDIA
+        common_name = None
+        species_conf = 0.0
 
-        # ── Auto-decision reasoning ────────────────────────────────────────────
-        reason = self._generate_reason(category, eco_score, confidence_val, detected_species)
+        if category == "plant" and effective_conf > 0.45:
+            plantnet = self._identify_species_plantnet(image, image_url)
+            if plantnet:
+                detected_species = plantnet["scientific_name"]
+                common_name = plantnet["common_name"]
+                species_conf = plantnet["confidence"]
+            else:
+                fallback = self._identify_species_heuristic(image)
+                detected_species = fallback["scientific_name"]
+                common_name = fallback["common_name"]
+                species_conf = fallback["confidence"]
+
+        native_result = None
+        if detected_species:
+            native_result = is_species_native(detected_species, geo_lat, geo_lng)
+
+        is_native = native_result["is_native"] if native_result else None
+        native_pts = native_result["points"] if native_result else 0
+
+        if detected_species and common_name and detected_species != common_name:
+            display_species = f"{common_name} ({detected_species})"
+        else:
+            display_species = detected_species
+
+        score_data = self._calculate_eco_score(
+            category=category,
+            confidence=effective_conf,
+            image=image,
+            species_conf=species_conf,
+            native_pts=native_pts,
+            geo_lat=geo_lat,
+            geo_lng=geo_lng,
+            cheat_penalty=cheat_penalty,
+        )
+        eco_score = score_data["total"]
+
+        auto_decision = self._get_auto_decision(
+            eco_score, cheat["requires_manual_review"]
+        )
+        reason = self._generate_reason(
+            category, eco_score, effective_conf, display_species, cheat["is_suspicious"]
+        )
 
         return {
             "success": True,
             "category": category,
-            "confidence": round(confidence_val * 100, 2),
+            "confidence": round(effective_conf * 100, 2),
             "ecoScore": eco_score,
-            "detectedSpecies": detected_species,
+            "detectedSpecies": display_species,
             "isNativeSpecies": is_native,
-            "autoDecision": self._get_auto_decision(eco_score),
+            "autoDecision": auto_decision,
             "autoDecisionReason": reason,
-            "bonusMultiplier": self._get_bonus_multiplier(detected_species, is_native)
+            "bonusMultiplier": self._get_bonus_multiplier(
+                display_species, is_native
+            ),
+            "scoreBreakdown": score_data["breakdown"],
+            "cheatFlags": cheat["issues"],
         }
 
-    def _calculate_eco_score(self, category: str, confidence: float, image: Image.Image) -> int:
-        """
-        EcoScore formula:
-          Base score from category relevance (0-60)
-          + Confidence bonus (0-25)
-          + Image quality bonus (0-15)
-        """
-        # Base scores per category
-        category_base = {
-            "plant": 60,
-            "water_body": 55,
-            "waste": 50,
-            "wildlife": 58,
-            "urban_green": 45,
-            "irrelevant": 0
-        }
+    def _identify_species_plantnet(
+        self, image: Image.Image, image_url: str
+    ) -> dict | None:
+        if not PLANTNET_API_KEY:
+            return None
 
-        base = category_base.get(category, 0)
-        confidence_bonus = int(confidence * 25)  # max 25 points
-        quality_bonus = self._image_quality_score(image)  # max 15 points
+        img_hash = self._image_hash(image)
+        if img_hash in self._species_cache:
+            logger.info("[PlantNet] Cache hit ✓")
+            return self._species_cache[img_hash]
 
-        raw_score = base + confidence_bonus + quality_bonus
-        return min(100, max(0, raw_score))
+        try:
+            buffer = BytesIO()
+            image.save(buffer, format="JPEG", quality=85)
+            buffer.seek(0)
 
-    def _image_quality_score(self, image: Image.Image) -> int:
-        """
-        Simple image quality heuristic:
-        - Check resolution (higher is better, up to a point)
-        - Check if not blurry (using pixel variance as proxy)
-        Returns: 0–15
-        """
-        width, height = image.size
-        pixels = np.array(image.convert("L"))  # grayscale
+            files = {"images": ("photo.jpg", buffer, "image/jpeg")}
+            data = {"organs": ["auto"]}
+            params = {
+                "api-key": PLANTNET_API_KEY,
+                "include-related-images": "false",
+                "lang": "en",
+            }
 
-        # Variance as blur proxy (higher variance = sharper image)
-        variance = float(np.var(pixels))
-        resolution_score = min(8, int((width * height) / (640 * 480) * 8))
-        sharpness_score = min(7, int(variance / 500))
+            resp = requests.post(
+                PLANTNET_URL, params=params, files=files, data=data, timeout=10
+            )
+            resp.raise_for_status()
+            api_data = resp.json()
 
-        return resolution_score + sharpness_score
+            results = api_data.get("results", [])
+            if not results:
+                return None
 
-    def _identify_species(self, image: Image.Image) -> str:
-        """
-        Simplified species identification.
-        For production: integrate PlantNet API (free, 500 requests/day) 
-        or fine-tune a second model head on plant species.
-        Currently returns best-guess from visual features.
-        """
-        # Placeholder: in production replace with PlantNet API call
-        # See Step 1.6 for PlantNet integration
-        pixels = np.array(image)
-        green_ratio = np.mean(pixels[:, :, 1]) / (np.mean(pixels[:, :, 0]) + 1e-5)
+            top = results[0]
+            score = top.get("score", 0)
 
-        if green_ratio > 1.3:
-            return "Neem Tree (Azadirachta indica)"  # Very green = likely tree
-        elif green_ratio > 1.1:
-            return "Tulsi (Ocimum tenuiflorum)"
+            if score < PLANTNET_MIN_CONF:
+                logger.info(f"[PlantNet] Low confidence ({score:.2%}) — discarding")
+                return None
+
+            scientific = top["species"]["scientificNameWithoutAuthor"]
+            common_names = top["species"].get("commonNames", [])
+            common = common_names[0] if common_names else scientific.split()[0]
+
+            result = {
+                "scientific_name": scientific,
+                "common_name": common,
+                "confidence": score,
+            }
+            self._species_cache[img_hash] = result
+            logger.info(f"[PlantNet] ✓ {scientific} ({score:.2%})")
+            return result
+
+        except requests.exceptions.Timeout:
+            logger.warning("[PlantNet] Timeout — using heuristic")
+        except requests.exceptions.HTTPError as e:
+            logger.warning(f"[PlantNet] HTTP {e.response.status_code} — using heuristic")
+        except Exception as e:
+            logger.warning(f"[PlantNet] Error: {e} — using heuristic")
+
+        return None
+
+    def _identify_species_heuristic(self, image: Image.Image) -> dict:
+        pixels = np.array(image, dtype=float)
+        r = np.mean(pixels[:, :, 0])
+        g = np.mean(pixels[:, :, 1])
+        b = np.mean(pixels[:, :, 2])
+        green_ratio = g / (r + 1e-5)
+        is_warm_flower = r > g and r > b and r > 120
+
+        if green_ratio > 1.3 and g > 80:
+            return {
+                "scientific_name": "Azadirachta indica",
+                "common_name": "Neem Tree",
+                "confidence": 0.35,
+            }
+        elif green_ratio > 1.15:
+            return {
+                "scientific_name": "Ocimum tenuiflorum",
+                "common_name": "Tulsi",
+                "confidence": 0.30,
+            }
+        elif is_warm_flower and r > b * 1.3:
+            return {
+                "scientific_name": "Hibiscus rosa-sinensis",
+                "common_name": "Hibiscus",
+                "confidence": 0.25,
+            }
+        elif is_warm_flower:
+            return {
+                "scientific_name": "Tagetes",
+                "common_name": "Marigold",
+                "confidence": 0.25,
+            }
         else:
-            return "Hibiscus (Hibiscus rosa-sinensis)"
+            return {
+                "scientific_name": "Unknown",
+                "common_name": "Unknown Plant",
+                "confidence": 0.10,
+            }
 
-    def _get_auto_decision(self, eco_score: int) -> str:
-        """Auto-decision thresholds matching Spring Boot logic."""
+    def _imagenet_to_eco(self, probs: np.ndarray) -> tuple:
+        scores = {
+            cat: float(probs[list(indices)].sum())
+            for cat, indices in _IMAGENET_ECO_MAP.items()
+        }
+        best = max(scores, key=scores.get)
+        if scores[best] < 0.05:
+            return "irrelevant", float(probs.max())
+        return best, min(1.0, scores[best] * 2.5)
+
+    def _calculate_eco_score(
+        self,
+        category,
+        confidence,
+        image,
+        species_conf=0.0,
+        native_pts=0,
+        geo_lat=None,
+        geo_lng=None,
+        cheat_penalty=0,
+    ) -> dict:
+        base_scores = {
+            "plant": 50,
+            "water_body": 45,
+            "wildlife": 48,
+            "waste": 40,
+            "urban_green": 35,
+            "irrelevant": 0,
+        }
+        base = base_scores.get(category, 0)
+        conf_bonus = int(confidence * 20)
+        quality_bonus = get_image_quality_score(image)
+        species_bonus = (
+            15
+            if species_conf > 0.8
+            else 10
+            if species_conf > 0.5
+            else 5
+            if species_conf > 0.15
+            else 0
+        )
+        native_bonus = min(20, native_pts)
+        geo_bonus = 5 if (geo_lat is not None and geo_lng is not None) else 0
+
+        total = max(
+            0,
+            min(
+                100,
+                base
+                + conf_bonus
+                + quality_bonus
+                + species_bonus
+                + native_bonus
+                + geo_bonus
+                - cheat_penalty,
+            ),
+        )
+
+        return {
+            "total": total,
+            "breakdown": {
+                "base_category": base,
+                "confidence": conf_bonus,
+                "image_quality": quality_bonus,
+                "species_id": species_bonus,
+                "native_species": native_bonus,
+                "geo_verified": geo_bonus,
+                "cheat_penalty": -cheat_penalty,
+            },
+        }
+
+    def _get_auto_decision(self, eco_score: int, needs_review: bool) -> str:
+        if needs_review:
+            return "PENDING_REVIEW"
         if eco_score >= 70:
             return "AUTO_APPROVED"
-        elif eco_score < 40:
+        if eco_score < 40:
             return "AUTO_REJECTED"
-        else:
-            return "PENDING_REVIEW"
+        return "PENDING_REVIEW"
 
     def _get_bonus_multiplier(self, species: str, is_native: bool) -> float:
-        """Native species and rare plants earn bonus points."""
         if species and is_native:
-            return 1.5  # 50% bonus for native species
-        elif species:
-            return 1.2  # 20% bonus for identified species
+            return 1.5
+        if species and "Unknown" not in (species or ""):
+            return 1.2
         return 1.0
 
-    def _generate_reason(self, category, eco_score, confidence, species) -> str:
+    def _generate_reason(
+        self, category, eco_score, confidence, species, is_suspicious
+    ) -> str:
+        if is_suspicious:
+            return "Image flagged — possible screenshot or re-upload. Please take a fresh photo."
         if category == "irrelevant":
-            return "Image does not appear to show an environmental action."
+            return "Image does not show an environmental action. Submit a photo of a plant, wildlife, or eco-activity."
         if eco_score >= 70:
             base = f"High-confidence {category.replace('_', ' ')} detected"
-            if species:
-                return f"{base} — identified as {species}."
-            return f"{base}."
+            return (
+                f"{base} — identified as {species}. Great eco-action! 🌿"
+                if species
+                else f"{base}. Keep it up! 🌍"
+            )
         if eco_score < 40:
-            return f"Low confidence in eco-action detection ({int(confidence*100)}%). Please resubmit a clearer photo."
-        return f"Moderate confidence in {category.replace('_', ' ')} detection. Sent for teacher review."
+            return f"Low confidence ({int(confidence * 100)}%). Please retake in good lighting."
+        return (
+            f"Moderate confidence in {category.replace('_', ' ')}. Sent for teacher review."
+        )
+
+    def _image_hash(self, image: Image.Image) -> str:
+        return hashlib.md5(image.resize((64, 64)).tobytes()).hexdigest()
 
     def _error_response(self, message: str) -> dict:
         return {
             "success": False,
             "error": message,
             "category": "irrelevant",
-            "confidence": 0,
+            "confidence": 0.0,
             "ecoScore": 0,
             "detectedSpecies": None,
             "isNativeSpecies": None,
             "autoDecision": "AUTO_REJECTED",
             "autoDecisionReason": message,
-            "bonusMultiplier": 1.0
+            "bonusMultiplier": 1.0,
+            "scoreBreakdown": {},
+            "cheatFlags": [],
         }
+

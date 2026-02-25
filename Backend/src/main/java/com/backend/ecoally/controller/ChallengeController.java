@@ -3,6 +3,7 @@ package com.backend.ecoally.controller;
 import com.backend.ecoally.dto.request.CreateChallengeRequest;
 import com.backend.ecoally.dto.request.ReviewSubmissionRequest;
 import com.backend.ecoally.dto.response.ApiResponse;
+import com.backend.ecoally.dto.response.MLAnalysisResult;
 import com.backend.ecoally.exception.AppException;
 import com.backend.ecoally.model.*;
 import com.backend.ecoally.repository.*;
@@ -23,7 +24,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/challenges")
@@ -78,7 +78,7 @@ public class ChallengeController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<Challenge>> getChallengeById(
-            @PathVariable String id,
+            @PathVariable Long id,
             @AuthenticationPrincipal User user) {
         Challenge challenge = challengeRepository.findById(id)
                 .orElseThrow(() -> AppException.notFound("Challenge not found"));
@@ -92,7 +92,7 @@ public class ChallengeController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<Challenge>> updateChallenge(
-            @PathVariable String id,
+            @PathVariable Long id,
             @RequestBody CreateChallengeRequest request,
             @AuthenticationPrincipal User user) {
         Challenge challenge = challengeRepository.findById(id)
@@ -102,12 +102,18 @@ public class ChallengeController {
             throw AppException.forbidden("Access denied");
         }
 
-        if (request.getTitle() != null) challenge.setTitle(request.getTitle());
-        if (request.getDescription() != null) challenge.setDescription(request.getDescription());
-        if (request.getPoints() != null) challenge.setPoints(request.getPoints());
-        if (request.getDifficulty() != null) challenge.setDifficulty(request.getDifficulty());
-        if (request.getType() != null) challenge.setType(request.getType());
-        if (request.getDuration() != null) challenge.setDuration(request.getDuration());
+        if (request.getTitle() != null)
+            challenge.setTitle(request.getTitle());
+        if (request.getDescription() != null)
+            challenge.setDescription(request.getDescription());
+        if (request.getPoints() != null)
+            challenge.setPoints(request.getPoints());
+        if (request.getDifficulty() != null)
+            challenge.setDifficulty(request.getDifficulty());
+        if (request.getType() != null)
+            challenge.setType(request.getType());
+        if (request.getDuration() != null)
+            challenge.setDuration(request.getDuration());
         challenge.setPublished(request.isPublished());
 
         Challenge updated = challengeRepository.save(challenge);
@@ -116,7 +122,7 @@ public class ChallengeController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteChallenge(
-            @PathVariable String id,
+            @PathVariable Long id,
             @AuthenticationPrincipal User user) {
         Challenge challenge = challengeRepository.findById(id)
                 .orElseThrow(() -> AppException.notFound("Challenge not found"));
@@ -132,7 +138,7 @@ public class ChallengeController {
     @PostMapping("/{id}/submit")
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<ApiResponse<ChallengeSubmission>> submitChallenge(
-            @PathVariable String id,
+            @PathVariable Long id,
             @RequestParam(required = false) String notes,
             @RequestParam(required = false) Double geoLat,
             @RequestParam(required = false) Double geoLng,
@@ -169,27 +175,29 @@ public class ChallengeController {
 
         // ── EcoLens ML Analysis (NEW) ─────────────────────────────────────────
         if (challenge.getType() == Challenge.ChallengeType.PHOTO && !mediaUrls.isEmpty()) {
-            Map<String, Object> mlResult = ecoLensService.analyzeImage(
-                mediaUrls.get(0), geoLat, geoLng
-            );
+            MLAnalysisResult mlResult = ecoLensService.analyzeImage(
+                    mediaUrls.get(0),
+                    geoLat,
+                    geoLng,
+                    student.getId().toString(),
+                    challenge.getId().toString());
 
-            if (mlResult != null) {
-                double ecoScore = (double) mlResult.get("ecoScore");
-                double bonusMultiplier = (double) mlResult.get("bonusMultiplier");
+            if (mlResult != null && mlResult.isSuccess()) {
+                double ecoScore = mlResult.getEcoScore();
+                double bonusMultiplier = mlResult.getBonusMultiplier();
 
                 submission.setEcoScore(ecoScore);
-                submission.setDetectedCategory((String) mlResult.get("detectedCategory"));
-                submission.setDetectedSpecies((String) mlResult.get("detectedSpecies"));
-                submission.setIsNativeSpecies((Boolean) mlResult.get("isNativeSpecies"));
+                submission.setDetectedCategory(mlResult.getCategory());
+                submission.setDetectedSpecies(mlResult.getDetectedSpecies());
+                submission.setIsNativeSpecies(mlResult.getIsNativeSpecies());
                 submission.setBonusMultiplier(bonusMultiplier);
-                submission.setAutoDecisionReason((String) mlResult.get("autoDecisionReason"));
+                submission.setAutoDecisionReason(mlResult.getAutoDecisionReason());
                 submission.setAutoProcessed(true);
 
-                String autoDecision = (String) mlResult.get("autoDecision");
+                String autoDecision = mlResult.getAutoDecision();
 
                 if ("AUTO_APPROVED".equals(autoDecision)) {
                     submission.setStatus(ChallengeSubmission.SubmissionStatus.APPROVED);
-                    // Award points with species bonus
                     int basePoints = challenge.getPoints();
                     int finalPoints = (int) (basePoints * bonusMultiplier);
                     submission.setPointsEarned(finalPoints);
@@ -199,11 +207,11 @@ public class ChallengeController {
                     submission.setStatus(ChallengeSubmission.SubmissionStatus.REJECTED);
 
                 } else {
-                    // PENDING_REVIEW — teacher manually reviews edge cases
                     submission.setStatus(ChallengeSubmission.SubmissionStatus.PENDING);
                 }
             }
-            // If mlResult == null (ML service down), stays PENDING for manual review
+            // If mlResult == null or !success (ML service down / error), stays PENDING for
+            // manual review
         }
 
         ChallengeSubmission saved = submissionRepository.save(submission);
@@ -235,7 +243,7 @@ public class ChallengeController {
     @PutMapping("/submissions/{id}/review")
     @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<ApiResponse<ChallengeSubmission>> reviewSubmission(
-            @PathVariable String id,
+            @PathVariable Long id,
             @Valid @RequestBody ReviewSubmissionRequest request,
             @AuthenticationPrincipal User user) {
 

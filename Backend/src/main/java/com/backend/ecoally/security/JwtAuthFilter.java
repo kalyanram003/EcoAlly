@@ -1,6 +1,5 @@
 package com.backend.ecoally.security;
 
-import com.backend.ecoally.model.User;
 import com.backend.ecoally.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -34,7 +33,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (token != null && jwtUtils.validateToken(token)) {
             String userId = jwtUtils.getUserIdFromToken(token);
 
-            userRepository.findById(userId).ifPresent(user -> {
+            userRepository.findById(Long.parseLong(userId)).ifPresent(user -> {
                 if (user.isActive()) {
                     var authority = new SimpleGrantedAuthority("ROLE_" + user.getUserType().name());
                     var auth = new UsernamePasswordAuthenticationToken(

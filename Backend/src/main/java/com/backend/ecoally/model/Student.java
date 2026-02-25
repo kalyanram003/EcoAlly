@@ -1,13 +1,12 @@
 package com.backend.ecoally.model;
 
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,14 +15,17 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "students")
+@Entity
+@Table(name = "students")
+@EntityListeners(AuditingEntityListener.class)
 public class Student {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Indexed(unique = true)
-    private String userId;
+    @Column(unique = true, nullable = false)
+    private Long userId;
 
     // Institute details
     private String instituteName;
@@ -50,8 +52,15 @@ public class Student {
     private LocalDateTime lastActiveDate;
     private int level = 1;
     private String tier = "sprout";
-    private List<String> ownedItems = new ArrayList<>(); 
+
+    // ownedItems stored as a separate collection table
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "student_owned_items", joinColumns = @JoinColumn(name = "student_id"))
+    @Column(name = "item_id")
+    private List<String> ownedItems = new ArrayList<>();
+
     @CreatedDate
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate

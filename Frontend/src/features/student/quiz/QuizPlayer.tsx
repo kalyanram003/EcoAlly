@@ -37,7 +37,7 @@ export function QuizPlayer({
       .then((data) => {
         // backend field: "text"; frontend expects: "question"
         const mapped: Question[] = (data.questions ?? []).map((q: any) => ({
-          id: q._id ?? q.id ?? String(Math.random()),
+          id: String(q.id ?? Math.random()),
           question: q.text ?? q.question ?? "",
           options: q.options ?? [],
           // correctAnswer is stripped to -1 for students until after submit
@@ -64,13 +64,15 @@ export function QuizPlayer({
 
   const handleTimeUp = () => {
     setIsAnswered(true);
-    setAnswers((prev) => ({ ...prev, [String(currentQuestionIndex)]: -1 }));
+    const questionId = String(currentQuestion.id);
+    setAnswers((prev) => ({ ...prev, [questionId]: -1 }));
   };
 
   const handleAnswerSelect = (answerIndex: number) => {
     if (isAnswered) return;
     setIsAnswered(true);
-    setAnswers((prev) => ({ ...prev, [String(currentQuestionIndex)]: answerIndex }));
+    const questionId = String(currentQuestion.id);
+    setAnswers((prev) => ({ ...prev, [questionId]: answerIndex }));
   };
 
   const handleNextQuestion = () => {
@@ -100,7 +102,7 @@ export function QuizPlayer({
   // lastResult.questions contains correctAnswer filled in by the backend
   const resultQuestions: Question[] = lastResult?.questions
     ? lastResult.questions.map((q: any) => ({
-      id: q._id ?? q.id,
+      id: String(q.id),
       question: q.text ?? q.question ?? "",
       options: q.options ?? [],
       correctAnswer: q.correctAnswer ?? -1,
@@ -109,7 +111,7 @@ export function QuizPlayer({
     : questions;
 
   const selectedAnswers: number[] = questions.map(
-    (_q, i) => answers[String(i)] ?? -1
+    (q) => answers[String(q.id)] ?? -1
   );
 
   const score =
@@ -189,7 +191,7 @@ export function QuizPlayer({
 
           <div className="space-y-3">
             {currentQuestion.options.map((option, index) => {
-              const selected = answers[String(currentQuestionIndex)] === index;
+              const selected = answers[String(currentQuestion.id)] === index;
               // correctAnswer is -1 before submit; after time-up we just show selection
               const isCorrect =
                 isAnswered &&
