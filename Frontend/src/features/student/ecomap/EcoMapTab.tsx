@@ -184,11 +184,10 @@ export function EcoMapTab() {
           <button
             key={f.key}
             onClick={() => setFilter(f.key)}
-            className={`whitespace-nowrap px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
-              filter === f.key
+            className={`whitespace-nowrap px-3 py-1.5 rounded-full text-sm font-medium transition-all ${filter === f.key
                 ? "bg-green-600 text-white shadow-md"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
+              }`}
           >
             {f.label}
           </button>
@@ -242,14 +241,14 @@ export function EcoMapTab() {
                     <div className="flex items-start justify-between mb-1">
                       <div>
                         <p className="font-bold text-gray-900 text-sm leading-tight">
-                          {categoryEmoji[pin.detectedCategory]} {pin.detectedSpecies ?? pin.detectedCategory.replace("_", " ")}
+                          {(pin.detectedCategory && categoryEmoji[pin.detectedCategory]) ?? "🌍"}{" "}
+                          {pin.detectedSpecies ?? (pin.detectedCategory ? pin.detectedCategory.replace(/_/g, " ") : "Eco Action")}
                         </p>
                         {pin.isNativeSpecies !== null && (
-                          <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${
-                            pin.isNativeSpecies
+                          <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${pin.isNativeSpecies
                               ? "bg-green-100 text-green-700"
                               : "bg-orange-100 text-orange-700"
-                          }`}>
+                            }`}>
                             {pin.isNativeSpecies ? "🌱 Native Species" : "Non-native"}
                           </span>
                         )}
@@ -270,9 +269,8 @@ export function EcoMapTab() {
                         <p className="font-semibold text-gray-800 text-xs truncate">{pin.studentName}</p>
                         <p className="text-gray-500 text-xs truncate">{pin.instituteName}</p>
                       </div>
-                      <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium capitalize flex-shrink-0 ${
-                        tierColors[pin.studentTier] ?? "bg-gray-100 text-gray-600"
-                      }`}>
+                      <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium capitalize flex-shrink-0 ${tierColors[pin.studentTier] ?? "bg-gray-100 text-gray-600"
+                        }`}>
                         {pin.studentTier}
                       </span>
                     </div>
@@ -318,14 +316,14 @@ export function EcoMapTab() {
                     }}
                   />
                 ) : (
-                  <span className="text-2xl">{categoryEmoji[pin.detectedCategory] ?? "🌍"}</span>
+                  <span className="text-2xl">{(pin.detectedCategory && categoryEmoji[pin.detectedCategory]) ?? "🌍"}</span>
                 )}
               </div>
 
               {/* Info */}
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-gray-800 text-sm truncate">
-                  {pin.detectedSpecies ?? pin.detectedCategory.replace("_", " ")}
+                  {pin.detectedSpecies ?? (pin.detectedCategory ? pin.detectedCategory.replace(/_/g, " ") : "Eco Action")}
                 </p>
                 <p className="text-gray-500 text-xs truncate">
                   👤 {pin.studentName} · {pin.instituteCity}

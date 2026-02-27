@@ -56,7 +56,10 @@ public class User {
     private LocalDateTime updatedAt;
 
     public String getFullName() {
-        return firstName + " " + lastName;
+        String first = (firstName != null && !firstName.isBlank()) ? firstName : "";
+        String last = (lastName != null && !lastName.isBlank()) ? lastName : "";
+        String full = (first + " " + last).trim();
+        return full.isEmpty() ? username : full;
     }
 
     public enum UserType {

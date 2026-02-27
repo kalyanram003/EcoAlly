@@ -39,31 +39,35 @@ public class EcoMapController {
     @GetMapping("/pins")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getEcoMapPins(
             @RequestParam(required = false) String instituteId,
-            @RequestParam(defaultValue = "100") int limit
-    ) {
+            @RequestParam(defaultValue = "100") int limit) {
 
         // Fetch approved submissions that have geo coordinates
         List<ChallengeSubmission> submissions = submissionRepository
-                .findApprovedGeoTaggedSubmissions(PageRequest.of(0, limit));
+                .findByStatusAndGeoLatIsNotNullAndGeoLngIsNotNullOrderByCreatedAtDesc(
+                        ChallengeSubmission.SubmissionStatus.APPROVED, PageRequest.of(0, limit));
 
         List<Map<String, Object>> pins = new ArrayList<>();
 
         for (ChallengeSubmission submission : submissions) {
             // Skip entries without coordinates
-            if (submission.getGeoLat() == null || submission.getGeoLng() == null) continue;
+            if (submission.getGeoLat() == null || submission.getGeoLng() == null)
+                continue;
 
             // Get student info
             Optional<Student> studentOpt = studentRepository.findById(submission.getStudentId());
-            if (studentOpt.isEmpty()) continue;
+            if (studentOpt.isEmpty())
+                continue;
 
             Student student = studentOpt.get();
             Optional<User> userOpt = userRepository.findById(student.getUserId());
-            if (userOpt.isEmpty()) continue;
+            if (userOpt.isEmpty())
+                continue;
 
             User user = userOpt.get();
 
             // Filter by institute if requested (for school-level view)
-            if (instituteId != null && !instituteId.equals(student.getInstituteId())) continue;
+            if (instituteId != null && !instituteId.equals(student.getInstituteId()))
+                continue;
 
             Map<String, Object> pin = new LinkedHashMap<>();
             pin.put("submissionId", submission.getId());
@@ -102,7 +106,8 @@ public class EcoMapController {
     @GetMapping("/stats")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getEcoMapStats() {
         List<ChallengeSubmission> all = submissionRepository
-                .findApprovedGeoTaggedSubmissions(PageRequest.of(0, 10000));
+                .findByStatusAndGeoLatIsNotNullAndGeoLngIsNotNullOrderByCreatedAtDesc(
+                        ChallengeSubmission.SubmissionStatus.APPROVED, PageRequest.of(0, 10000));
 
         long totalPins = all.stream().filter(s -> s.getGeoLat() != null).count();
         long nativeSpeciesCount = all.stream()
@@ -122,4 +127,3 @@ public class EcoMapController {
         return ResponseEntity.ok(ApiResponse.success(stats));
     }
 }
-

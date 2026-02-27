@@ -6,7 +6,7 @@ import * as api from "../../lib/api";
 interface TeacherOverviewProps {
   currentUser: any;
   selectedClass: string;
-  onSectionChange: (section: string) => void;
+  onSectionChange: (section: "overview" | "classes" | "students" | "challenges" | "materials" | "reports" | "settings" | "reviews") => void;
 }
 
 export function TeacherOverview({ currentUser, selectedClass, onSectionChange }: TeacherOverviewProps) {
@@ -118,6 +118,21 @@ export function TeacherOverview({ currentUser, selectedClass, onSectionChange }:
             </div>
           </div>
         </Card>
+
+        <button onClick={() => onSectionChange("reviews")} className="text-left w-full">
+          <Card className="p-4 hover:shadow-md transition-shadow border-amber-200 hover:border-amber-400">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Pending Reviews</p>
+                <p className="text-2xl font-bold text-amber-600">{overviewData?.pendingSubmissions ?? 0}</p>
+                <p className="text-xs text-amber-500">tap to review</p>
+              </div>
+              <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                <Clock className="w-5 h-5 text-amber-600" />
+              </div>
+            </div>
+          </Card>
+        </button>
       </div>
 
       {/* Quick Actions */}

@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 interface TeacherWebHeaderProps {
     currentUser: any;
     activeSection: string;
-    setActiveSection: (section: "overview" | "classes" | "students" | "challenges" | "materials" | "reports" | "settings") => void;
+    setActiveSection: (section: "overview" | "classes" | "students" | "challenges" | "materials" | "reports" | "settings" | "reviews") => void;
     selectedClass: string;
     setSelectedClass: (classId: string) => void;
     onLogout: () => void;
@@ -105,7 +105,7 @@ export const TeacherWebHeader: React.FC<TeacherWebHeaderProps> = ({
                     >
                         {mobileNavOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                     </button>
-                    
+
                     <button
                         onClick={() => setShowMenu(!showMenu)}
                         className="md:hidden p-1.5 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
@@ -132,11 +132,10 @@ export const TeacherWebHeader: React.FC<TeacherWebHeaderProps> = ({
                                 <button
                                     key={item.id}
                                     onClick={() => { setActiveSection(item.id as any); setMobileNavOpen(false); }}
-                                    className={`block w-full text-left px-4 py-3 rounded-xl text-sm font-medium mb-1 transition-colors flex items-center gap-3 ${
-                                        activeSection === item.id
+                                    className={`block w-full text-left px-4 py-3 rounded-xl text-sm font-medium mb-1 transition-colors flex items-center gap-3 ${activeSection === item.id
                                             ? 'bg-[var(--forest-50)] text-[var(--forest-700)] font-semibold'
                                             : 'text-gray-600 hover:bg-gray-50'
-                                    }`}
+                                        }`}
                                 >
                                     <Icon className={`w-5 h-5 ${activeSection === item.id ? 'text-[var(--forest-600)]' : 'text-gray-400'}`} />
                                     <span>{item.label}</span>
@@ -199,8 +198,8 @@ export const TeacherWebHeader: React.FC<TeacherWebHeaderProps> = ({
                                                 setShowMenu(false);
                                             }}
                                             className={`w-full flex items-center space-x-3 px-3 py-3 rounded-lg text-left transition-colors mb-1 ${isActive
-                                                    ? "bg-[var(--forest-50)] text-[var(--forest-700)] font-semibold"
-                                                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                                                ? "bg-[var(--forest-50)] text-[var(--forest-700)] font-semibold"
+                                                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                                                 }`}
                                         >
                                             <Icon className={`w-5 h-5 ${isActive ? "text-[var(--forest-600)]" : "text-gray-400"}`} />

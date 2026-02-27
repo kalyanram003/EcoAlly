@@ -1,9 +1,9 @@
 import React from "react";
-import { Users, BarChart3, BookOpen, Trophy, FileText, Settings, LogOut } from "lucide-react";
+import { Users, BarChart3, BookOpen, Trophy, FileText, Settings, LogOut, ClipboardCheck } from "lucide-react";
 
 interface TeacherSidebarProps {
     activeSection: string;
-    setActiveSection: (section: "overview" | "classes" | "students" | "challenges" | "materials" | "reports" | "settings") => void;
+    setActiveSection: (section: "overview" | "classes" | "students" | "challenges" | "materials" | "reports" | "settings" | "reviews") => void;
     currentUser?: any;
     onLogout?: () => void;
 }
@@ -21,6 +21,7 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
         { id: "challenges", label: "Challenges", icon: Trophy },
         { id: "materials", label: "Materials", icon: BookOpen },
         { id: "reports", label: "Reports", icon: FileText },
+        { id: "reviews", label: "📋 Reviews", icon: ClipboardCheck },
         { id: "settings", label: "Settings", icon: Settings }
     ];
 
@@ -40,8 +41,8 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
                         key={item.id}
                         onClick={() => setActiveSection(item.id as any)}
                         className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium cursor-pointer transition-colors ${activeSection === item.id
-                                ? "bg-[var(--forest-50)] text-[var(--forest-700)] font-semibold border-l-2 border-[var(--forest-600)] pl-[10px]"
-                                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                            ? "bg-[var(--forest-50)] text-[var(--forest-700)] font-semibold border-l-2 border-[var(--forest-600)] pl-[10px]"
+                            : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                             }`}
                     >
                         <item.icon className={`w-5 h-5 ${activeSection === item.id ? "text-[var(--forest-600)]" : "text-gray-400"}`} />

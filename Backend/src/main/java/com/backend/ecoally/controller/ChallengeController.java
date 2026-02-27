@@ -20,10 +20,13 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.backend.ecoally.repository.UserRepository;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/challenges")
@@ -34,6 +37,7 @@ public class ChallengeController {
     private final ChallengeSubmissionRepository submissionRepository;
     private final StudentRepository studentRepository;
     private final TeacherRepository teacherRepository;
+    private final UserRepository userRepository;
     private final StorageService storageService;
     private final PointsService pointsService;
     private final StreakService streakService;
@@ -234,10 +238,51 @@ public class ChallengeController {
 
     @GetMapping("/submissions/pending")
     @PreAuthorize("hasRole('TEACHER')")
-    public ResponseEntity<ApiResponse<List<ChallengeSubmission>>> getPendingSubmissions() {
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getPendingSubmissions() {
         List<ChallengeSubmission> submissions = submissionRepository
                 .findByStatusOrderByCreatedAtDesc(ChallengeSubmission.SubmissionStatus.PENDING);
-        return ResponseEntity.ok(ApiResponse.success(submissions));
+
+        List<Map<String, Object>> enriched = submissions.stream().map(sub -> {
+            Map<String, Object> entry = new LinkedHashMap<>();
+
+            // Core submission fields
+            entry.put("id", sub.getId());
+            entry.put("studentId", sub.getStudentId());
+            entry.put("challengeId", sub.getChallengeId());
+            entry.put("status", sub.getStatus().name());
+            entry.put("notes", sub.getNotes());
+            entry.put("mediaUrls", sub.getMediaUrls());
+            entry.put("ecoScore", sub.getEcoScore());
+            entry.put("detectedCategory", sub.getDetectedCategory());
+            entry.put("detectedSpecies", sub.getDetectedSpecies());
+            entry.put("isNativeSpecies", sub.getIsNativeSpecies());
+            entry.put("autoDecisionReason", sub.getAutoDecisionReason());
+            entry.put("bonusMultiplier", sub.getBonusMultiplier());
+            entry.put("geoLat", sub.getGeoLat());
+            entry.put("geoLng", sub.getGeoLng());
+            entry.put("createdAt", sub.getCreatedAt());
+
+            // Enrich: student name + avatar
+            studentRepository.findById(sub.getStudentId()).ifPresent(student -> {
+                entry.put("instituteName", student.getInstituteName());
+                entry.put("instituteCity", student.getInstituteCity());
+                userRepository.findById(student.getUserId()).ifPresent(user -> {
+                    entry.put("studentName", user.getFullName());
+                    entry.put("studentAvatar", user.getAvatarUrl());
+                });
+            });
+
+            // Enrich: challenge title + points
+            challengeRepository.findById(sub.getChallengeId()).ifPresent(challenge -> {
+                entry.put("challengeTitle", challenge.getTitle());
+                entry.put("challengePoints", challenge.getPoints());
+                entry.put("challengeType", challenge.getType().name());
+            });
+
+            return entry;
+        }).collect(java.util.stream.Collectors.toList());
+
+        return ResponseEntity.ok(ApiResponse.success(enriched));
     }
 
     @PutMapping("/submissions/{id}/review")
