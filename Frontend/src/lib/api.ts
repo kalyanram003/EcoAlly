@@ -1,4 +1,4 @@
-const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:9090';
+const BASE = import.meta.env.VITE_API_URL || 'http://localhost:9090';
 
 export const token = {
     get: () => localStorage.getItem('eco_token'),
