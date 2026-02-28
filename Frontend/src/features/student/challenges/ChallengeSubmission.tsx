@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowLeft, Camera, Upload, CheckCircle2, X } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 import * as api from "../../../lib/api";
@@ -39,23 +39,32 @@ export function ChallengeSubmission({ challenge, onBack, onComplete }: Challenge
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [ecoLensResult, setEcoLensResult] = useState<EcoLensResult | null>(null);
+  const [geoStatus, setGeoStatus] = useState<'idle' | 'fetching' | 'ok' | 'denied'>('idle');
+  const [capturedGeo, setCapturedGeo] = useState<{ lat: number; lng: number } | null>(null);
 
-  const getGeoLocation = (): Promise<{ lat: number; lng: number } | null> => {
-    return new Promise((resolve) => {
-      if (!navigator.geolocation) {
-        resolve(null);
-        return;
-      }
-      navigator.geolocation.getCurrentPosition(
-        (position) =>
-          resolve({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          }),
-        () => resolve(null),
-        { timeout: 5000 }
-      );
-    });
+  // Request location eagerly when the component mounts (photo challenges only)
+  useEffect(() => {
+    if (challenge.type !== 'photo') return;
+    requestLocation();
+  }, []);
+
+  const requestLocation = () => {
+    if (!navigator.geolocation) {
+      setGeoStatus('denied');
+      return;
+    }
+    setGeoStatus('fetching');
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setCapturedGeo({ lat: position.coords.latitude, lng: position.coords.longitude });
+        setGeoStatus('ok');
+      },
+      () => {
+        setGeoStatus('denied');
+        setCapturedGeo(null);
+      },
+      { timeout: 10000, maximumAge: 60000, enableHighAccuracy: false }
+    );
   };
 
   const handleRequirementCheck = (index: number) => {
@@ -123,8 +132,7 @@ export function ChallengeSubmission({ challenge, onBack, onComplete }: Challenge
     if (!canSubmit()) return;
     setIsSubmitting(true);
     try {
-      const geo = await getGeoLocation();
-      const submission = await api.submitChallenge(challenge.id, notes, photoFiles, geo);
+      const submission = await api.submitChallenge(challenge.id, notes, photoFiles, capturedGeo);
 
       if (challenge.type === "photo" && submission) {
         const autoDecision =
@@ -132,8 +140,8 @@ export function ChallengeSubmission({ challenge, onBack, onComplete }: Challenge
             ? submission.status === "APPROVED"
               ? "AUTO_APPROVED"
               : submission.status === "REJECTED"
-              ? "AUTO_REJECTED"
-              : "PENDING_REVIEW"
+                ? "AUTO_REJECTED"
+                : "PENDING_REVIEW"
             : "PENDING_REVIEW";
 
         const result: EcoLensResult = {
@@ -228,8 +236,8 @@ export function ChallengeSubmission({ challenge, onBack, onComplete }: Challenge
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold">Complete All Requirements</h3>
             <span className={`text-sm px-2 py-1 rounded-full ${checkedRequirements.every(checked => checked)
-                ? "bg-green-100 text-green-700"
-                : "bg-amber-100 text-amber-700"
+              ? "bg-green-100 text-green-700"
+              : "bg-amber-100 text-amber-700"
               }`}>
               {checkedRequirements.filter(checked => checked).length}/{challenge.requirements.length} {
                 checkedRequirements.every(checked => checked) ? "✓" : ""
@@ -253,14 +261,60 @@ export function ChallengeSubmission({ challenge, onBack, onComplete }: Challenge
           </div>
         </div>
 
+        {/* Location Status Banner */}
+        {challenge.type === 'photo' && (
+          <div className={`rounded-xl p-3 border flex items-center gap-3 ${geoStatus === 'ok'
+              ? 'bg-green-50 border-green-200'
+              : geoStatus === 'denied'
+                ? 'bg-red-50 border-red-200'
+                : 'bg-amber-50 border-amber-200'
+            }`}>
+            <span className="text-xl flex-shrink-0">
+              {geoStatus === 'ok' ? '📍' : geoStatus === 'denied' ? '🚫' : '⏳'}
+            </span>
+            <div className="flex-1 min-w-0">
+              {geoStatus === 'ok' && (
+                <>
+                  <p className="text-sm font-semibold text-green-800">Location captured ✓</p>
+                  <p className="text-xs text-green-600">Your pin will appear on the Community EcoMap</p>
+                </>
+              )}
+              {geoStatus === 'denied' && (
+                <>
+                  <p className="text-sm font-semibold text-red-800">Location blocked</p>
+                  <p className="text-xs text-red-600">
+                    Enable GPS in browser/app settings — required for your EcoMap pin
+                  </p>
+                </>
+              )}
+              {(geoStatus === 'idle' || geoStatus === 'fetching') && (
+                <>
+                  <p className="text-sm font-semibold text-amber-800">Waiting for GPS…</p>
+                  <p className="text-xs text-amber-600">
+                    Allow location when prompted — needed for EcoMap pin
+                  </p>
+                </>
+              )}
+            </div>
+            {geoStatus === 'denied' && (
+              <button
+                onClick={requestLocation}
+                className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-lg hover:bg-red-200 flex-shrink-0"
+              >
+                Retry
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Photo Upload (if photo challenge) */}
         {challenge.type === "photo" && (
           <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold">Upload Photos</h3>
               <span className={`text-sm px-2 py-1 rounded-full ${photos.length >= 2
-                  ? "bg-green-100 text-green-700"
-                  : "bg-amber-100 text-amber-700"
+                ? "bg-green-100 text-green-700"
+                : "bg-amber-100 text-amber-700"
                 }`}>
                 {photos.length}/3 photos {photos.length >= 2 ? "✓" : "(min 2)"}
               </span>
@@ -352,8 +406,8 @@ export function ChallengeSubmission({ challenge, onBack, onComplete }: Challenge
           onClick={handleSubmit}
           disabled={!canSubmit() || isSubmitting}
           className={`w-full py-4 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 ${canSubmit() && !isSubmitting
-              ? "bg-[#2ECC71] text-white hover:bg-[#27AE60]"
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            ? "bg-[#2ECC71] text-white hover:bg-[#27AE60]"
+            : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
         >
           {isSubmitting ? (
