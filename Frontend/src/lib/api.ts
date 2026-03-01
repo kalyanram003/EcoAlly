@@ -151,32 +151,32 @@ export const createQuiz = (quiz: any) =>
 
 // ── Teacher: Challenge Management ─────────────────────────────────────────────
 export const createChallenge = (data: {
-  title: string;
-  description: string;
-  type: string;
-  difficulty: string;
-  points: number;
-  duration: string;
-  requirements: string[];
-  tips: string[];
-  icon: string;
-  color: string;
-  isPublished: boolean;
+    title: string;
+    description: string;
+    type: string;
+    difficulty: string;
+    points: number;
+    duration: string;
+    requirements: string[];
+    tips: string[];
+    icon: string;
+    color: string;
+    isPublished: boolean;
 }) =>
-  req<any>('/api/challenges', {
-    method: 'POST',
-    body: JSON.stringify({
-      ...data,
-      difficulty: data.difficulty.toUpperCase(),   // backend expects EASY/MEDIUM/HARD
-      type: data.type.toUpperCase(),               // backend expects PHOTO/ACTION/SOCIAL/LEARNING/GAME
-    }),
-  });
+    req<any>('/api/challenges', {
+        method: 'POST',
+        body: JSON.stringify({
+            ...data,
+            difficulty: data.difficulty.toUpperCase(),   // backend expects EASY/MEDIUM/HARD
+            type: data.type.toUpperCase(),               // backend expects PHOTO/ACTION/SOCIAL/LEARNING/GAME
+        }),
+    });
 
 export const updateChallenge = (id: string, data: any) =>
-  req<any>(`/api/challenges/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+    req<any>(`/api/challenges/${id}`, { method: 'PUT', body: JSON.stringify(data) });
 
 export const deleteChallenge = (id: string) =>
-  req<void>(`/api/challenges/${id}`, { method: 'DELETE' });
+    req<void>(`/api/challenges/${id}`, { method: 'DELETE' });
 
 // ── Teacher: Own Content ──────────────────────────────────────────────────────
 export const getTeacherQuizzes = () => req<any[]>('/api/teacher/quizzes');
@@ -185,10 +185,58 @@ export const getTeacherChallenges = () => req<any[]>('/api/teacher/challenges');
 
 // ── Teacher: Quiz Management ──────────────────────────────────────────────────
 export const deleteQuiz = (id: string) =>
-  req<void>(`/api/quizzes/${id}`, { method: 'DELETE' });
+    req<void>(`/api/quizzes/${id}`, { method: 'DELETE' });
 
 export const publishQuiz = (id: string) =>
-  req<any>(`/api/quizzes/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify({ isPublished: true }),
-  });
+    req<any>(`/api/quizzes/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ isPublished: true }),
+    });
+
+// ── Challenge Management ───────────────────────────────────────────────────────
+export const toggleChallengePublish = (id: string, isPublished: boolean) =>
+    req<any>(`/api/challenges/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ isPublished }),
+    });
+
+// ── Classes ───────────────────────────────────────────────────────────────────
+export const getTeacherClasses = () => req<any[]>('/api/teacher/classes');
+
+export const createClass = (data: { name: string; subject: string; schedule: string }) =>
+    req<any>('/api/teacher/classes', { method: 'POST', body: JSON.stringify(data) });
+
+export const updateClass = (id: string, data: any) =>
+    req<any>(`/api/teacher/classes/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+
+export const deleteClass = (id: string) =>
+    req<void>(`/api/teacher/classes/${id}`, { method: 'DELETE' });
+
+// ── Learning Materials ────────────────────────────────────────────────────────
+export const getPublishedMaterials = () => req<any[]>('/api/materials');
+
+export const getMyMaterials = () => req<any[]>('/api/materials/my');
+
+export const createMaterial = (data: {
+    title: string; description: string; type: string;
+    url: string; topic: string; tags: string[]; isPublished: boolean;
+}) => req<any>('/api/materials', { method: 'POST', body: JSON.stringify(data) });
+
+export const updateMaterial = (id: string, data: any) =>
+    req<any>(`/api/materials/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+
+export const deleteMaterial = (id: string) =>
+    req<void>(`/api/materials/${id}`, { method: 'DELETE' });
+
+// ── Teacher Profile ───────────────────────────────────────────────────────────
+export const getTeacherProfile = () => req<any>('/api/teacher/profile');
+
+export const updateTeacherProfile = (data: any) =>
+    req<any>('/api/teacher/profile', { method: 'PUT', body: JSON.stringify(data) });
+
+// ── Teacher Reports ───────────────────────────────────────────────────────────
+export const getTeacherReports = () => req<any>('/api/teacher/reports');
+
+// ── Quiz Management ───────────────────────────────────────────────────────────
+export const updateQuiz = (id: string, data: any) =>
+    req<any>(`/api/quizzes/${id}`, { method: 'PUT', body: JSON.stringify(data) });

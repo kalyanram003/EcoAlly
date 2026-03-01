@@ -12,6 +12,7 @@ interface TeacherChallengeAssignmentProps {
 export function TeacherChallengeAssignment({ currentUser, selectedClass }: TeacherChallengeAssignmentProps) {
   const [showCreateChallenge, setShowCreateChallenge] = useState(false);
   const [selectedChallengeType, setSelectedChallengeType] = useState<string>("");
+  const [editingChallenge, setEditingChallenge] = useState<any | null>(null);
   const [challengeForm, setChallengeForm] = useState({
     title: "",
     description: "",
@@ -21,9 +22,13 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
     points: 50,
     deadline: ""
   });
+  const [editForm, setEditForm] = useState<any>({});
   const [assignedChallenges, setAssignedChallenges] = useState<any[]>([]);
   const [loadingChallenges, setLoadingChallenges] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [isDeleting, setIsDeleting] = useState<number | null>(null);
+  const [isTogglingPublish, setIsTogglingPublish] = useState<number | null>(null);
 
   const challengeTypes = [
     {
@@ -163,6 +168,55 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
     }
   };
 
+  const handleDelete = async (id: number) => {
+    if (!confirm('Delete this challenge?')) return;
+    setIsDeleting(id);
+    try {
+      await api.deleteChallenge(String(id));
+      setAssignedChallenges(prev => prev.filter(c => c.id !== id));
+    } catch (err: any) {
+      alert(`Failed to delete: ${err.message}`);
+    } finally {
+      setIsDeleting(null);
+    }
+  };
+
+  const handleTogglePublish = async (challenge: any) => {
+    setIsTogglingPublish(challenge.id);
+    try {
+      const updated = await api.toggleChallengePublish(String(challenge.id), !challenge.isPublished);
+      setAssignedChallenges(prev =>
+        prev.map(c => c.id === challenge.id ? { ...c, isPublished: !challenge.isPublished, ...updated } : c)
+      );
+    } catch (err: any) {
+      alert(`Failed to toggle publish: ${err.message}`);
+    } finally {
+      setIsTogglingPublish(null);
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingChallenge) return;
+    setIsSavingEdit(true);
+    try {
+      const updated = await api.updateChallenge(String(editingChallenge.id), {
+        title: editForm.title,
+        description: editForm.description,
+        difficulty: editForm.difficulty?.toUpperCase(),
+        points: editForm.points,
+        duration: editForm.duration,
+      });
+      setAssignedChallenges(prev =>
+        prev.map(c => c.id === editingChallenge.id ? { ...c, ...updated } : c)
+      );
+      setEditingChallenge(null);
+    } catch (err: any) {
+      alert(`Failed to save: ${err.message}`);
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
+
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case "easy": return "bg-green-100 text-green-600";
@@ -176,9 +230,6 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
     <div className="p-4 space-y-6">
       {/* Header */}
       <div className="flex flex-col space-y-4">
-        <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg text-sm">
-          🚧 <strong>Demo Mode:</strong> This page currently displays mock data. Backend integration for assignment creation is coming soon.
-        </div>
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold text-gray-900">Challenge Assignment</h2>
@@ -242,11 +293,10 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
                 </div>
                 <div className="flex items-center space-x-2">
                   <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      challenge.isPublished
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${challenge.isPublished
                         ? "bg-green-100 text-green-700"
                         : "bg-gray-100 text-gray-600"
-                    }`}
+                      }`}
                   >
                     {challenge.isPublished ? "Published" : "Draft"}
                   </span>
@@ -292,14 +342,42 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
 
               {/* Action Buttons */}
               <div className="flex items-center space-x-2 mt-3 pt-3 border-t border-gray-100">
-                <Button variant="outline" size="sm" className="flex-1">
-                  View Results
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => {
+                    setEditingChallenge(challenge);
+                    setEditForm({
+                      title: challenge.title,
+                      description: challenge.description,
+                      difficulty: challenge.difficulty,
+                      points: challenge.points,
+                      duration: challenge.duration,
+                    });
+                  }}
+                >
+                  Edit
                 </Button>
-                <Button variant="outline" size="sm" className="flex-1">
-                  Edit Challenge
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => handleTogglePublish(challenge)}
+                  disabled={isTogglingPublish === challenge.id}
+                >
+                  {isTogglingPublish === challenge.id
+                    ? '...'
+                    : challenge.isPublished ? 'Unpublish' : 'Publish'}
                 </Button>
-                <Button variant="outline" size="sm" className="flex-1">
-                  Send Reminder
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 text-red-600 hover:text-red-700"
+                  onClick={() => handleDelete(challenge.id)}
+                  disabled={isDeleting === challenge.id}
+                >
+                  {isDeleting === challenge.id ? 'Deleting...' : 'Delete'}
                 </Button>
               </div>
             </Card>
@@ -340,8 +418,8 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
                           setChallengeForm({ ...challengeForm, type: type.id });
                         }}
                         className={`flex items-center space-x-2 p-3 rounded-lg border-2 transition-all ${selectedChallengeType === type.id
-                            ? "border-[#2ECC71] bg-[#2ECC71]/5"
-                            : "border-gray-200 hover:border-gray-300"
+                          ? "border-[#2ECC71] bg-[#2ECC71]/5"
+                          : "border-gray-200 hover:border-gray-300"
                           }`}
                       >
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${type.color}`}>
@@ -478,6 +556,84 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
                 </Button>
                 <Button
                   onClick={() => setShowCreateChallenge(false)}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Edit Challenge Modal */}
+      {editingChallenge && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-gray-900">Edit Challenge</h3>
+                <button
+                  onClick={() => setEditingChallenge(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                <input
+                  type="text"
+                  value={editForm.title ?? ''}
+                  onChange={e => setEditForm({ ...editForm, title: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71]"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea
+                  value={editForm.description ?? ''}
+                  onChange={e => setEditForm({ ...editForm, description: e.target.value })}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71]"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Difficulty</label>
+                  <select
+                    value={editForm.difficulty ?? 'EASY'}
+                    onChange={e => setEditForm({ ...editForm, difficulty: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71]"
+                  >
+                    <option value="EASY">Easy</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="HARD">Hard</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Points</label>
+                  <input
+                    type="number"
+                    value={editForm.points ?? 50}
+                    onChange={e => setEditForm({ ...editForm, points: parseInt(e.target.value) })}
+                    min="10" max="500" step="10"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71]"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center space-x-3 pt-4">
+                <Button
+                  onClick={handleSaveEdit}
+                  disabled={isSavingEdit}
+                  className="flex-1 bg-[#2ECC71] hover:bg-[#27AE60] text-white disabled:opacity-50"
+                >
+                  {isSavingEdit ? 'Saving...' : 'Save Changes'}
+                </Button>
+                <Button
+                  onClick={() => setEditingChallenge(null)}
                   variant="outline"
                   className="flex-1"
                 >

@@ -167,15 +167,18 @@ const LOCAL_GAME_CHALLENGES: Challenge[] = [
 
 export function ChallengesTab() {
   const [challenges, setChallenges] = useState<Challenge[]>([]);
+  const [mySubmissions, setMySubmissions] = useState<any[]>([]);
   const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(null);
-  const [loading, setLoading] = useState(true); // Added loading state
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<"active" | "history">("active");
 
   useEffect(() => {
     Promise.all([api.getChallenges(), api.getMySubmissions()])
       .then(([challengeData, submissionsData]) => {
+        setMySubmissions(submissionsData ?? []);
+
         const completedSubmissionIds = new Set(
-          submissionsData
-            // Check status if there is an approval process, or just that a submission exists
+          (submissionsData ?? [])
             .filter((s: any) => s.status === "APPROVED" || s.status === "PENDING" || s.status === "REJECTED" || s.id)
             .map((s: any) => s.challengeId)
         );
@@ -206,7 +209,8 @@ export function ChallengesTab() {
       .catch(() => {
         // If backend is unreachable, fall back to local games only
         setChallenges(LOCAL_GAME_CHALLENGES);
-      });
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const handleChallengeSelect = (challenge: Challenge) => setSelectedChallenge(challenge);
@@ -217,14 +221,114 @@ export function ChallengesTab() {
       <ChallengeDetails
         challenge={selectedChallenge}
         onBack={handleBackToChallenges}
+        mySubmissions={mySubmissions}
       />
     );
   }
 
+  const statusColor = (status: string) => {
+    switch (status) {
+      case "APPROVED": return "bg-green-100 text-green-700";
+      case "REJECTED": return "bg-red-100 text-red-700";
+      default: return "bg-yellow-100 text-yellow-700";
+    }
+  };
+
+  const statusLabel = (status: string) => {
+    switch (status) {
+      case "APPROVED": return "✅ Approved";
+      case "REJECTED": return "❌ Rejected";
+      default: return "⏳ Pending Review";
+    }
+  };
+
   return (
-    <ChallengesList
-      challenges={challenges}
-      onChallengeSelect={handleChallengeSelect}
-    />
+    <div className="h-full flex flex-col">
+      {/* Tab switcher */}
+      <div className="flex gap-1 mb-4 bg-gray-100 rounded-lg p-1 mx-1">
+        <button
+          onClick={() => setActiveTab("active")}
+          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === "active"
+              ? "bg-white text-gray-900 shadow-sm"
+              : "text-gray-600 hover:text-gray-900"
+            }`}
+        >
+          Active Challenges
+        </button>
+        <button
+          onClick={() => setActiveTab("history")}
+          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === "history"
+              ? "bg-white text-gray-900 shadow-sm"
+              : "text-gray-600 hover:text-gray-900"
+            }`}
+        >
+          History {mySubmissions.length > 0 && <span className="ml-1 text-xs bg-[#2ECC71] text-white rounded-full px-1.5 py-0.5">{mySubmissions.length}</span>}
+        </button>
+      </div>
+
+      {activeTab === "active" && (
+        <ChallengesList
+          challenges={challenges}
+          onChallengeSelect={handleChallengeSelect}
+        />
+      )}
+
+      {activeTab === "history" && (
+        <div className="flex-1 overflow-y-auto space-y-3 px-1">
+          {loading ? (
+            <div className="text-center py-12 text-gray-400">Loading...</div>
+          ) : mySubmissions.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-4xl mb-3">📋</p>
+              <p className="font-medium text-gray-700">No submissions yet</p>
+              <p className="text-sm text-gray-500 mt-1">Complete your first challenge to see history here.</p>
+            </div>
+          ) : mySubmissions.map((sub: any) => {
+            const challenge = challenges.find(c => String(c.id) === String(sub.challengeId));
+            return (
+              <div key={sub.id} className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-gray-900 text-sm">
+                      {challenge?.title ?? `Challenge #${sub.challengeId}`}
+                    </h4>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {new Date(sub.createdAt ?? sub.submittedAt).toLocaleDateString("en-US", {
+                        year: "numeric", month: "short", day: "numeric"
+                      })}
+                    </p>
+                  </div>
+                  <span className={`text-xs px-2 py-1 rounded-full font-medium flex-shrink-0 ml-2 ${statusColor(sub.status)}`}>
+                    {statusLabel(sub.status)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 mt-2">
+                  {sub.pointsEarned != null && (
+                    <span className="flex items-center gap-1 text-xs text-[#2ECC71] font-semibold">
+                      ⭐ {sub.pointsEarned} pts
+                    </span>
+                  )}
+                  {sub.ecoScore != null && (
+                    <span className="flex items-center gap-1 text-xs text-blue-600 font-semibold">
+                      🔬 EcoScore: {sub.ecoScore}
+                    </span>
+                  )}
+                  {sub.detectedCategory && (
+                    <span className="text-xs text-gray-500 capitalize">
+                      📍 {sub.detectedCategory.replace("_", " ")}
+                    </span>
+                  )}
+                </div>
+                {sub.autoDecisionReason && (
+                  <p className="text-xs text-gray-400 mt-2 border-t border-gray-50 pt-2">
+                    {sub.autoDecisionReason}
+                  </p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }

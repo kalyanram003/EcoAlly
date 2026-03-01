@@ -1,23 +1,24 @@
 package com.backend.ecoally.controller;
 
 import com.backend.ecoally.dto.response.ApiResponse;
+import com.backend.ecoally.exception.AppException;
 import com.backend.ecoally.model.ChallengeSubmission;
 import com.backend.ecoally.model.QuizAttempt;
 import com.backend.ecoally.model.Student;
+import com.backend.ecoally.model.Teacher;
 import com.backend.ecoally.model.User;
 import com.backend.ecoally.repository.ChallengeRepository;
 import com.backend.ecoally.repository.ChallengeSubmissionRepository;
 import com.backend.ecoally.repository.QuizAttemptRepository;
 import com.backend.ecoally.repository.QuizRepository;
 import com.backend.ecoally.repository.StudentRepository;
+import com.backend.ecoally.repository.TeacherRepository;
 import com.backend.ecoally.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -37,6 +38,7 @@ public class TeacherController {
     private final UserRepository userRepository;
     private final QuizRepository quizRepository;
     private final ChallengeRepository challengeRepository;
+    private final TeacherRepository teacherRepository;
 
     @GetMapping("/overview")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getOverview(
@@ -84,7 +86,8 @@ public class TeacherController {
 
         // ── Top performers ───────────────────────────────────────────────────────
         List<Student> topStudents = studentRepository.findAllByOrderByPointsDesc();
-        if (topStudents.size() > 5) topStudents = topStudents.subList(0, 5);
+        if (topStudents.size() > 5)
+            topStudents = topStudents.subList(0, 5);
         List<Map<String, Object>> topPerformers = topStudents.stream().map(student -> {
             User u = userRepository.findById(student.getUserId()).orElse(null);
             Map<String, Object> entry = new java.util.HashMap<>();
@@ -143,8 +146,7 @@ public class TeacherController {
     @GetMapping("/quizzes")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getMyQuizzes(
             @AuthenticationPrincipal User user) {
-        List<com.backend.ecoally.model.Quiz> quizzes =
-                quizRepository.findByCreatedByOrderByCreatedAtDesc(user.getId());
+        List<com.backend.ecoally.model.Quiz> quizzes = quizRepository.findByCreatedByOrderByCreatedAtDesc(user.getId());
         List<Map<String, Object>> result = quizzes.stream().map(q -> {
             Map<String, Object> entry = new java.util.HashMap<>();
             entry.put("id", q.getId());
@@ -165,8 +167,8 @@ public class TeacherController {
     @GetMapping("/challenges")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getMyChallenges(
             @AuthenticationPrincipal User user) {
-        List<com.backend.ecoally.model.Challenge> challenges =
-                challengeRepository.findByCreatedByOrderByCreatedAtDesc(user.getId());
+        List<com.backend.ecoally.model.Challenge> challenges = challengeRepository
+                .findByCreatedByOrderByCreatedAtDesc(user.getId());
         List<Map<String, Object>> result = challenges.stream().map(c -> {
             Map<String, Object> entry = new java.util.HashMap<>();
             entry.put("id", c.getId());
@@ -182,5 +184,95 @@ public class TeacherController {
             return entry;
         }).collect(Collectors.toList());
         return ResponseEntity.ok(ApiResponse.success(result));
+    }
+
+    // ── Teacher Profile ─────────────────────────────────────────────────────────
+
+    @GetMapping("/profile")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getProfile(
+            @AuthenticationPrincipal User user) {
+        Teacher teacher = teacherRepository.findByUserId(user.getId())
+                .orElseThrow(() -> AppException.notFound("Teacher not found"));
+        Map<String, Object> profile = new HashMap<>();
+        profile.put("fullName", user.getFullName());
+        profile.put("email", user.getEmail());
+        profile.put("instituteName", teacher.getInstituteName());
+        profile.put("instituteCity", teacher.getInstituteCity());
+        profile.put("facultyId", teacher.getFacultyId());
+        profile.put("department", teacher.getDepartment());
+        profile.put("specialization", teacher.getSpecialization());
+        return ResponseEntity.ok(ApiResponse.success(profile));
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> updateProfile(
+            @RequestBody Map<String, String> req,
+            @AuthenticationPrincipal User user) {
+        Teacher teacher = teacherRepository.findByUserId(user.getId())
+                .orElseThrow(() -> AppException.notFound("Teacher not found"));
+
+        if (req.containsKey("fullName")) {
+            String full = req.get("fullName").trim();
+            int space = full.indexOf(' ');
+            if (space > 0) {
+                user.setFirstName(full.substring(0, space));
+                user.setLastName(full.substring(space + 1));
+            } else {
+                user.setFirstName(full);
+                user.setLastName("");
+            }
+        }
+        if (req.containsKey("department"))
+            teacher.setDepartment(req.get("department"));
+        if (req.containsKey("specialization"))
+            teacher.setSpecialization(req.get("specialization"));
+
+        userRepository.save(user);
+        teacherRepository.save(teacher);
+
+        return ResponseEntity.ok(ApiResponse.success(Map.of("message", "Profile updated")));
+    }
+
+    // ── Teacher Reports ──────────────────────────────────────────────────────────
+
+    @GetMapping("/reports")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getReports(
+            @AuthenticationPrincipal User user) {
+
+        // Quiz stats
+        long totalQuizAttempts = quizAttemptRepository.count();
+        long totalQuizzes = quizRepository.count();
+
+        // Challenge submission counts
+        long approved = submissionRepository.countByStatus(
+                ChallengeSubmission.SubmissionStatus.APPROVED);
+        long rejected = submissionRepository.countByStatus(
+                ChallengeSubmission.SubmissionStatus.REJECTED);
+        long pending = submissionRepository.countByStatus(
+                ChallengeSubmission.SubmissionStatus.PENDING);
+
+        // Top students
+        List<Student> top10 = studentRepository.findAllByOrderByPointsDesc()
+                .stream().limit(10).collect(Collectors.toList());
+
+        List<Map<String, Object>> topStudents = top10.stream().map(s -> {
+            User u = userRepository.findById(s.getUserId()).orElse(null);
+            Map<String, Object> e = new HashMap<>();
+            e.put("name", u != null ? u.getFullName() : "Student");
+            e.put("points", s.getPoints());
+            e.put("level", s.getLevel());
+            e.put("tier", s.getTier());
+            return e;
+        }).collect(Collectors.toList());
+
+        Map<String, Object> report = new HashMap<>();
+        report.put("totalQuizAttempts", totalQuizAttempts);
+        report.put("totalQuizzes", totalQuizzes);
+        report.put("approvedSubmissions", approved);
+        report.put("rejectedSubmissions", rejected);
+        report.put("pendingSubmissions", pending);
+        report.put("topStudents", topStudents);
+
+        return ResponseEntity.ok(ApiResponse.success(report));
     }
 }

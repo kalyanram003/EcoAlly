@@ -2,6 +2,7 @@ import { useState } from "react";
 import { User, Bell, Shield, HelpCircle, LogOut, Edit, Save, Eye, EyeOff } from "lucide-react";
 import { Card } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
+import * as api from "../../lib/api";
 
 interface TeacherSettingsProps {
   currentUser: any;
@@ -33,10 +34,17 @@ export function TeacherSettings({ currentUser, onLogout }: TeacherSettingsProps)
     weeklyReports: true
   });
 
-  const handleSave = () => {
-    // Save profile changes logic
-    console.log("Saving profile changes:", formData);
-    setIsEditing(false);
+  const handleSave = async () => {
+    try {
+      await api.updateTeacherProfile({
+        fullName: `${formData.firstName} ${formData.lastName}`.trim(),
+        department: formData.subjects,
+        specialization: formData.bio,
+      });
+      setIsEditing(false);
+    } catch (err: any) {
+      alert('Failed to save: ' + err.message);
+    }
   };
 
   const handleNotificationChange = (key: string, value: boolean) => {
@@ -58,7 +66,7 @@ export function TeacherSettings({ currentUser, onLogout }: TeacherSettingsProps)
           <h2 className="text-xl font-bold text-gray-900">Settings</h2>
           <p className="text-sm text-gray-600">Manage your account and preferences</p>
         </div>
-        <Button 
+        <Button
           onClick={onLogout}
           variant="outline"
           className="text-red-600 border-red-600 hover:bg-red-50"
@@ -74,16 +82,15 @@ export function TeacherSettings({ currentUser, onLogout }: TeacherSettingsProps)
           {menuItems.map(item => {
             const Icon = item.icon;
             const isActive = activeSection === item.id;
-            
+
             return (
               <button
                 key={item.id}
                 onClick={() => setActiveSection(item.id as any)}
-                className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm flex-1 justify-center transition-colors ${
-                  isActive 
-                    ? "bg-[#2ECC71] text-white" 
+                className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm flex-1 justify-center transition-colors ${isActive
+                    ? "bg-[#2ECC71] text-white"
                     : "text-gray-600 hover:bg-gray-100"
-                }`}
+                  }`}
               >
                 <Icon className="w-4 h-4" />
                 <span className="hidden sm:inline">{item.label}</span>
@@ -99,7 +106,7 @@ export function TeacherSettings({ currentUser, onLogout }: TeacherSettingsProps)
           <Card className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-medium text-gray-900">Personal Information</h3>
-              <Button 
+              <Button
                 onClick={isEditing ? handleSave : () => setIsEditing(true)}
                 variant="outline"
                 size="sm"
@@ -127,7 +134,7 @@ export function TeacherSettings({ currentUser, onLogout }: TeacherSettingsProps)
                   <input
                     type="text"
                     value={formData.firstName}
-                    onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                     disabled={!isEditing}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[var(--forest-600)] focus:border-[var(--forest-600)] disabled:bg-gray-50"
                   />
@@ -139,7 +146,7 @@ export function TeacherSettings({ currentUser, onLogout }: TeacherSettingsProps)
                   <input
                     type="text"
                     value={formData.lastName}
-                    onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                     disabled={!isEditing}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[var(--forest-600)] focus:border-[var(--forest-600)] disabled:bg-gray-50"
                   />
@@ -153,7 +160,7 @@ export function TeacherSettings({ currentUser, onLogout }: TeacherSettingsProps)
                 <input
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   disabled={!isEditing}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[var(--forest-600)] focus:border-[var(--forest-600)] disabled:bg-gray-50"
                 />
@@ -166,7 +173,7 @@ export function TeacherSettings({ currentUser, onLogout }: TeacherSettingsProps)
                 <input
                   type="tel"
                   value={formData.phone}
-                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   disabled={!isEditing}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[var(--forest-600)] focus:border-[var(--forest-600)] disabled:bg-gray-50"
                 />
@@ -179,7 +186,7 @@ export function TeacherSettings({ currentUser, onLogout }: TeacherSettingsProps)
                 <input
                   type="text"
                   value={formData.instituteName}
-                  onChange={(e) => setFormData({...formData, instituteName: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, instituteName: e.target.value })}
                   disabled={!isEditing}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[var(--forest-600)] focus:border-[var(--forest-600)] disabled:bg-gray-50"
                 />
@@ -205,7 +212,7 @@ export function TeacherSettings({ currentUser, onLogout }: TeacherSettingsProps)
                 <input
                   type="text"
                   value={formData.subjects}
-                  onChange={(e) => setFormData({...formData, subjects: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, subjects: e.target.value })}
                   disabled={!isEditing}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[var(--forest-600)] focus:border-[var(--forest-600)] disabled:bg-gray-50"
                 />
@@ -217,7 +224,7 @@ export function TeacherSettings({ currentUser, onLogout }: TeacherSettingsProps)
                 </label>
                 <textarea
                   value={formData.bio}
-                  onChange={(e) => setFormData({...formData, bio: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                   disabled={!isEditing}
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[var(--forest-600)] focus:border-[var(--forest-600)] disabled:bg-gray-50"

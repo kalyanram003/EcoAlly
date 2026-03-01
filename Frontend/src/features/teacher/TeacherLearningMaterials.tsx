@@ -21,7 +21,10 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
     tags: ""
   });
   const [myQuizzes, setMyQuizzes] = useState<any[]>([]);
+  const [sharedMaterials, setSharedMaterials] = useState<any[]>([]);
   const [loadingQuizzes, setLoadingQuizzes] = useState(true);
+  const [loadingMaterials, setLoadingMaterials] = useState(true);
+  const [isAddingMaterial, setIsAddingMaterial] = useState(false);
 
   const materialTypes = [
     { id: "document", name: "Document", icon: FileText, color: "text-blue-600" },
@@ -43,100 +46,52 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
     "Nature Protection"
   ];
 
-  const sharedMaterials = [
-    {
-      id: "1",
-      title: "Water Conservation Techniques",
-      description: "Comprehensive guide on water saving methods for daily life",
-      type: "document",
-      category: "Water Conservation",
-      uploadDate: "2024-03-15",
-      downloads: 22,
-      views: 45,
-      size: "2.4 MB",
-      author: "Sarah Green",
-      tags: ["water", "conservation", "daily-tips"],
-      sharedTo: ["Grade 10-A", "Grade 10-B"]
-    },
-    {
-      id: "2",
-      title: "Renewable Energy Explained",
-      description: "Educational video about solar, wind, and hydroelectric power",
-      type: "video",
-      category: "Renewable Energy",
-      uploadDate: "2024-03-12",
-      downloads: 18,
-      views: 38,
-      size: "15.7 MB",
-      author: "Sarah Green",
-      tags: ["renewable", "energy", "solar", "wind"],
-      sharedTo: ["Grade 10-A"]
-    },
-    {
-      id: "3",
-      title: "Climate Change Infographic",
-      description: "Visual representation of climate change causes and effects",
-      type: "image",
-      category: "Climate Change",
-      uploadDate: "2024-03-10",
-      downloads: 25,
-      views: 52,
-      size: "1.8 MB",
-      author: "Sarah Green",
-      tags: ["climate", "infographic", "visual"],
-      sharedTo: ["Grade 9-A", "Grade 9-B"]
-    },
-    {
-      id: "4",
-      title: "NASA Climate Kids",
-      description: "Interactive website with climate change games and activities",
-      type: "link",
-      category: "Climate Change",
-      uploadDate: "2024-03-08",
-      downloads: 30,
-      views: 67,
-      size: "External Link",
-      author: "Sarah Green",
-      tags: ["interactive", "games", "nasa"],
-      sharedTo: ["Grade 10-A", "Grade 9-A"]
-    },
-    {
-      id: "5",
-      title: "Biodiversity Study Worksheet",
-      description: "Activity sheet for understanding ecosystem diversity",
-      type: "document",
-      category: "Biodiversity",
-      uploadDate: "2024-03-05",
-      downloads: 28,
-      views: 41,
-      size: "950 KB",
-      author: "Sarah Green",
-      tags: ["biodiversity", "worksheet", "ecosystem"],
-      sharedTo: ["Grade 10-A"]
-    }
-  ];
+
 
   useEffect(() => {
     api.getTeacherQuizzes()
       .then(setMyQuizzes)
       .catch(() => setMyQuizzes([]))
       .finally(() => setLoadingQuizzes(false));
+    api.getMyMaterials()
+      .then(setSharedMaterials)
+      .catch(() => setSharedMaterials([]))
+      .finally(() => setLoadingMaterials(false));
   }, []);
 
-  const handleAddMaterial = () => {
-    if (materialForm.title && materialForm.type && materialForm.category) {
-      // Add material logic here
-      console.log("Adding material:", materialForm);
-      setShowAddMaterial(false);
-      setMaterialForm({
-        title: "",
-        description: "",
-        type: "",
-        category: "",
-        content: "",
-        fileUrl: "",
-        tags: ""
+  const handleAddMaterial = async () => {
+    if (!materialForm.title || !materialForm.type) {
+      alert('Please fill in title and type');
+      return;
+    }
+    setIsAddingMaterial(true);
+    try {
+      const created = await api.createMaterial({
+        title: materialForm.title,
+        description: materialForm.description,
+        type: materialForm.type.toUpperCase(),
+        url: materialForm.fileUrl,
+        topic: materialForm.category,
+        tags: materialForm.tags.split(',').map(t => t.trim()).filter(Boolean),
+        isPublished: true,
       });
+      setSharedMaterials(prev => [created, ...prev]);
+      setShowAddMaterial(false);
+      setMaterialForm({ title: '', description: '', type: '', category: '', content: '', fileUrl: '', tags: '' });
+    } catch (err: any) {
+      alert(`Failed to add material: ${err.message}`);
+    } finally {
+      setIsAddingMaterial(false);
+    }
+  };
+
+  const handleDeleteMaterial = async (id: string) => {
+    if (!confirm('Delete this material?')) return;
+    try {
+      await api.deleteMaterial(String(id));
+      setSharedMaterials(prev => prev.filter(m => m.id !== id));
+    } catch (err: any) {
+      alert(`Failed to delete: ${err.message}`);
     }
   };
 
@@ -156,9 +111,6 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
     <div className="p-4 space-y-6">
       {/* Header */}
       <div className="flex flex-col space-y-4">
-        <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg text-sm">
-          🚧 <strong>Demo Mode:</strong> This page currently displays mock data. Backend integration for learning materials is coming soon.
-        </div>
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold text-gray-900">Learning Materials</h2>
@@ -178,7 +130,7 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
       <div className="grid grid-cols-2 gap-3">
         {materialTypes.map((type) => {
           const Icon = type.icon;
-          const count = sharedMaterials.filter(m => m.type === type.id).length;
+          const count = sharedMaterials.filter(m => m.type?.toLowerCase() === type.id || m.type?.toUpperCase() === type.id.toUpperCase()).length;
           return (
             <Card key={type.id} className="p-4 text-center">
               <div className="flex flex-col items-center space-y-2">
@@ -221,7 +173,11 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
       <div>
         <h3 className="font-medium text-gray-900 mb-3">Shared Materials</h3>
         <div className="space-y-3">
-          {sharedMaterials.map((material) => {
+          {loadingMaterials ? (
+            <div className="text-center py-8 text-gray-400">Loading materials...</div>
+          ) : sharedMaterials.length === 0 ? (
+            <div className="text-center py-8 text-gray-400">No materials yet. Upload your first material!</div>
+          ) : sharedMaterials.map((material) => {
             const Icon = getTypeIcon(material.type);
             return (
               <Card key={material.id} className="p-4">
@@ -237,13 +193,22 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
                         <p className="text-sm text-gray-600">{material.description}</p>
                       </div>
                       <div className="flex items-center space-x-1 ml-2">
-                        <Button size="sm" variant="outline">
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button size="sm" variant="outline">
+                        {material.url && (
+                          <a
+                            href={material.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Button size="sm" variant="outline">
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                          </a>
+                        )}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDeleteMaterial(material.id)}
+                        >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
@@ -258,7 +223,7 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
 
                     {/* Tags */}
                     <div className="flex flex-wrap gap-1 mb-2">
-                      {material.tags.map((tag, index) => (
+                      {(material.tags ?? []).map((tag: string, index: number) => (
                         <span key={index} className="bg-[#2ECC71]/10 text-[#2ECC71] px-2 py-1 rounded text-xs">
                           #{tag}
                         </span>
@@ -316,9 +281,8 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
                   </p>
                 </div>
                 <span
-                  className={`text-xs px-2 py-1 rounded-full ${
-                    quiz.isPublished ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
-                  }`}
+                  className={`text-xs px-2 py-1 rounded-full ${quiz.isPublished ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
+                    }`}
                 >
                   {quiz.isPublished ? "Published" : "Draft"}
                 </span>
@@ -358,8 +322,8 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
                         key={type.id}
                         onClick={() => setMaterialForm({ ...materialForm, type: type.id })}
                         className={`flex items-center space-x-2 p-3 rounded-lg border-2 transition-all ${materialForm.type === type.id
-                            ? "border-[#2ECC71] bg-[#2ECC71]/5"
-                            : "border-gray-200 hover:border-gray-300"
+                          ? "border-[#2ECC71] bg-[#2ECC71]/5"
+                          : "border-gray-200 hover:border-gray-300"
                           }`}
                       >
                         <Icon className={`w-5 h-5 ${type.color}`} />
@@ -490,9 +454,10 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
               <div className="flex items-center space-x-3 pt-4">
                 <Button
                   onClick={handleAddMaterial}
-                  className="flex-1 bg-[#2ECC71] hover:bg-[#27AE60] text-white"
+                  disabled={isAddingMaterial}
+                  className="flex-1 bg-[#2ECC71] hover:bg-[#27AE60] text-white disabled:opacity-50"
                 >
-                  Share with Class
+                  {isAddingMaterial ? 'Sharing...' : 'Share with Class'}
                 </Button>
                 <Button
                   onClick={() => setShowAddMaterial(false)}

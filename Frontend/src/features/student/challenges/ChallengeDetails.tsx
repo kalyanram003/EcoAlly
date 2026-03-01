@@ -9,12 +9,20 @@ import { LearningMaterials } from "../../learning/LearningMaterials";
 interface ChallengeDetailsProps {
   challenge: Challenge;
   onBack: () => void;
+  mySubmissions?: any[];
 }
 
-export function ChallengeDetails({ challenge, onBack }: ChallengeDetailsProps) {
+export function ChallengeDetails({ challenge, onBack, mySubmissions = [] }: ChallengeDetailsProps) {
   const [showSubmission, setShowSubmission] = useState(false);
   const [showGame, setShowGame] = useState(false);
   const [activeTab, setActiveTab] = useState<"overview" | "requirements" | "tips" | "game" | "learning">("overview");
+
+  // Check if student already has a non-rejected submission for this challenge
+  const existingSubmission = mySubmissions.find(
+    (s: any) => String(s.challengeId) === String(challenge.id) &&
+      (s.status === "PENDING" || s.status === "APPROVED")
+  );
+  const alreadySubmitted = Boolean(existingSubmission);
 
   const handleStartChallenge = () => {
     if (challenge.type === "game") {
@@ -49,14 +57,14 @@ export function ChallengeDetails({ challenge, onBack }: ChallengeDetailsProps) {
       );
     }
 
-    // Use original GamePlayer for other games
+    // Use original GamePlayer for other games (quiz, memory, sorting, matching)
     return (
       <GamePlayer
         game={{
           id: challenge.id,
           title: challenge.title,
           description: challenge.description,
-          type: challenge.gameConfig.gameType,
+          type: challenge.gameConfig.gameType as "quiz" | "memory" | "sorting" | "matching",
           points: challenge.points,
           timeLimit: challenge.gameConfig.timeLimit,
         }}
@@ -80,7 +88,7 @@ export function ChallengeDetails({ challenge, onBack }: ChallengeDetailsProps) {
     <div className="p-4 h-full flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <button 
+        <button
           onClick={onBack}
           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
         >
@@ -99,7 +107,7 @@ export function ChallengeDetails({ challenge, onBack }: ChallengeDetailsProps) {
           <div className="flex-1">
             <h1 className="text-xl font-semibold mb-2">{challenge.title}</h1>
             <p className="text-gray-600 mb-3">{challenge.description}</p>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Clock className="w-4 h-4" />
@@ -121,7 +129,7 @@ export function ChallengeDetails({ challenge, onBack }: ChallengeDetailsProps) {
           </div>
         </div>
 
-        {!challenge.completed && (
+        {!alreadySubmitted && !challenge.completed && (
           <button
             onClick={handleStartChallenge}
             className="w-full bg-[#2ECC71] text-white py-4 rounded-xl font-medium hover:bg-[#27AE60] transition-colors flex items-center justify-center gap-2"
@@ -134,57 +142,60 @@ export function ChallengeDetails({ challenge, onBack }: ChallengeDetailsProps) {
             {challenge.type === "game" ? "Play Game" : "Start Challenge"}
           </button>
         )}
+        {alreadySubmitted && (
+          <div className={`w-full py-4 rounded-xl font-medium flex items-center justify-center gap-2 text-sm ${existingSubmission?.status === "APPROVED"
+            ? "bg-green-50 text-green-700 border border-green-200"
+            : "bg-yellow-50 text-yellow-700 border border-yellow-200"
+            }`}>
+            {existingSubmission?.status === "APPROVED" ? "✅ Challenge Approved — Completed!" : "⏳ Submission Under Review"}
+          </div>
+        )}
       </div>
 
       {/* Tabs */}
       <div className="flex gap-1 mb-4 bg-gray-100 rounded-lg p-1">
         <button
           onClick={() => setActiveTab("overview")}
-          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-            activeTab === "overview" 
-              ? "bg-white text-gray-900 shadow-sm" 
-              : "text-gray-600 hover:text-gray-900"
-          }`}
+          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === "overview"
+            ? "bg-white text-gray-900 shadow-sm"
+            : "text-gray-600 hover:text-gray-900"
+            }`}
         >
           Overview
         </button>
         <button
           onClick={() => setActiveTab("requirements")}
-          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-            activeTab === "requirements" 
-              ? "bg-white text-gray-900 shadow-sm" 
-              : "text-gray-600 hover:text-gray-900"
-          }`}
+          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === "requirements"
+            ? "bg-white text-gray-900 shadow-sm"
+            : "text-gray-600 hover:text-gray-900"
+            }`}
         >
           Requirements
         </button>
         <button
           onClick={() => setActiveTab("tips")}
-          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-            activeTab === "tips" 
-              ? "bg-white text-gray-900 shadow-sm" 
-              : "text-gray-600 hover:text-gray-900"
-          }`}
+          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === "tips"
+            ? "bg-white text-gray-900 shadow-sm"
+            : "text-gray-600 hover:text-gray-900"
+            }`}
         >
           Tips
         </button>
         <button
           onClick={() => setActiveTab("game")}
-          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-            activeTab === "game" 
-              ? "bg-white text-gray-900 shadow-sm" 
-              : "text-gray-600 hover:text-gray-900"
-          }`}
+          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === "game"
+            ? "bg-white text-gray-900 shadow-sm"
+            : "text-gray-600 hover:text-gray-900"
+            }`}
         >
           Game
         </button>
         <button
           onClick={() => setActiveTab("learning")}
-          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-            activeTab === "learning" 
-              ? "bg-white text-gray-900 shadow-sm" 
-              : "text-gray-600 hover:text-gray-900"
-          }`}
+          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === "learning"
+            ? "bg-white text-gray-900 shadow-sm"
+            : "text-gray-600 hover:text-gray-900"
+            }`}
         >
           Learning
         </button>
@@ -199,21 +210,21 @@ export function ChallengeDetails({ challenge, onBack }: ChallengeDetailsProps) {
               <div>
                 <h4 className="font-medium mb-2">Environmental Impact</h4>
                 <p className="text-gray-600 text-sm">
-                  This challenge helps reduce environmental waste and promotes sustainable living practices. 
+                  This challenge helps reduce environmental waste and promotes sustainable living practices.
                   By participating, you'll learn practical ways to minimize your ecological footprint.
                 </p>
               </div>
               <div>
                 <h4 className="font-medium mb-2">What You'll Learn</h4>
                 <p className="text-gray-600 text-sm">
-                  Discover alternative solutions to everyday environmental challenges and develop 
+                  Discover alternative solutions to everyday environmental challenges and develop
                   long-term sustainable habits that you can continue beyond this challenge.
                 </p>
               </div>
               <div>
                 <h4 className="font-medium mb-2">Community</h4>
                 <p className="text-gray-600 text-sm">
-                  Join {challenge.participants} other eco-warriors who are taking action to protect our planet. 
+                  Join {challenge.participants} other eco-warriors who are taking action to protect our planet.
                   Share your progress and inspire others in your journey.
                 </p>
               </div>
@@ -263,7 +274,7 @@ export function ChallengeDetails({ challenge, onBack }: ChallengeDetailsProps) {
               <p className="text-gray-600 text-sm mb-6">
                 Test your knowledge and skills with this interactive environmental game!
               </p>
-              
+
               <div className="bg-gray-50 rounded-xl p-4 mb-6 space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Game Type:</span>

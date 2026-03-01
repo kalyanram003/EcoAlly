@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Users, Plus, Settings, BarChart3, Calendar, Clock } from "lucide-react";
+import { Users, Plus, Settings, BarChart3, Calendar } from "lucide-react";
 import { Card } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import * as api from "../../lib/api";
@@ -12,66 +12,34 @@ interface TeacherClassManagementProps {
 
 export function TeacherClassManagement({ currentUser, selectedClass, onClassChange }: TeacherClassManagementProps) {
   const [showAddClass, setShowAddClass] = useState(false);
-  const [newClassName, setNewClassName] = useState("");
+  const [newClassForm, setNewClassForm] = useState({ name: '', subject: 'Environmental Science', schedule: '' });
+  const [classes, setClasses] = useState<any[]>([]);
   const [students, setStudents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const classes = [
-    {
-      id: "class-10a",
-      name: "Grade 10-A",
-      students: 28,
-      activeToday: 22,
-      subject: "Environmental Science",
-      schedule: "Mon, Wed, Fri - 9:00 AM",
-      progress: 78,
-      lastActivity: "2 hours ago"
-    },
-    {
-      id: "class-10b",
-      name: "Grade 10-B",
-      students: 25,
-      activeToday: 18,
-      subject: "Environmental Science",
-      schedule: "Tue, Thu - 10:30 AM",
-      progress: 72,
-      lastActivity: "4 hours ago"
-    },
-    {
-      id: "class-9a",
-      name: "Grade 9-A",
-      students: 30,
-      activeToday: 25,
-      subject: "Earth Sciences",
-      schedule: "Mon, Wed, Fri - 11:00 AM",
-      progress: 85,
-      lastActivity: "1 hour ago"
-    },
-    {
-      id: "class-9b",
-      name: "Grade 9-B",
-      students: 27,
-      activeToday: 19,
-      subject: "Earth Sciences",
-      schedule: "Tue, Thu - 2:00 PM",
-      progress: 69,
-      lastActivity: "6 hours ago"
-    }
-  ];
+  const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
+    api.getTeacherClasses()
+      .then(setClasses)
+      .catch(() => setClasses([]))
+      .finally(() => setLoading(false));
     api.getTeacherStudents()
       .then(setStudents)
-      .catch(() => setStudents([]))
-      .finally(() => setLoading(false));
+      .catch(() => setStudents([]));
   }, []);
 
-  const handleAddClass = () => {
-    if (newClassName.trim()) {
-      // Add class logic here
-      console.log("Adding new class:", newClassName);
-      setNewClassName("");
+  const handleAddClass = async () => {
+    if (!newClassForm.name.trim()) return;
+    setIsCreating(true);
+    try {
+      const created = await api.createClass(newClassForm);
+      setClasses(prev => [created, ...prev]);
+      setNewClassForm({ name: '', subject: 'Environmental Science', schedule: '' });
       setShowAddClass(false);
+    } catch (err: any) {
+      alert(`Failed to create class: ${err.message}`);
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -79,9 +47,6 @@ export function TeacherClassManagement({ currentUser, selectedClass, onClassChan
     <div className="p-4 space-y-6">
       {/* Header */}
       <div className="flex flex-col space-y-4">
-        <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg text-sm">
-          🚧 <strong>Demo Mode:</strong> This page currently displays mock data. Backend integration for class management is coming soon.
-        </div>
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold text-gray-900">Class Management</h2>
@@ -99,7 +64,11 @@ export function TeacherClassManagement({ currentUser, selectedClass, onClassChan
 
       {/* Classes Grid */}
       <div className="space-y-4">
-        {classes.map((classData) => (
+        {loading ? (
+          <div className="text-center py-8 text-gray-400">Loading classes...</div>
+        ) : classes.length === 0 ? (
+          <div className="text-center py-8 text-gray-400">No classes yet. Create your first class!</div>
+        ) : classes.map((classData) => (
           <Card key={classData.id} className={`p-4 cursor-pointer transition-all ${selectedClass === classData.id ? "ring-2 ring-[#2ECC71] bg-[#2ECC71]/5" : "hover:shadow-md"
             }`}>
             <div className="flex items-center justify-between mb-3">
@@ -115,8 +84,8 @@ export function TeacherClassManagement({ currentUser, selectedClass, onClassChan
               <button
                 onClick={() => onClassChange(classData.id)}
                 className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${selectedClass === classData.id
-                    ? "bg-[#2ECC71] text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-[#2ECC71] text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
               >
                 {selectedClass === classData.id ? "Current" : "Select"}
@@ -124,46 +93,28 @@ export function TeacherClassManagement({ currentUser, selectedClass, onClassChan
             </div>
 
             {/* Class Stats */}
-            <div className="grid grid-cols-3 gap-4 mb-3">
+            <div className="grid grid-cols-2 gap-4 mb-3">
               <div className="text-center">
-                <div className="text-lg font-bold text-gray-900">{classData.students}</div>
-                <div className="text-xs text-gray-600">Total Students</div>
+                <div className="text-lg font-bold text-gray-900">
+                  {classData.studentIds?.length ?? classData.students ?? 0}
+                </div>
+                <div className="text-xs text-gray-600">Students</div>
               </div>
               <div className="text-center">
-                <div className="text-lg font-bold text-[#2ECC71]">{classData.activeToday}</div>
-                <div className="text-xs text-gray-600">Active Today</div>
-              </div>
-              <div className="text-center">
-                <div className="text-lg font-bold text-blue-600">{classData.progress}%</div>
-                <div className="text-xs text-gray-600">Avg Progress</div>
+                <div className="text-lg font-bold text-[#2ECC71]">
+                  {classData.schedule || '—'}
+                </div>
+                <div className="text-xs text-gray-600">Schedule</div>
               </div>
             </div>
 
-            {/* Progress Bar */}
-            <div className="mb-3">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-gray-600">Class Progress</span>
-                <span className="text-xs text-gray-600">{classData.progress}%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-[#2ECC71] h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${classData.progress}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Schedule & Last Activity */}
-            <div className="flex items-center justify-between text-sm text-gray-600">
-              <div className="flex items-center space-x-1">
-                <Calendar className="w-4 h-4" />
+            {/* Schedule */}
+            {classData.schedule && (
+              <div className="flex items-center text-sm text-gray-600 mb-3">
+                <Calendar className="w-4 h-4 mr-1" />
                 <span>{classData.schedule}</span>
               </div>
-              <div className="flex items-center space-x-1">
-                <Clock className="w-4 h-4" />
-                <span>{classData.lastActivity}</span>
-              </div>
-            </div>
+            )}
 
             {/* Action Buttons */}
             <div className="flex items-center space-x-2 mt-3 pt-3 border-t border-gray-100">
@@ -193,8 +144,8 @@ export function TeacherClassManagement({ currentUser, selectedClass, onClassChan
                 </label>
                 <input
                   type="text"
-                  value={newClassName}
-                  onChange={(e) => setNewClassName(e.target.value)}
+                  value={newClassForm.name}
+                  onChange={(e) => setNewClassForm({ ...newClassForm, name: e.target.value })}
                   placeholder="e.g., Grade 11-A"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71]"
                 />
@@ -204,7 +155,11 @@ export function TeacherClassManagement({ currentUser, selectedClass, onClassChan
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Subject
                 </label>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71]">
+                <select
+                  value={newClassForm.subject}
+                  onChange={(e) => setNewClassForm({ ...newClassForm, subject: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71]"
+                >
                   <option>Environmental Science</option>
                   <option>Earth Sciences</option>
                   <option>Biology</option>
@@ -219,6 +174,8 @@ export function TeacherClassManagement({ currentUser, selectedClass, onClassChan
                 </label>
                 <input
                   type="text"
+                  value={newClassForm.schedule}
+                  onChange={(e) => setNewClassForm({ ...newClassForm, schedule: e.target.value })}
                   placeholder="e.g., Mon, Wed, Fri - 9:00 AM"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71]"
                 />
@@ -228,9 +185,10 @@ export function TeacherClassManagement({ currentUser, selectedClass, onClassChan
             <div className="flex items-center space-x-3 mt-6">
               <Button
                 onClick={handleAddClass}
-                className="flex-1 bg-[#2ECC71] hover:bg-[#27AE60] text-white"
+                disabled={isCreating}
+                className="flex-1 bg-[#2ECC71] hover:bg-[#27AE60] text-white disabled:opacity-50"
               >
-                Create Class
+                {isCreating ? 'Creating...' : 'Create Class'}
               </Button>
               <Button
                 onClick={() => setShowAddClass(false)}
@@ -256,9 +214,9 @@ export function TeacherClassManagement({ currentUser, selectedClass, onClassChan
           </div>
           <div className="text-center p-3 bg-blue-100 rounded-lg">
             <div className="text-2xl font-bold text-blue-600">
-              {classes.reduce((sum, cls) => sum + cls.activeToday, 0)}
+              {classes.length}
             </div>
-            <div className="text-sm text-gray-600">Active Today</div>
+            <div className="text-sm text-gray-600">Total Classes</div>
           </div>
         </div>
       </Card>

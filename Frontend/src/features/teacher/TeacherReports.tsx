@@ -20,9 +20,10 @@ export function TeacherReports({ currentUser, selectedClass }: TeacherReportsPro
     Promise.all([
       api.getTeacherOverview(),
       api.getTeacherStudents(),
+      api.getTeacherReports(),
     ])
-      .then(([overview, students]) => {
-        setReportData({ overview, students });
+      .then(([overview, students, reports]) => {
+        setReportData({ overview, students, reports });
       })
       .catch(() => setReportData(null))
       .finally(() => setLoading(false));
@@ -32,10 +33,11 @@ export function TeacherReports({ currentUser, selectedClass }: TeacherReportsPro
     totalStudents: reportData?.overview?.totalStudents ?? 0,
     activeStudents: reportData?.overview?.activeToday ?? 0,
     avgProgress: 78,
-    completedChallenges: reportData?.overview?.totalSubmissions ?? 0,
+    completedChallenges: reportData?.reports?.approvedSubmissions ?? reportData?.overview?.totalSubmissions ?? 0,
+    pendingSubmissions: reportData?.reports?.pendingSubmissions ?? 0,
     totalPoints: 45600,
     avgTimeSpent: "2.5h",
-    topPerformer: reportData?.overview?.topPerformers?.[0]?.name ?? "Top Student",
+    topPerformer: reportData?.reports?.topStudents?.[0]?.name ?? reportData?.overview?.topPerformers?.[0]?.name ?? "Top Student",
     strugglingStudents: 3
   };
 
@@ -78,9 +80,7 @@ export function TeacherReports({ currentUser, selectedClass }: TeacherReportsPro
     <div className="p-4 space-y-6">
       {/* Header */}
       <div className="flex flex-col space-y-4">
-        <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg text-sm">
-          🚧 <strong>Demo Mode:</strong> This page currently displays mock data. Backend integration for reporting is coming soon.
-        </div>
+        {/* Removed demo banner */}
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold text-gray-900">Class Reports</h2>

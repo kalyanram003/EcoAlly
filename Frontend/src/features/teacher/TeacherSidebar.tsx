@@ -1,9 +1,9 @@
 import React from "react";
-import { Users, BarChart3, BookOpen, Trophy, FileText, Settings, LogOut, ClipboardCheck } from "lucide-react";
+import { Users, BarChart3, BookOpen, Trophy, FileText, Settings, LogOut, ClipboardCheck, Brain } from "lucide-react";
 
 interface TeacherSidebarProps {
     activeSection: string;
-    setActiveSection: (section: "overview" | "classes" | "students" | "challenges" | "materials" | "reports" | "settings" | "reviews") => void;
+    setActiveSection: (section: "overview" | "classes" | "students" | "challenges" | "materials" | "reports" | "settings" | "reviews" | "quizzes") => void;
     currentUser?: any;
     onLogout?: () => void;
 }
@@ -20,6 +20,7 @@ export const TeacherSidebar: React.FC<TeacherSidebarProps> = ({
         { id: "students", label: "Students", icon: Users },
         { id: "challenges", label: "Challenges", icon: Trophy },
         { id: "materials", label: "Materials", icon: BookOpen },
+        { id: "quizzes", label: "Quizzes", icon: Brain },
         { id: "reports", label: "Reports", icon: FileText },
         { id: "reviews", label: "📋 Reviews", icon: ClipboardCheck },
         { id: "settings", label: "Settings", icon: Settings }

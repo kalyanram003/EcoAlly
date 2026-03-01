@@ -1,4 +1,4 @@
-import { Home, Brain, Target, Trophy, User, Map } from "lucide-react";
+import { Home, Brain, Target, Trophy, User, Map, BookOpen } from "lucide-react";
 
 interface BottomNavigationProps {
   activeTab: string;
@@ -10,6 +10,7 @@ export function BottomNavigation({ activeTab, setActiveTab }: BottomNavigationPr
     { id: "home", label: "Home", icon: Home },
     { id: "quiz", label: "Quiz", icon: Brain },
     { id: "challenges", label: "Challenges", icon: Target },
+    { id: "materials", label: "Materials", icon: BookOpen },
     { id: "ecomap", label: "EcoMap", icon: Map },
     { id: "ranking", label: "Ranking", icon: Trophy },
     { id: "profile", label: "Profile", icon: User }
@@ -20,14 +21,13 @@ export function BottomNavigation({ activeTab, setActiveTab }: BottomNavigationPr
       {tabs.map((tab) => {
         const Icon = tab.icon;
         const isActive = activeTab === tab.id;
-        
+
         return (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`relative flex flex-col items-center gap-1 p-2 rounded-lg transition-colors ${
-              isActive ? 'text-[var(--forest-600)]' : 'text-gray-400'
-            }`}
+            className={`relative flex flex-col items-center gap-1 p-2 rounded-lg transition-colors ${isActive ? 'text-[var(--forest-600)]' : 'text-gray-400'
+              }`}
           >
             <Icon className="w-5 h-5" />
             <span className="text-xs font-medium">{tab.label}</span>

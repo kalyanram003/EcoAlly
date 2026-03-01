@@ -8,7 +8,8 @@ import {
     Map,
     LogOut,
     Coins,
-    Flame
+    Flame,
+    BookOpen
 } from "lucide-react";
 
 interface SidebarNavProps {
@@ -42,6 +43,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
         { id: "home", label: "Home", icon: Home },
         { id: "quiz", label: "Quizzes", icon: Brain },
         { id: "challenges", label: "Challenges", icon: Target },
+        { id: "materials", label: "Materials", icon: BookOpen },
         { id: "ecomap", label: "EcoMap", icon: Map },
         { id: "ranking", label: "Leaderboard", icon: Trophy },
         { id: "profile", label: "Profile", icon: User },
@@ -82,8 +84,8 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({
                         key={item.id}
                         onClick={() => setActiveTab(item.id)}
                         className={`w-full flex items-center gap-3 py-2.5 pr-3 rounded-xl text-sm font-medium cursor-pointer transition-colors ${activeTab === item.id
-                                ? "bg-[var(--forest-50)] text-[var(--forest-700)] font-semibold border-l-2 border-[var(--forest-600)] pl-[10px]"
-                                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 pl-3"
+                            ? "bg-[var(--forest-50)] text-[var(--forest-700)] font-semibold border-l-2 border-[var(--forest-600)] pl-[10px]"
+                            : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 pl-3"
                             }`}
                     >
                         <item.icon className={`w-5 h-5 ${activeTab === item.id ? "text-[var(--forest-600)]" : "text-gray-400"}`} />
