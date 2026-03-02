@@ -66,6 +66,6 @@ public class ChallengeSubmission {
     private LocalDateTime updatedAt;
 
     public enum SubmissionStatus {
-        PENDING, APPROVED, REJECTED
+        PENDING, PROCESSING, APPROVED, REJECTED
     }
 }

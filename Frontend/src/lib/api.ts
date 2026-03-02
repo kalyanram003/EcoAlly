@@ -94,6 +94,27 @@ export const submitChallenge = (
 export const getMySubmissions = () =>
     req<any[]>('/api/challenges/submissions/my');
 
+export const getSubmissionById = (id: string | number) =>
+    req<any>(`/api/challenges/submissions/${id}`);
+
+// Poll until status changes from PROCESSING (or maxAttempts exceeded)
+export const pollSubmission = async (
+    submissionId: string | number,
+    intervalMs = 2000,
+    maxAttempts = 30
+): Promise<any> => {
+    for (let i = 0; i < maxAttempts; i++) {
+        await new Promise(resolve => setTimeout(resolve, intervalMs));
+        const data = await getSubmissionById(submissionId);
+        const status = data?.status;
+        if (status === 'APPROVED' || status === 'REJECTED' || status === 'PENDING') {
+            return data; // done processing
+        }
+        // still PROCESSING — keep polling
+    }
+    throw new Error('Submission processing timed out');
+};
+
 // ── EcoMap ───────────────────────────────────────────────────────────────────
 export const getEcoMapPins = (instituteId?: string) => {
     const params = instituteId ? `?instituteId=${instituteId}` : '';

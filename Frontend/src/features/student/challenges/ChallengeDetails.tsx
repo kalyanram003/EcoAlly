@@ -20,7 +20,7 @@ export function ChallengeDetails({ challenge, onBack, mySubmissions = [] }: Chal
   // Check if student already has a non-rejected submission for this challenge
   const existingSubmission = mySubmissions.find(
     (s: any) => String(s.challengeId) === String(challenge.id) &&
-      (s.status === "PENDING" || s.status === "APPROVED")
+      (s.status === "PENDING" || s.status === "PROCESSING" || s.status === "APPROVED")
   );
   const alreadySubmitted = Boolean(existingSubmission);
 

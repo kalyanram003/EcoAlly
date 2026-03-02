@@ -5,6 +5,7 @@ import com.backend.ecoally.dto.request.ReviewSubmissionRequest;
 import com.backend.ecoally.dto.response.ApiResponse;
 import com.backend.ecoally.dto.response.MLAnalysisResult;
 import com.backend.ecoally.exception.AppException;
+import com.backend.ecoally.kafka.ChallengeSubmissionProducer;
 import com.backend.ecoally.model.*;
 import com.backend.ecoally.repository.*;
 import com.backend.ecoally.service.EcoLensService;
@@ -13,6 +14,7 @@ import com.backend.ecoally.service.StorageService;
 import com.backend.ecoally.service.StreakService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -42,6 +44,10 @@ public class ChallengeController {
     private final PointsService pointsService;
     private final StreakService streakService;
     private final EcoLensService ecoLensService;
+
+    // Null when kafka.enabled=false — optional bean
+    @Autowired(required = false)
+    private ChallengeSubmissionProducer kafkaProducer;
 
     @PostMapping
     @PreAuthorize("hasRole('TEACHER')")
@@ -141,7 +147,7 @@ public class ChallengeController {
 
     @PostMapping("/{id}/submit")
     @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<ApiResponse<ChallengeSubmission>> submitChallenge(
+    public ResponseEntity<ApiResponse<?>> submitChallenge(
             @PathVariable Long id,
             @RequestParam(required = false) String notes,
             @RequestParam(required = false) Double geoLat,
@@ -159,7 +165,7 @@ public class ChallengeController {
         Student student = studentRepository.findByUserId(user.getId())
                 .orElseThrow(() -> AppException.notFound("Student profile not found"));
 
-        // Upload media to Cloudinary (existing logic)
+        // Upload media (unchanged)
         List<String> mediaUrls = new ArrayList<>();
         if (media != null && !media.isEmpty()) {
             for (MultipartFile file : media) {
@@ -168,7 +174,45 @@ public class ChallengeController {
             }
         }
 
-        // Build submission
+        // ── ASYNC PATH: Kafka enabled ─────────────────────────────────────────────
+        if (kafkaProducer != null && challenge.getType() == Challenge.ChallengeType.PHOTO
+                && !mediaUrls.isEmpty()) {
+
+            // Save with PROCESSING status — consumer will update it
+            ChallengeSubmission submission = new ChallengeSubmission();
+            submission.setStudentId(student.getId());
+            submission.setChallengeId(challenge.getId());
+            submission.setMediaUrls(mediaUrls);
+            submission.setNotes(notes);
+            submission.setGeoLat(geoLat);
+            submission.setGeoLng(geoLng);
+            submission.setStatus(ChallengeSubmission.SubmissionStatus.PROCESSING);
+            ChallengeSubmission saved = submissionRepository.save(submission);
+
+            // Publish event — returns instantly, consumer handles ML in background
+            kafkaProducer.publishSubmission(new com.backend.ecoally.events.ChallengeSubmissionEvent(
+                    saved.getId(),
+                    student.getId(),
+                    challenge.getId(),
+                    mediaUrls,
+                    mediaUrls.get(0),
+                    geoLat,
+                    geoLng,
+                    challenge.getPoints(),
+                    java.time.LocalDateTime.now()));
+
+            streakService.updateStreak(student.getId());
+
+            // Return 202 Accepted — frontend must poll GET /api/challenges/submissions/{id}
+            Map<String, Object> asyncResponse = new java.util.LinkedHashMap<>();
+            asyncResponse.put("submissionId", saved.getId());
+            asyncResponse.put("status", "PROCESSING");
+            asyncResponse.put("message", "Your submission is being analyzed. Please check back shortly.");
+            return ResponseEntity.accepted().body(ApiResponse.success(asyncResponse));
+        }
+
+        // ── SYNC PATH: Kafka disabled OR non-photo challenge ─────────────────────
+        // This is IDENTICAL to the current code — no changes, no breakage
         ChallengeSubmission submission = new ChallengeSubmission();
         submission.setStudentId(student.getId());
         submission.setChallengeId(challenge.getId());
@@ -177,20 +221,14 @@ public class ChallengeController {
         submission.setGeoLat(geoLat);
         submission.setGeoLng(geoLng);
 
-        // ── EcoLens ML Analysis (NEW) ─────────────────────────────────────────
         if (challenge.getType() == Challenge.ChallengeType.PHOTO && !mediaUrls.isEmpty()) {
             MLAnalysisResult mlResult = ecoLensService.analyzeImage(
-                    mediaUrls.get(0),
-                    geoLat,
-                    geoLng,
-                    student.getId().toString(),
-                    challenge.getId().toString());
+                    mediaUrls.get(0), geoLat, geoLng,
+                    student.getId().toString(), challenge.getId().toString());
 
             if (mlResult != null && mlResult.isSuccess()) {
-                double ecoScore = mlResult.getEcoScore();
                 double bonusMultiplier = mlResult.getBonusMultiplier();
-
-                submission.setEcoScore(ecoScore);
+                submission.setEcoScore((double) mlResult.getEcoScore());
                 submission.setDetectedCategory(mlResult.getCategory());
                 submission.setDetectedSpecies(mlResult.getDetectedSpecies());
                 submission.setIsNativeSpecies(mlResult.getIsNativeSpecies());
@@ -199,29 +237,42 @@ public class ChallengeController {
                 submission.setAutoProcessed(true);
 
                 String autoDecision = mlResult.getAutoDecision();
-
                 if ("AUTO_APPROVED".equals(autoDecision)) {
                     submission.setStatus(ChallengeSubmission.SubmissionStatus.APPROVED);
-                    int basePoints = challenge.getPoints();
-                    int finalPoints = (int) (basePoints * bonusMultiplier);
+                    int finalPoints = (int) (challenge.getPoints() * bonusMultiplier);
                     submission.setPointsEarned(finalPoints);
                     pointsService.awardChallengePoints(student.getId(), finalPoints);
-
                 } else if ("AUTO_REJECTED".equals(autoDecision)) {
                     submission.setStatus(ChallengeSubmission.SubmissionStatus.REJECTED);
-
                 } else {
                     submission.setStatus(ChallengeSubmission.SubmissionStatus.PENDING);
                 }
             }
-            // If mlResult == null or !success (ML service down / error), stays PENDING for
-            // manual review
         }
 
         ChallengeSubmission saved = submissionRepository.save(submission);
         streakService.updateStreak(student.getId());
-
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(saved));
+    }
+
+    @GetMapping("/submissions/{id}")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<ApiResponse<ChallengeSubmission>> getSubmissionById(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User user) {
+
+        ChallengeSubmission submission = submissionRepository.findById(id)
+                .orElseThrow(() -> AppException.notFound("Submission not found"));
+
+        Student student = studentRepository.findByUserId(user.getId())
+                .orElseThrow(() -> AppException.notFound("Student profile not found"));
+
+        // Students can only see their own submissions
+        if (!submission.getStudentId().equals(student.getId())) {
+            throw AppException.forbidden("Access denied");
+        }
+
+        return ResponseEntity.ok(ApiResponse.success(submission));
     }
 
     @GetMapping("/submissions/my")

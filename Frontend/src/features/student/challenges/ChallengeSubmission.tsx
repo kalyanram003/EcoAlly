@@ -37,6 +37,7 @@ export function ChallengeSubmission({ challenge, onBack, onComplete }: Challenge
     new Array(challenge.requirements.length).fill(false)
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPolling, setIsPolling] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [ecoLensResult, setEcoLensResult] = useState<EcoLensResult | null>(null);
   const [geoStatus, setGeoStatus] = useState<'idle' | 'fetching' | 'ok' | 'denied'>('idle');
@@ -134,6 +135,46 @@ export function ChallengeSubmission({ challenge, onBack, onComplete }: Challenge
     try {
       const submission = await api.submitChallenge(challenge.id, notes, photoFiles, capturedGeo);
 
+      // ── Async Kafka path: backend returned 202 with PROCESSING status
+      if (submission?.status === 'PROCESSING' && submission?.submissionId) {
+        setIsSubmitting(false);
+        setIsPolling(true);
+        try {
+          const finalSubmission = await api.pollSubmission(submission.submissionId);
+          if (challenge.type === 'photo' && finalSubmission) {
+            const autoDecision =
+              finalSubmission.autoProcessed && finalSubmission.status
+                ? finalSubmission.status === 'APPROVED'
+                  ? 'AUTO_APPROVED'
+                  : finalSubmission.status === 'REJECTED'
+                    ? 'AUTO_REJECTED'
+                    : 'PENDING_REVIEW'
+                : 'PENDING_REVIEW';
+            setEcoLensResult({
+              ecoScore: finalSubmission.ecoScore ?? 0,
+              detectedCategory: finalSubmission.detectedCategory ?? 'irrelevant',
+              detectedSpecies: finalSubmission.detectedSpecies ?? null,
+              isNativeSpecies: typeof finalSubmission.isNativeSpecies === 'boolean' ? finalSubmission.isNativeSpecies : null,
+              autoDecision,
+              autoDecisionReason: finalSubmission.autoDecisionReason ?? 'Submission received. Sent for review.',
+              pointsEarned: finalSubmission.pointsEarned ?? 0,
+              bonusMultiplier: finalSubmission.bonusMultiplier ?? 1,
+            });
+          } else {
+            setShowSuccess(true);
+            setTimeout(() => onComplete(), 3000);
+          }
+        } catch (pollErr: any) {
+          // Poll timed out — treat as pending review
+          setShowSuccess(true);
+          setTimeout(() => onComplete(), 3000);
+        } finally {
+          setIsPolling(false);
+        }
+        return;
+      }
+
+      // ── Sync path: immediate result
       if (challenge.type === "photo" && submission) {
         const autoDecision =
           submission.autoProcessed && submission.status
@@ -171,6 +212,17 @@ export function ChallengeSubmission({ challenge, onBack, onComplete }: Challenge
       setIsSubmitting(false);
     }
   };
+
+  if (isPolling) {
+    return (
+      <div className="p-4 h-full flex flex-col items-center justify-center text-center">
+        <div className="w-20 h-20 rounded-full bg-emerald-50 border-4 border-emerald-400 border-t-transparent animate-spin mx-auto mb-6" />
+        <h1 className="text-xl font-semibold mb-2">Analyzing your submission…</h1>
+        <p className="text-gray-600 text-sm mb-1">Our AI is reviewing your photo.</p>
+        <p className="text-gray-400 text-xs">This usually takes a few seconds. Please wait.</p>
+      </div>
+    );
+  }
 
   if (ecoLensResult) {
     return (
@@ -264,10 +316,10 @@ export function ChallengeSubmission({ challenge, onBack, onComplete }: Challenge
         {/* Location Status Banner */}
         {challenge.type === 'photo' && (
           <div className={`rounded-xl p-3 border flex items-center gap-3 ${geoStatus === 'ok'
-              ? 'bg-green-50 border-green-200'
-              : geoStatus === 'denied'
-                ? 'bg-red-50 border-red-200'
-                : 'bg-amber-50 border-amber-200'
+            ? 'bg-green-50 border-green-200'
+            : geoStatus === 'denied'
+              ? 'bg-red-50 border-red-200'
+              : 'bg-amber-50 border-amber-200'
             }`}>
             <span className="text-xl flex-shrink-0">
               {geoStatus === 'ok' ? '📍' : geoStatus === 'denied' ? '🚫' : '⏳'}
