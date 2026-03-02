@@ -15,6 +15,8 @@ import com.backend.ecoally.service.StreakService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -51,6 +53,7 @@ public class ChallengeController {
 
     @PostMapping
     @PreAuthorize("hasRole('TEACHER')")
+    @CacheEvict(value = "challenges", allEntries = true)
     public ResponseEntity<ApiResponse<Challenge>> createChallenge(
             @Valid @RequestBody CreateChallengeRequest request,
             @AuthenticationPrincipal User user) {
@@ -75,6 +78,7 @@ public class ChallengeController {
     }
 
     @GetMapping
+    @Cacheable(value = "challenges", key = "#user.userType.name()")
     public ResponseEntity<ApiResponse<List<Challenge>>> getAllChallenges(
             @AuthenticationPrincipal User user) {
         List<Challenge> challenges;
@@ -101,6 +105,7 @@ public class ChallengeController {
     }
 
     @PutMapping("/{id}")
+    @CacheEvict(value = "challenges", allEntries = true)
     public ResponseEntity<ApiResponse<Challenge>> updateChallenge(
             @PathVariable Long id,
             @RequestBody CreateChallengeRequest request,
@@ -131,6 +136,7 @@ public class ChallengeController {
     }
 
     @DeleteMapping("/{id}")
+    @CacheEvict(value = "challenges", allEntries = true)
     public ResponseEntity<ApiResponse<Void>> deleteChallenge(
             @PathVariable Long id,
             @AuthenticationPrincipal User user) {
@@ -211,7 +217,7 @@ public class ChallengeController {
             return ResponseEntity.accepted().body(ApiResponse.success(asyncResponse));
         }
 
-        // ── SYNC PATH: Kafka disabled OR non-photo challenge ─────────────────────
+        // ── SYNC PATH: Kafka disabled OR non-photo challenge 
         // This is IDENTICAL to the current code — no changes, no breakage
         ChallengeSubmission submission = new ChallengeSubmission();
         submission.setStudentId(student.getId());

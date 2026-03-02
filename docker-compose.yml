@@ -38,3 +38,11 @@ services:
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092  # internal port
+
+# ── Redis ─────────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7.2-alpine
+    container_name: ecoally-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --save "" --appendonly no

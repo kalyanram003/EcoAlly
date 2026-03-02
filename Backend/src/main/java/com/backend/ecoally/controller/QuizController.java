@@ -13,6 +13,9 @@ import com.backend.ecoally.service.QuestService;
 import com.backend.ecoally.service.StreakService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,6 +38,7 @@ public class QuizController {
     private final QuestService questService;
 
     @GetMapping
+    @Cacheable(value = "quizzes", key = "'list_' + (#topic ?: 'all') + '_' + (#difficulty ?: 'all')")
     public ResponseEntity<ApiResponse<List<Quiz>>> getAllQuizzes(
             @RequestParam(required = false) String topic,
             @RequestParam(required = false) String difficulty) {
@@ -67,6 +71,7 @@ public class QuizController {
     }
 
     @GetMapping("/{id}")
+    @Cacheable(value = "quizzes", key = "'id_' + #id + '_' + #user.userType.name()")
     public ResponseEntity<ApiResponse<Quiz>> getQuizById(
             @PathVariable Long id,
             @AuthenticationPrincipal User user) {
@@ -86,6 +91,7 @@ public class QuizController {
 
     @PostMapping
     @PreAuthorize("hasRole('TEACHER')")
+    @CacheEvict(value = "quizzes", allEntries = true)
     public ResponseEntity<ApiResponse<Quiz>> createQuiz(
             @Valid @RequestBody CreateQuizRequest request,
             @AuthenticationPrincipal User user) {
@@ -119,6 +125,11 @@ public class QuizController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('TEACHER')")
+    @Caching(evict = {
+            @CacheEvict(value = "quizzes", key = "'id_' + #id + '_STUDENT'"),
+            @CacheEvict(value = "quizzes", key = "'id_' + #id + '_TEACHER'"),
+            @CacheEvict(value = "quizzes", allEntries = true)
+    })
     public ResponseEntity<ApiResponse<Quiz>> updateQuiz(
             @PathVariable Long id,
             @RequestBody CreateQuizRequest request,
@@ -160,6 +171,7 @@ public class QuizController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('TEACHER')")
+    @CacheEvict(value = "quizzes", allEntries = true)
     public ResponseEntity<ApiResponse<Void>> deleteQuiz(
             @PathVariable Long id,
             @AuthenticationPrincipal User user) {
