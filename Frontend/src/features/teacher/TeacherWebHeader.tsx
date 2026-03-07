@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { Leaf, Bell, Menu, X, ChevronDown, Users, BarChart3, BookOpen, Trophy, FileText, Settings } from "lucide-react";
+import { Leaf, Bell, Menu, X, ChevronDown, Users, BarChart3, BookOpen, Trophy, FileText, Settings, Brain, ClipboardCheck } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
 interface TeacherWebHeaderProps {
     currentUser: any;
     activeSection: string;
-    setActiveSection: (section: "overview" | "classes" | "students" | "challenges" | "materials" | "reports" | "settings" | "reviews") => void;
+    setActiveSection: (section: "overview" | "classes" | "students" | "challenges" | "materials" | "reports" | "settings" | "reviews" | "quizzes") => void;
     selectedClass: string;
     setSelectedClass: (classId: string) => void;
     onLogout: () => void;
@@ -41,7 +41,9 @@ export const TeacherWebHeader: React.FC<TeacherWebHeaderProps> = ({
         { id: "students", label: "Students", icon: Users },
         { id: "challenges", label: "Challenges", icon: Trophy },
         { id: "materials", label: "Materials", icon: BookOpen },
+        { id: "quizzes", label: "Quizzes", icon: Brain },
         { id: "reports", label: "Reports", icon: FileText },
+        { id: "reviews", label: "Reviews", icon: ClipboardCheck },
         { id: "settings", label: "Settings", icon: Settings }
     ];
 
@@ -133,8 +135,8 @@ export const TeacherWebHeader: React.FC<TeacherWebHeaderProps> = ({
                                     key={item.id}
                                     onClick={() => { setActiveSection(item.id as any); setMobileNavOpen(false); }}
                                     className={`block w-full text-left px-4 py-3 rounded-xl text-sm font-medium mb-1 transition-colors flex items-center gap-3 ${activeSection === item.id
-                                            ? 'bg-[var(--forest-50)] text-[var(--forest-700)] font-semibold'
-                                            : 'text-gray-600 hover:bg-gray-50'
+                                        ? 'bg-[var(--forest-50)] text-[var(--forest-700)] font-semibold'
+                                        : 'text-gray-600 hover:bg-gray-50'
                                         }`}
                                 >
                                     <Icon className={`w-5 h-5 ${activeSection === item.id ? 'text-[var(--forest-600)]' : 'text-gray-400'}`} />

@@ -243,7 +243,7 @@ export function SocialFeatures({ onJoinTeam, onGiveKudo }: SocialFeaturesProps) 
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4 mb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
               <div className="text-center bg-white/10 rounded-lg p-3 backdrop-blur-sm">
                 <div className="font-bold">{currentUserTeam.totalPoints.toLocaleString()}</div>
                 <div className="text-white/80 text-sm">Total Points</div>

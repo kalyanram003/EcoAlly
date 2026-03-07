@@ -162,34 +162,34 @@ export function LeaderboardTab() {
       {/* Category Tabs - global leaderboard only */}
       <div className="overflow-x-auto pb-2 mb-6">
         <div className="bg-white rounded-2xl p-1 border border-[var(--border)] inline-flex gap-1">
-        <button
-          onClick={() => setActiveCategory("total")}
-          className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap flex items-center gap-2 ${activeCategory === "total"
-            ? "bg-[var(--forest-600)] text-white"
-            : "bg-gray-100 text-gray-600"
-            }`}
-        >
-          <TrendingUp className="w-4 h-4" />
-          Total Points
-        </button>
-        <button
-          onClick={() => setActiveCategory("challenges")}
-          className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${activeCategory === "challenges"
-            ? "bg-[var(--forest-600)] text-white"
-            : "bg-gray-100 text-gray-600"
-            }`}
-        >
-          🎯 Challenges
-        </button>
-        <button
-          onClick={() => setActiveCategory("quizzes")}
-          className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${activeCategory === "quizzes"
-            ? "bg-[var(--forest-600)] text-white"
-            : "bg-gray-100 text-gray-600"
-            }`}
-        >
-          🧠 Quizzes
-        </button>
+          <button
+            onClick={() => setActiveCategory("total")}
+            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap flex items-center gap-2 ${activeCategory === "total"
+              ? "bg-[var(--forest-600)] text-white"
+              : "bg-gray-100 text-gray-600"
+              }`}
+          >
+            <TrendingUp className="w-4 h-4" />
+            Total Points
+          </button>
+          <button
+            onClick={() => setActiveCategory("challenges")}
+            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${activeCategory === "challenges"
+              ? "bg-[var(--forest-600)] text-white"
+              : "bg-gray-100 text-gray-600"
+              }`}
+          >
+            🎯 Challenges
+          </button>
+          <button
+            onClick={() => setActiveCategory("quizzes")}
+            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${activeCategory === "quizzes"
+              ? "bg-[var(--forest-600)] text-white"
+              : "bg-gray-100 text-gray-600"
+              }`}
+          >
+            🧠 Quizzes
+          </button>
         </div>
       </div>
 
@@ -242,44 +242,44 @@ export function LeaderboardTab() {
             <h3 className="font-semibold">Full Rankings</h3>
           </div>
           <div className="divide-y divide-gray-100">
-          {sortedData.map((user, index) => (
-            <div
-              key={user.id}
-              className={`p-4 flex items-center gap-4 ${user.isCurrentUser ? "bg-[var(--forest-50)] border-l-4 border-[var(--forest-600)]" : ""
-                }`}
-            >
-              <div className="flex-shrink-0">
-                {getRankIcon(index + 1)}
-              </div>
-
-              <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-lg">{user.avatar}</span>
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <h4 className={`font-medium ${user.isCurrentUser ? "text-[var(--forest-600)]" : ""}`}>
-                    {user.name}
-                    {user.isCurrentUser && <span className="ml-2 text-xs bg-[var(--forest-600)] text-white px-2 py-1 rounded-full">You</span>}
-                  </h4>
-                  <div className="text-right">
-                    <div className="font-semibold">{getCategoryValue(user)}</div>
-                    {activeCategory === "total" && user.weeklyPoints > 0 && (
-                      <div className="text-xs text-gray-500">+{user.weeklyPoints} this week</div>
-                    )}
-                  </div>
+            {sortedData.map((user, index) => (
+              <div
+                key={user.id}
+                className={`p-4 flex items-center gap-4 ${user.isCurrentUser ? "bg-[var(--forest-50)] border-l-4 border-[var(--forest-600)]" : ""
+                  }`}
+              >
+                <div className="w-7 h-7 sm:w-8 sm:h-8 flex-shrink-0 flex items-center justify-center text-xs sm:text-sm">
+                  {getRankIcon(index + 1)}
                 </div>
 
-                {activeCategory === "total" && (
-                  <div className="flex items-center gap-4 mt-1 text-xs text-gray-500">
-                    <span>🎯 {user.challengesCompleted}</span>
-                    <span>🧠 {user.quizzesCompleted}</span>
-                    <span>🔥 {user.streak} day streak</span>
+                <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-lg">{user.avatar}</span>
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <h4 className={`font-medium truncate ${user.isCurrentUser ? "text-[var(--forest-600)]" : ""}`}>
+                      {user.name}
+                      {user.isCurrentUser && <span className="ml-2 text-xs bg-[var(--forest-600)] text-white px-2 py-1 rounded-full">You</span>}
+                    </h4>
+                    <div className="text-right">
+                      <div className="font-semibold">{getCategoryValue(user)}</div>
+                      {activeCategory === "total" && user.weeklyPoints > 0 && (
+                        <div className="text-xs text-gray-500">+{user.weeklyPoints} this week</div>
+                      )}
+                    </div>
                   </div>
-                )}
+
+                  {activeCategory === "total" && (
+                    <div className="flex items-center gap-4 mt-1 text-xs text-gray-500">
+                      <span>🎯 {user.challengesCompleted}</span>
+                      <span>🧠 {user.quizzesCompleted}</span>
+                      <span className="hidden sm:inline">🔥 {user.streak} day streak</span>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
           </div>
         </div>
       </div>

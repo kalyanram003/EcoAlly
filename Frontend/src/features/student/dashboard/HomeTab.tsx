@@ -55,7 +55,7 @@ export function HomeTab({
         onNavigateToStreaks={handleNavigateToStreaks}
       />
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="xl:col-span-2 space-y-6">
           <div className="bg-white rounded-2xl p-5 lg:p-6 border border-[var(--border)] shadow-[var(--shadow-xs)]">
             <div className="flex items-center gap-2 mb-3">
@@ -81,10 +81,10 @@ export function HomeTab({
                 <button
                   key={topic.id}
                   onClick={() => handleNavigateToNotes(topic.id)}
-                  className={`${topic.bg} p-3 rounded-xl text-left transition-colors`}
+                  className={`${topic.bg} p-2 sm:p-3 rounded-xl text-left transition-colors`}
                 >
-                  <div className="text-xl mb-1">{topic.emoji}</div>
-                  <div className="text-xs font-medium text-gray-700 leading-tight">{topic.label}</div>
+                  <div className="text-lg sm:text-xl mb-1">{topic.emoji}</div>
+                  <div className="text-[11px] sm:text-xs font-medium text-gray-700 leading-tight line-clamp-2">{topic.label}</div>
                 </button>
               ))}
             </div>

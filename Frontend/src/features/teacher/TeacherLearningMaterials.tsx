@@ -139,7 +139,7 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
       </div>
 
       {/* Material Types Overview */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {materialTypes.map((type) => {
           const Icon = type.icon;
           const count = sharedMaterials.filter(m => m.type?.toLowerCase() === type.id || m.type?.toUpperCase() === type.id.toUpperCase()).length;
@@ -161,7 +161,7 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
 
       {/* Quick Stats */}
       <Card className="p-4">
-        <div className="grid grid-cols-3 gap-4 text-center">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 text-center">
           <div>
             <div className="text-2xl font-bold text-[#2ECC71]">{sharedMaterials.length}</div>
             <div className="text-sm text-gray-600">Total Materials</div>
@@ -326,7 +326,7 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Material Type
                 </label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {materialTypes.map((type) => {
                     const Icon = type.icon;
                     return (

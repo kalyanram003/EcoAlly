@@ -229,15 +229,15 @@ export function TeacherQuizManagement({ currentUser, selectedClass }: TeacherQui
 
             {/* Create / Edit Form Modal */}
             {showForm && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end sm:items-center justify-center sm:p-4">
+                    <div className="bg-white w-full h-full sm:h-auto sm:rounded-xl sm:max-w-2xl sm:max-h-[90vh] overflow-y-auto">
                         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
                             <h3 className="font-semibold text-gray-900">{editingQuizId ? "Edit Quiz" : "Create Quiz"}</h3>
                             <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600">✕</button>
                         </div>
                         <div className="p-6 space-y-4">
                             {/* Basic Info */}
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="col-span-2">
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
                                     <input
@@ -310,20 +310,20 @@ export function TeacherQuizManagement({ currentUser, selectedClass }: TeacherQui
                                             />
                                             <div className="space-y-2">
                                                 {q.options.map((opt, oi) => (
-                                                    <div key={oi} className="flex items-center space-x-2">
+                                                    <div key={oi} className="flex items-center gap-2 min-w-0">
                                                         <input
                                                             type="radio"
                                                             name={`correct-${qi}`}
                                                             checked={q.correctAnswerIndex === oi}
                                                             onChange={() => updateQuestion(qi, "correctAnswerIndex", oi)}
-                                                            className="text-[#2ECC71]"
+                                                            className="text-[#2ECC71] shrink-0"
                                                         />
                                                         <input
                                                             type="text"
                                                             value={opt}
                                                             onChange={e => updateOption(qi, oi, e.target.value)}
                                                             placeholder={`Option ${oi + 1}`}
-                                                            className="flex-1 px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-[#2ECC71] focus:border-[#2ECC71]"
+                                                            className="flex-1 min-w-0 px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-[#2ECC71] focus:border-[#2ECC71]"
                                                         />
                                                     </div>
                                                 ))}

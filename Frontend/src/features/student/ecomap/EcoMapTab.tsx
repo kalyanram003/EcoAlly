@@ -185,8 +185,8 @@ export function EcoMapTab() {
             key={f.key}
             onClick={() => setFilter(f.key)}
             className={`whitespace-nowrap px-3 py-1.5 rounded-full text-sm font-medium transition-all ${filter === f.key
-                ? "bg-green-600 text-white shadow-md"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              ? "bg-green-600 text-white shadow-md"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
           >
             {f.label}
@@ -195,7 +195,7 @@ export function EcoMapTab() {
       </div>
 
       {/* Leaflet Map */}
-      <div className="rounded-2xl overflow-hidden shadow-lg border border-gray-200" style={{ height: "420px" }}>
+      <div className="rounded-2xl overflow-hidden shadow-lg border border-gray-200 h-[50vw] sm:h-72 md:h-96">
         {filteredPins.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full bg-gray-50 gap-3">
             <span className="text-5xl">🌍</span>
@@ -246,8 +246,8 @@ export function EcoMapTab() {
                         </p>
                         {pin.isNativeSpecies !== null && (
                           <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${pin.isNativeSpecies
-                              ? "bg-green-100 text-green-700"
-                              : "bg-orange-100 text-orange-700"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-orange-100 text-orange-700"
                             }`}>
                             {pin.isNativeSpecies ? "🌱 Native Species" : "Non-native"}
                           </span>

@@ -66,7 +66,7 @@ export function TeacherOverview({ currentUser, selectedClass, onSectionChange }:
   return (
     <div className="p-4 space-y-6">
       {/* Key Metrics */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <Card className="p-4">
           <div className="flex items-center justify-between">
             <div>

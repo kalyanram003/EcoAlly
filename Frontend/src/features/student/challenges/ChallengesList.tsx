@@ -70,8 +70,8 @@ export function ChallengesList({ challenges, onChallengeSelect }: ChallengesList
     }
   };
 
-  const filteredChallenges = activeFilter === "all" 
-    ? challenges 
+  const filteredChallenges = activeFilter === "all"
+    ? challenges
     : challenges.filter(challenge => challenge.type === activeFilter);
 
   const sortedChallenges = [...filteredChallenges].sort((a, b) => {
@@ -102,7 +102,7 @@ export function ChallengesList({ challenges, onChallengeSelect }: ChallengesList
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Challenges</h1>
         <p className="text-gray-500 text-sm mt-1">Complete real-world eco actions and upload proof</p>
-        
+
         <div className="flex justify-center gap-4 mt-4">
           <div className="text-center">
             <div className="text-2xl font-semibold text-[var(--forest-600)]">{activeCount}</div>
@@ -116,16 +116,15 @@ export function ChallengesList({ challenges, onChallengeSelect }: ChallengesList
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+      <div className="flex gap-2 mb-6 overflow-x-auto pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {filterButtons.map((filter) => (
           <button
             key={filter.key}
             onClick={() => setActiveFilter(filter.key)}
-            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-              activeFilter === filter.key
+            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap shrink-0 transition-colors ${activeFilter === filter.key
                 ? "bg-[var(--forest-600)] text-white shadow-md"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
+              }`}
           >
             {filter.icon} {filter.label}
           </button>
@@ -167,74 +166,74 @@ export function ChallengesList({ challenges, onChallengeSelect }: ChallengesList
             </div>
           ) : (
             <>
-            {sortedChallenges.map((challenge) => (
-              <motion.div
-                key={challenge.id}
-                variants={item}
-                whileHover={{ y: -3, boxShadow: "0 8px 30px rgba(0,0,0,0.09)" }}
-                whileTap={{ scale: 0.985 }}
-                transition={{ duration: 0.18, ease: "easeOut" }}
-                className="bg-white rounded-2xl border border-[var(--border)] shadow-[var(--shadow-xs)] p-5"
-              >
-                <div className="flex items-start gap-4">
-                  <div className={`w-12 h-12 ${challenge.color} rounded-xl flex items-center justify-center flex-shrink-0`}>
-                    <span className="text-xl">{challenge.icon}</span>
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-semibold text-lg">{challenge.title}</h3>
-                      {challenge.completed && (
-                        <div className="w-6 h-6 bg-[var(--forest-500)] rounded-full flex items-center justify-center">
-                          <Check className="w-4 h-4 text-white" />
+              {sortedChallenges.map((challenge) => (
+                <motion.div
+                  key={challenge.id}
+                  variants={item}
+                  whileHover={{ y: -3, boxShadow: "0 8px 30px rgba(0,0,0,0.09)" }}
+                  whileTap={{ scale: 0.985 }}
+                  transition={{ duration: 0.18, ease: "easeOut" }}
+                  className="bg-white rounded-2xl border border-[var(--border)] shadow-[var(--shadow-xs)] p-5"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className={`w-12 h-12 ${challenge.color} rounded-xl flex items-center justify-center flex-shrink-0`}>
+                      <span className="text-xl">{challenge.icon}</span>
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="font-semibold text-lg">{challenge.title}</h3>
+                        {challenge.completed && (
+                          <div className="w-6 h-6 bg-[var(--forest-500)] rounded-full flex items-center justify-center">
+                            <Check className="w-4 h-4 text-white" />
+                          </div>
+                        )}
+                      </div>
+
+                      <p className="text-gray-600 text-sm mb-3">{challenge.description}</p>
+
+                      <div className="flex items-center gap-3 mb-4 text-sm text-gray-500">
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-4 h-4" />
+                          <span>{challenge.duration}</span>
                         </div>
-                      )}
-                    </div>
-                    
-                    <p className="text-gray-600 text-sm mb-3">{challenge.description}</p>
-                    
-                    <div className="flex items-center gap-3 mb-4 text-sm text-gray-500">
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
-                        <span>{challenge.duration}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4" />
-                        <span>{challenge.points} points</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="w-4 h-4" />
-                        <span>{challenge.participants}</span>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex gap-2">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(challenge.difficulty)}`}>
-                          {challenge.difficulty}
-                        </span>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(challenge.type)}`}>
-                          {getTypeLabel(challenge.type)}
-                        </span>
-                      </div>
-                      
-                      {challenge.completed ? (
-                        <div className="text-center py-2">
-                          <span className="text-[var(--forest-600)] font-medium text-sm">Completed!</span>
+                        <div className="flex items-center gap-1">
+                          <Star className="w-4 h-4" />
+                          <span>{challenge.points} points</span>
                         </div>
-                      ) : (
-                        <button
-                          onClick={() => onChallengeSelect(challenge)}
-                          className="bg-[var(--forest-600)] text-white px-6 py-2 rounded-xl font-medium hover:bg-[var(--forest-700)] transition-colors"
-                        >
-                          Start
-                        </button>
-                      )}
+                        <div className="flex items-center gap-1">
+                          <Users className="w-4 h-4" />
+                          <span>{challenge.participants}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex gap-2">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(challenge.difficulty)}`}>
+                            {challenge.difficulty}
+                          </span>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(challenge.type)}`}>
+                            {getTypeLabel(challenge.type)}
+                          </span>
+                        </div>
+
+                        {challenge.completed ? (
+                          <div className="text-center py-2">
+                            <span className="text-[var(--forest-600)] font-medium text-sm">Completed!</span>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => onChallengeSelect(challenge)}
+                            className="bg-[var(--forest-600)] text-white px-6 py-2 rounded-xl font-medium hover:bg-[var(--forest-700)] transition-colors"
+                          >
+                            Start
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              ))}
             </>
           )}
         </motion.div>

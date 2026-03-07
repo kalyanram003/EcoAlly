@@ -180,13 +180,13 @@ export function UserInfoPage({ initialData, onComplete, onBack }: UserInfoPagePr
     const steps = Array.from({ length: totalSteps }, (_, i) => i + 1);
 
     return (
-      <div className="flex items-center justify-center mb-8">
+      <div className="flex items-center overflow-x-auto gap-2 pb-2 mb-8 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden justify-center">
         {steps.map((step) => (
           <div key={step} className="flex items-center">
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step <= currentStep
-                  ? "bg-[#2ECC71] text-white"
-                  : "bg-gray-200 text-gray-500"
+                ? "bg-[#2ECC71] text-white"
+                : "bg-gray-200 text-gray-500"
                 }`}
             >
               {step}
@@ -326,7 +326,7 @@ export function UserInfoPage({ initialData, onComplete, onBack }: UserInfoPagePr
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
             First Name *
@@ -924,11 +924,10 @@ export function UserInfoPage({ initialData, onComplete, onBack }: UserInfoPagePr
               { step: '03', label: 'Start Learning', done: false },
             ].map(s => (
               <div key={s.step} className={`flex items-center gap-3 ${s.done ? 'opacity-60' : ''}`}>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${
-                  s.done ? 'bg-white/30 text-white' :
-                  s.current ? 'bg-white text-[var(--forest-700)]' :
-                  'bg-white/10 text-white/50 border border-white/20'
-                }`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${s.done ? 'bg-white/30 text-white' :
+                    s.current ? 'bg-white text-[var(--forest-700)]' :
+                      'bg-white/10 text-white/50 border border-white/20'
+                  }`}>
                   {s.done ? '✓' : s.step}
                 </div>
                 <span className={`text-sm font-medium ${s.current ? 'text-white' : 'text-[var(--forest-100)]/70'}`}>

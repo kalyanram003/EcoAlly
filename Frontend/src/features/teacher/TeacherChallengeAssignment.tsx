@@ -250,7 +250,7 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
       </div>
 
       {/* Challenge Types Overview */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {challengeTypes.map((type) => {
           const Icon = type.icon;
           return (
@@ -329,7 +329,7 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
               </div>
 
               {/* Challenge Details */}
-              <div className="grid grid-cols-3 gap-4 text-sm text-gray-600">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm text-gray-600">
                 <div className="flex items-center space-x-1">
                   <Clock className="w-4 h-4" />
                   <span>{challenge.duration}</span>
@@ -345,7 +345,7 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center space-x-2 mt-3 pt-3 border-t border-gray-100">
+              <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-100">
                 <Button
                   variant="outline"
                   size="sm"
@@ -411,7 +411,7 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Challenge Type
                 </label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {challengeTypes.map((type) => {
                     const Icon = type.icon;
                     return (
@@ -485,7 +485,7 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
               </div>
 
               {/* Difficulty & Duration */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Difficulty
@@ -516,7 +516,7 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
               </div>
 
               {/* Points & Deadline */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Points Reward
@@ -604,7 +604,7 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71]"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Difficulty</label>
                   <select

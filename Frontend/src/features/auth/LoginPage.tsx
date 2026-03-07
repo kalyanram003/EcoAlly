@@ -148,7 +148,7 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
       </div>
 
       {/* ── RIGHT FORM PANEL ── */}
-      <div className="flex-1 flex flex-col items-center justify-start bg-[var(--bg-base)] px-6 py-12 lg:px-12 xl:px-16 overflow-y-auto">
+      <div className="flex-1 flex flex-col items-center justify-start bg-[var(--bg-base)] px-4 py-6 sm:px-6 sm:py-10 lg:px-12 xl:px-16 overflow-y-auto">
         <div className="lg:hidden flex items-center gap-2 mb-8">
           <div className="bg-[var(--forest-600)] rounded-full p-1.5">
             <Leaf className="w-5 h-5 text-white" />
@@ -158,7 +158,7 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
 
         <div className="w-full max-w-md">
           {/* Login Form */}
-          <div className="bg-white rounded-2xl p-6 shadow-xl">
+          <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-xl">
             {/* Back to Role Selection */}
             <div className="flex items-center mb-4">
               <button

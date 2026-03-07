@@ -36,19 +36,19 @@ export function QuestSystem({ onCompleteQuest }: QuestSystemProps) {
           const q = item.quest ?? item;   // unwrap nested 'quest' key
           const p = item.progress ?? {};  // unwrap nested 'progress' key
           return {
-            id:          String(q.id),
-            type:        (q.type ? q.type.toLowerCase() : "daily") as "daily" | "weekly" | "epic",
-            title:       q.title       ?? "Quest",
+            id: String(q.id),
+            type: (q.type ? q.type.toLowerCase() : "daily") as "daily" | "weekly" | "epic",
+            title: q.title ?? "Quest",
             description: q.description ?? "",
-            emoji:       q.emoji       ?? "🎯",
-            progress:    p.progress    ?? 0,
-            maxProgress: q.target      ?? 1,
-            points:      q.points      ?? 0,
-            deadline:    q.deadline ? new Date(q.deadline) : undefined,
-            completed:   p.completed   ?? false,
-            color:       q.color       ?? "bg-green-100 border-green-300",
+            emoji: q.emoji ?? "🎯",
+            progress: p.progress ?? 0,
+            maxProgress: q.target ?? 1,
+            points: q.points ?? 0,
+            deadline: q.deadline ? new Date(q.deadline) : undefined,
+            completed: p.completed ?? false,
+            color: q.color ?? "bg-green-100 border-green-300",
             requirements: q.requirements ?? [],
-            bonus:       q.bonus,
+            bonus: q.bonus,
           };
         });
         setQuests(mapped);
@@ -121,12 +121,12 @@ export function QuestSystem({ onCompleteQuest }: QuestSystemProps) {
       </div>
 
       {/* Quest Tabs */}
-      <div className="flex gap-2 p-1 bg-gray-100 rounded-lg">
+      <div className="flex gap-1 sm:gap-2 p-1 bg-gray-100 rounded-lg">
         {["daily", "weekly", "epic"].map((type) => (
           <button
             key={type}
             onClick={() => setActiveTab(type as any)}
-            className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-md font-medium transition-colors ${getTabColor(type as any)}`}
+            className={`flex-1 flex items-center justify-center gap-1 sm:gap-2 py-2 px-2 sm:px-4 rounded-md font-medium text-xs sm:text-sm transition-colors ${getTabColor(type as any)}`}
           >
             {getTabIcon(type as any)}
             <span className="capitalize">{type}</span>
@@ -151,7 +151,7 @@ export function QuestSystem({ onCompleteQuest }: QuestSystemProps) {
       {/* Quest List */}
       <div className="space-y-4">
         {currentQuests.map((quest) => (
-          <div key={quest.id} className={`bg-white rounded-xl border-2 p-4 ${quest.color} ${quest.completed ? 'opacity-75' : ''}`}>
+          <div key={quest.id} className={`bg-white rounded-xl border-2 p-3 sm:p-4 ${quest.color} ${quest.completed ? 'opacity-75' : ''} overflow-hidden`}>
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center text-2xl shadow-sm">
@@ -184,7 +184,7 @@ export function QuestSystem({ onCompleteQuest }: QuestSystemProps) {
             <div className="mb-3">
               <div className="flex justify-between items-center mb-1">
                 <span className="text-sm text-gray-600">Progress</span>
-                <span className="text-sm font-medium">{quest.progress}/{quest.maxProgress}</span>
+                <span className="text-sm font-medium whitespace-nowrap">{quest.progress}/{quest.maxProgress}</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div

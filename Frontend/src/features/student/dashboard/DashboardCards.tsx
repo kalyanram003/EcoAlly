@@ -9,11 +9,11 @@ interface DashboardCardsProps {
 }
 
 export function DashboardCards({ userPoints, currentStreak, onNavigateToRanking, onNavigateToStreaks }: DashboardCardsProps) {
-  const cardClass = "bg-white rounded-2xl p-4 lg:p-6 shadow-[var(--shadow-xs)] border border-[var(--border)] text-center";
-  const iconClass = "w-10 h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center mx-auto mb-3";
+  const cardClass = "bg-white rounded-2xl p-3 sm:p-4 lg:p-6 shadow-[var(--shadow-xs)] border border-[var(--border)] text-center";
+  const iconClass = "w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center mx-auto mb-2 sm:mb-3";
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
       <div className={cardClass}>
         <div className={`${iconClass} bg-[var(--forest-50)]`}>
           <Coins className="w-5 h-5 lg:w-6 lg:h-6 text-[var(--forest-500)]" />

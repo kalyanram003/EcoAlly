@@ -153,21 +153,21 @@ export function QuizPlayer({
   return (
     <div className="p-4 h-full flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between gap-2 min-w-0 mb-6">
         <button
           onClick={onBackToQuizzes}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="p-2 hover:bg-gray-100 rounded-lg transition-colors shrink-0"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <div className="text-center">
-          <h2 className="font-semibold">{quiz.title}</h2>
+        <div className="text-center min-w-0 flex-1">
+          <h2 className="font-semibold truncate">{quiz.title}</h2>
           <p className="text-sm text-gray-500">
             Question {currentQuestionIndex + 1} of {questions.length}
           </p>
         </div>
         <div
-          className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold ${timeLeft <= 10 ? "bg-red-500" : "bg-[#2ECC71]"
+          className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold shrink-0 ${timeLeft <= 10 ? "bg-red-500" : "bg-[#2ECC71]"
             }`}
         >
           {timeLeft}
@@ -199,7 +199,7 @@ export function QuizPlayer({
                 index === currentQuestion.correctAnswer;
 
               let buttonClass =
-                "w-full p-4 text-left rounded-xl border-2 transition-all ";
+                "w-full p-4 text-left rounded-xl border-2 transition-all text-sm sm:text-base break-words hyphens-auto ";
               if (!isAnswered) {
                 buttonClass +=
                   "border-gray-200 hover:border-[#2ECC71] hover:bg-[#2ECC71]/5";

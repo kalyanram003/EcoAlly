@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { BarChart3, Trophy, Brain, ClipboardCheck, Settings } from "lucide-react";
 import { TeacherWebHeader } from "./TeacherWebHeader";
 import { TeacherSidebar } from "./TeacherSidebar";
 import { TeacherOverview } from "./TeacherOverview";
@@ -111,10 +112,31 @@ export function TeacherDashboard({ currentUser, onLogout }: TeacherDashboardProp
           onLogout={onLogout}
         />
         <main className="flex-1 overflow-y-auto">
-          <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 pb-24 lg:pb-8">
             {renderContent()}
           </div>
         </main>
+      </div>
+
+      {/* Teacher Bottom Nav — mobile/tablet only */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 px-2 py-1.5 flex justify-around items-center shadow-lg">
+        {[
+          { id: "overview", icon: BarChart3, label: "Overview" },
+          { id: "challenges", icon: Trophy, label: "Challenges" },
+          { id: "quizzes", icon: Brain, label: "Quizzes" },
+          { id: "reviews", icon: ClipboardCheck, label: "Reviews" },
+          { id: "settings", icon: Settings, label: "Settings" },
+        ].map(({ id, icon: Icon, label }) => (
+          <button
+            key={id}
+            onClick={() => setActiveSection(id as any)}
+            className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg flex-1 transition-colors
+              ${activeSection === id ? "text-[var(--forest-600)]" : "text-gray-400"}`}
+          >
+            <Icon className="w-5 h-5" />
+            <span className="text-[10px] font-medium">{label}</span>
+          </button>
+        ))}
       </div>
     </div>
   );
