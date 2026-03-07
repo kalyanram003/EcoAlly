@@ -32,22 +32,25 @@ export function QuestSystem({ onCompleteQuest }: QuestSystemProps) {
     setLoading(true);
     api.getQuests()
       .then((data) => {
-        const mapped: Quest[] = data.map((q: any) => ({
-          id: String(q.id),
-          // backend sends "DAILY", "WEEKLY", "EPIC" — convert to lowercase
-          type: (q.type ? q.type.toLowerCase() : "daily") as "daily" | "weekly" | "epic",
-          title: q.title ?? "Quest",
-          description: q.description ?? "",
-          emoji: q.emoji ?? "🎯",
-          progress: q.progress ?? 0,
-          maxProgress: q.maxProgress ?? q.target ?? 1,
-          points: q.points ?? q.reward ?? 0,
-          deadline: q.deadline ? new Date(q.deadline) : undefined,
-          completed: q.completed ?? false,
-          color: q.color ?? "bg-green-100 border-green-300",
-          requirements: q.requirements ?? [],
-          bonus: q.bonus,
-        }));
+        const mapped: Quest[] = data.map((item: any) => {
+          const q = item.quest ?? item;   // unwrap nested 'quest' key
+          const p = item.progress ?? {};  // unwrap nested 'progress' key
+          return {
+            id:          String(q.id),
+            type:        (q.type ? q.type.toLowerCase() : "daily") as "daily" | "weekly" | "epic",
+            title:       q.title       ?? "Quest",
+            description: q.description ?? "",
+            emoji:       q.emoji       ?? "🎯",
+            progress:    p.progress    ?? 0,
+            maxProgress: q.target      ?? 1,
+            points:      q.points      ?? 0,
+            deadline:    q.deadline ? new Date(q.deadline) : undefined,
+            completed:   p.completed   ?? false,
+            color:       q.color       ?? "bg-green-100 border-green-300",
+            requirements: q.requirements ?? [],
+            bonus:       q.bonus,
+          };
+        });
         setQuests(mapped);
       })
       .catch(() => setQuests([]))

@@ -1,6 +1,5 @@
 import { DashboardCards } from "./DashboardCards";
 import { LearningMaterials } from "../../learning/LearningMaterials";
-import { TasksList } from "./TasksList";
 import { Badges } from "../profile/Badges";
 import { QuickActions } from "./QuickActions";
 import { EnhancedGameOverview } from "../../gamification/EnhancedGameOverview";
@@ -70,14 +69,14 @@ export function HomeTab({
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
               {[
-                { id: "waste-management",   emoji: "♻️", label: "Waste Management",   bg: "bg-blue-50  hover:bg-blue-100" },
-                { id: "carbon-footprint",   emoji: "🌍", label: "Carbon Footprint",   bg: "bg-green-50 hover:bg-green-100" },
-                { id: "renewable-energy",   emoji: "⚡", label: "Renewable Energy",   bg: "bg-yellow-50 hover:bg-yellow-100" },
+                { id: "waste-management", emoji: "♻️", label: "Waste Management", bg: "bg-blue-50  hover:bg-blue-100" },
+                { id: "carbon-footprint", emoji: "🌍", label: "Carbon Footprint", bg: "bg-green-50 hover:bg-green-100" },
+                { id: "renewable-energy", emoji: "⚡", label: "Renewable Energy", bg: "bg-yellow-50 hover:bg-yellow-100" },
                 { id: "sustainable-living", emoji: "🌱", label: "Sustainable Living", bg: "bg-purple-50 hover:bg-purple-100" },
                 { id: "water-conservation", emoji: "💧", label: "Water Conservation", bg: "bg-cyan-50   hover:bg-cyan-100" },
-                { id: "biodiversity",       emoji: "🦋", label: "Biodiversity",       bg: "bg-pink-50   hover:bg-pink-100" },
-                { id: "climate-change",     emoji: "🌡️", label: "Climate Change",     bg: "bg-red-50    hover:bg-red-100" },
-                { id: "eco-transportation", emoji: "🚲", label: "Eco Transport",      bg: "bg-indigo-50 hover:bg-indigo-100" },
+                { id: "biodiversity", emoji: "🦋", label: "Biodiversity", bg: "bg-pink-50   hover:bg-pink-100" },
+                { id: "climate-change", emoji: "🌡️", label: "Climate Change", bg: "bg-red-50    hover:bg-red-100" },
+                { id: "eco-transportation", emoji: "🚲", label: "Eco Transport", bg: "bg-indigo-50 hover:bg-indigo-100" },
               ].map(topic => (
                 <button
                   key={topic.id}
@@ -100,7 +99,6 @@ export function HomeTab({
             onOpenSocial={onOpenSocial}
           />
 
-          <TasksList />
         </div>
 
         <div className="space-y-6">
