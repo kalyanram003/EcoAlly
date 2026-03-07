@@ -60,8 +60,20 @@ export function TeacherLearningMaterials({ currentUser, selectedClass }: Teacher
   }, []);
 
   const handleAddMaterial = async () => {
-    if (!materialForm.title || !materialForm.type) {
-      alert('Please fill in title and type');
+    if (!materialForm.title.trim()) {
+      alert("Please provide a material title.");
+      return;
+    }
+    if (!materialForm.type) {
+      alert("Please select a material type.");
+      return;
+    }
+    if (!materialForm.category) {
+      alert("Please select a topic/category.");
+      return;
+    }
+    if (!materialForm.fileUrl.trim()) {
+      alert("Please provide a URL for the material.");
       return;
     }
     setIsAddingMaterial(true);

@@ -17,7 +17,7 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
     title: "",
     description: "",
     type: "",
-    difficulty: "easy",
+    difficulty: "EASY",
     duration: "1",
     points: 50,
     deadline: ""
@@ -108,6 +108,10 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
       alert("Please fill in title and challenge type");
       return;
     }
+    if (!challengeForm.description.trim()) {
+      alert("Please provide a description for the challenge.");
+      return;
+    }
 
     const typeMap: Record<string, string> = {
       environmental: "PHOTO",
@@ -155,7 +159,7 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
         title: "",
         description: "",
         type: "",
-        difficulty: "easy",
+        difficulty: "EASY",
         duration: "1",
         points: 50,
         deadline: ""
@@ -294,8 +298,8 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
                 <div className="flex items-center space-x-2">
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-medium ${challenge.isPublished
-                        ? "bg-green-100 text-green-700"
-                        : "bg-gray-100 text-gray-600"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-100 text-gray-600"
                       }`}
                   >
                     {challenge.isPublished ? "Published" : "Draft"}
@@ -491,9 +495,9 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
                     onChange={(e) => setChallengeForm({ ...challengeForm, difficulty: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2ECC71] focus:border-[#2ECC71]"
                   >
-                    <option value="easy">Easy</option>
-                    <option value="medium">Medium</option>
-                    <option value="hard">Hard</option>
+                    <option value="EASY">Easy</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="HARD">Hard</option>
                   </select>
                 </div>
                 <div>

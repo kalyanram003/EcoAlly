@@ -71,21 +71,34 @@ export function TeacherQuizManagement({ currentUser, selectedClass }: TeacherQui
 
     const handleSave = async () => {
         if (!form.title.trim()) { alert("Title is required"); return; }
+
+        const validQuestions = form.questions.filter(q => q.text.trim());
+        if (validQuestions.length === 0) {
+            alert("Please add at least one question with text.");
+            return;
+        }
+        for (let i = 0; i < validQuestions.length; i++) {
+            const q = validQuestions[i];
+            const filledOptions = q.options.filter(o => o.trim());
+            if (filledOptions.length < 2) {
+                alert(`Question ${i + 1}: Please provide at least 2 answer options.`);
+                return;
+            }
+        }
+
         setIsSaving(true);
         try {
             const payload = {
                 title: form.title,
                 description: form.description,
-                topic: form.topic,
+                topic: form.topic || "General",
                 difficulty: form.difficulty,
                 isPublished: false,
-                questions: form.questions
-                    .filter(q => q.text.trim())
-                    .map(q => ({
-                        questionText: q.text,
-                        options: q.options,
-                        correctAnswerIndex: q.correctAnswerIndex,
-                    })),
+                questions: validQuestions.map(q => ({
+                    questionText: q.text,
+                    options: q.options,
+                    correctAnswerIndex: q.correctAnswerIndex,
+                })),
             };
 
             if (editingQuizId) {
