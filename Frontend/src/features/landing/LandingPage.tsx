@@ -39,6 +39,7 @@ const staggerContainer = {
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isDemoOpen, setIsDemoOpen] = useState(false);
 
     // Navbar scroll transform
     const { scrollY } = useScroll();
@@ -165,7 +166,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin 
                                 Start Learning Free
                                 <span className="transition-transform group-hover:translate-x-1">→</span>
                             </button>
-                            <button className="flex items-center justify-center gap-3 w-full sm:w-auto px-7 py-3.5 group rounded-full hover:bg-white/50 transition-colors text-gray-700 font-medium">
+                            <button onClick={() => setIsDemoOpen(true)} className="flex items-center justify-center gap-3 w-full sm:w-auto px-7 py-3.5 group rounded-full hover:bg-white/50 transition-colors text-gray-700 font-medium">
                                 <div className="w-10 h-10 bg-white shadow-md rounded-full flex items-center justify-center text-[var(--forest-600)] group-hover:scale-110 transition-transform">
                                     <Play className="w-4 h-4 ml-0.5" fill="currentColor" />
                                 </div>
@@ -601,6 +602,32 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin 
                     </div>
                 </div>
             </footer>
+            {/* Demo Video Modal */}
+            {isDemoOpen && (
+                <div
+                    className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm"
+                    onClick={() => setIsDemoOpen(false)}
+                >
+                    <div
+                        className="relative w-full max-w-4xl mx-4 rounded-2xl overflow-hidden shadow-2xl bg-black"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <button
+                            onClick={() => setIsDemoOpen(false)}
+                            className="absolute top-3 right-3 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
+                            aria-label="Close demo"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+                        <video
+                            src="/demo.mp4"
+                            controls
+                            autoPlay
+                            className="w-full max-h-[80vh] object-contain"
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
