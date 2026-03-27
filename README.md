@@ -73,7 +73,3 @@ EcoAlly seeks to instill lifelong sustainable habits and promote environmental s
    npm run dev
    ```
    *(The frontend typically runs on `http://localhost:5173`)*
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
