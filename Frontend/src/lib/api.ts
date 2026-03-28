@@ -261,3 +261,16 @@ export const getTeacherReports = () => req<any>('/api/teacher/reports');
 // ── Quiz Management ───────────────────────────────────────────────────────────
 export const updateQuiz = (id: string, data: any) =>
     req<any>(`/api/quizzes/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+
+// ── Awake Map ─────────────────────────────────────────────────────────────────
+
+export const getAwakeReports = (status?: 'OPEN' | 'RESOLVED') => {
+    const params = status ? `?status=${status}` : '';
+    return req<any[]>(`/api/awakemap/reports${params}`);
+};
+
+export const submitAwakeReport = (formData: FormData) =>
+    req<any>('/api/awakemap/reports', { method: 'POST', body: formData });
+
+export const resolveAwakeReport = (reportId: number, formData: FormData) =>
+    req<any>(`/api/awakemap/reports/${reportId}/resolve`, { method: 'POST', body: formData });

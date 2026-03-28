@@ -153,7 +153,7 @@ export function LoginPage({ onLogin, onShowSignup }: LoginPageProps) {
           <div className="bg-[var(--forest-600)] rounded-full p-1.5">
             <Leaf className="w-5 h-5 text-white" />
           </div>
-          <span className="text-xl font-bold text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>EcoAlly</span>
+          <span className="text-xl font-bold text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>EcoAllye</span>
         </div>
 
         <div className="w-full max-w-md">
