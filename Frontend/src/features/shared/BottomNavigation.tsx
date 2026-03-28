@@ -1,4 +1,4 @@
-import { Home, Brain, Target, Trophy, User, Map, BookOpen } from "lucide-react";
+import { Home, Brain, Target, Trophy, User, Map, BookOpen, AlertTriangle } from "lucide-react";
 
 interface BottomNavigationProps {
   activeTab: string;
@@ -12,6 +12,7 @@ export function BottomNavigation({ activeTab, setActiveTab }: BottomNavigationPr
     { id: "challenges", label: "Challenges", icon: Target },
     { id: "materials", label: "Materials", icon: BookOpen },
     { id: "ecomap", label: "EcoMap", icon: Map },
+    { id: "awakemap", label: "AwakeMap", icon: AlertTriangle },
     { id: "ranking", label: "Ranking", icon: Trophy },
     { id: "profile", label: "Profile", icon: User }
   ];

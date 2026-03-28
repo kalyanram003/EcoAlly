@@ -7,6 +7,7 @@ import { ChallengesTab } from "./features/student/challenges/ChallengesTab";
 import { LeaderboardTab } from "./features/student/leaderboard/LeaderboardTab";
 import { ProfileTab } from "./features/student/profile/ProfileTab";
 import { EcoMapTab } from "./features/student/ecomap/EcoMapTab";
+import { AwakeMapTab } from "./features/student/awakemap/AwakeMapTab";
 import { PlaceholderTab } from "./features/shared/PlaceholderTab";
 import { StudentMaterialsTab } from "./features/student/materials/StudentMaterialsTab";
 import { BottomNavigation } from "./features/shared/BottomNavigation";
@@ -285,6 +286,8 @@ export default function App() {
         return <LeaderboardTab />;
       case "ecomap":
         return <EcoMapTab />;
+      case "awakemap":
+        return <AwakeMapTab />;
       case "profile":
         return (
           <ProfileTab
