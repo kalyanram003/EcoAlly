@@ -10,7 +10,7 @@ export function BottomNavigation({ activeTab, setActiveTab }: BottomNavigationPr
     { id: "home", label: "Home", icon: Home },
     { id: "quiz", label: "Quiz", icon: Brain },
     { id: "challenges", label: "Challenges", icon: Target },
-    { id: "materials", label: "Materials", icon: BookOpen },
+
     { id: "ecomap", label: "EcoMap", icon: Map },
     { id: "awakemap", label: "AwakeMap", icon: AlertTriangle },
     { id: "ranking", label: "Ranking", icon: Trophy },
