@@ -10,9 +10,10 @@ interface ChallengeDetailsProps {
   challenge: Challenge;
   onBack: () => void;
   mySubmissions?: any[];
+  onPointsUpdate?: (newTotal: number) => void;
 }
 
-export function ChallengeDetails({ challenge, onBack, mySubmissions = [] }: ChallengeDetailsProps) {
+export function ChallengeDetails({ challenge, onBack, mySubmissions = [], onPointsUpdate }: ChallengeDetailsProps) {
   const [showSubmission, setShowSubmission] = useState(false);
   const [showGame, setShowGame] = useState(false);
   const [activeTab, setActiveTab] = useState<"overview" | "requirements" | "tips" | "game" | "learning">("overview");
@@ -80,6 +81,7 @@ export function ChallengeDetails({ challenge, onBack, mySubmissions = [] }: Chal
         challenge={challenge}
         onBack={() => setShowSubmission(false)}
         onComplete={onBack}
+        onPointsUpdate={onPointsUpdate}
       />
     );
   }

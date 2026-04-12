@@ -2,21 +2,17 @@ import { User, Coins } from "lucide-react";
 
 interface HeaderProps {
   setActiveTab: (tab: string) => void;
+  userPoints?: number;
 }
 
-export function Header({ setActiveTab }: HeaderProps) {
-  const handleProfileClick = () => {
-    setActiveTab("profile");
-  };
-
-  const handleHomeClick = () => {
-    setActiveTab("home");
-  };
+export function Header({ setActiveTab, userPoints = 0 }: HeaderProps) {
+  const handleProfileClick = () => setActiveTab("profile");
+  const handleHomeClick = () => setActiveTab("home");
 
   return (
     <div className="bg-[#2ECC71] p-4 shadow-lg sticky top-0 z-40">
       <div className="flex items-center justify-between max-w-md mx-auto">
-        <button 
+        <button
           onClick={handleHomeClick}
           className="flex items-center gap-3 hover:bg-white/10 rounded-lg p-2 -m-2 transition-colors duration-200"
         >
@@ -25,11 +21,13 @@ export function Header({ setActiveTab }: HeaderProps) {
           </div>
           <h1 className="text-white text-xl font-semibold">EcoAlly</h1>
         </button>
-        
+
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1 bg-white/20 px-3 py-1.5 rounded-full backdrop-blur-sm">
             <Coins className="w-4 h-4 text-white" />
-            <span className="text-white font-medium">1,250</span>
+            <span className="text-white font-medium">
+              {userPoints.toLocaleString()}
+            </span>
           </div>
           <button
             onClick={handleProfileClick}

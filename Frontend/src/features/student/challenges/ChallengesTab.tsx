@@ -165,7 +165,11 @@ const LOCAL_GAME_CHALLENGES: Challenge[] = [
   }
 ];
 
-export function ChallengesTab() {
+interface ChallengesTabProps {
+  onPointsUpdate?: (newTotal: number) => void;
+}
+
+export function ChallengesTab({ onPointsUpdate }: ChallengesTabProps) {
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [mySubmissions, setMySubmissions] = useState<any[]>([]);
   const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(null);
@@ -222,6 +226,7 @@ export function ChallengesTab() {
         challenge={selectedChallenge}
         onBack={handleBackToChallenges}
         mySubmissions={mySubmissions}
+        onPointsUpdate={onPointsUpdate}
       />
     );
   }

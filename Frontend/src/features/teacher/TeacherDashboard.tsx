@@ -6,7 +6,6 @@ import { TeacherOverview } from "./TeacherOverview";
 import { TeacherClassManagement } from "./TeacherClassManagement";
 import { TeacherStudentProgress } from "./TeacherStudentProgress";
 import { TeacherChallengeAssignment } from "./TeacherChallengeAssignment";
-import { TeacherLearningMaterials } from "./TeacherLearningMaterials";
 import { TeacherReports } from "./TeacherReports";
 import { TeacherSettings } from "./TeacherSettings";
 import { TeacherSubmissionReview } from "./TeacherSubmissionReview";
@@ -18,7 +17,7 @@ interface TeacherDashboardProps {
 }
 
 export function TeacherDashboard({ currentUser, onLogout }: TeacherDashboardProps) {
-  const [activeSection, setActiveSection] = useState<"overview" | "classes" | "students" | "challenges" | "materials" | "reports" | "settings" | "reviews" | "quizzes">("overview");
+  const [activeSection, setActiveSection] = useState<"overview" | "classes" | "students" | "challenges" | "reports" | "settings" | "reviews" | "quizzes">("overview");
   const [selectedClass, setSelectedClass] = useState<string>("class-10a");
 
   const renderContent = () => {
@@ -49,13 +48,6 @@ export function TeacherDashboard({ currentUser, onLogout }: TeacherDashboardProp
       case "challenges":
         return (
           <TeacherChallengeAssignment
-            currentUser={currentUser}
-            selectedClass={selectedClass}
-          />
-        );
-      case "materials":
-        return (
-          <TeacherLearningMaterials
             currentUser={currentUser}
             selectedClass={selectedClass}
           />

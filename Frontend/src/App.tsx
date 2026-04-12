@@ -277,9 +277,9 @@ export default function App() {
           />
         );
       case "quiz":
-        return <QuizTab />;
+        return <QuizTab onPointsUpdate={setUserPoints} />;
       case "challenges":
-        return <ChallengesTab />;
+        return <ChallengesTab onPointsUpdate={setUserPoints} />;
       case "materials":
         return <StudentMaterialsTab />;
       case "ranking":

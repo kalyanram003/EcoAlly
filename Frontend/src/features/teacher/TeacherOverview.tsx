@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { TrendingUp, Users, CheckCircle, Trophy, Clock, BookOpen } from "lucide-react";
+import { TrendingUp, Users, CheckCircle, Trophy, Clock, BookOpen, Brain } from "lucide-react";
 import { Card } from "../../components/ui/card";
 import * as api from "../../lib/api";
 
 interface TeacherOverviewProps {
   currentUser: any;
   selectedClass: string;
-  onSectionChange: (section: "overview" | "classes" | "students" | "challenges" | "materials" | "reports" | "settings" | "reviews") => void;
+  onSectionChange: (section: "overview" | "classes" | "students" | "challenges" | "reports" | "settings" | "reviews" | "quizzes") => void;
 }
 
 export function TeacherOverview({ currentUser, selectedClass, onSectionChange }: TeacherOverviewProps) {
@@ -148,11 +148,11 @@ export function TeacherOverview({ currentUser, selectedClass, onSectionChange }:
           </button>
 
           <button
-            onClick={() => onSectionChange("materials")}
+            onClick={() => onSectionChange("quizzes")}
             className="flex items-center space-x-2 p-3 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors"
           >
-            <BookOpen className="w-5 h-5 text-blue-600" />
-            <span className="text-sm font-medium text-blue-600">Add Material</span>
+            <Brain className="w-5 h-5 text-blue-600" />
+            <span className="text-sm font-medium text-blue-600">Manage Quizzes</span>
           </button>
 
           <button

@@ -23,14 +23,19 @@ export interface Question {
   explanation: string;
 }
 
-export function QuizTab() {
+interface QuizTabProps {
+  onPointsUpdate?: (newTotal: number) => void;
+}
+
+export function QuizTab({ onPointsUpdate }: QuizTabProps) {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentQuiz, setCurrentQuiz] = useState<Quiz | null>(null);
   const [lastResult, setLastResult] = useState<any>(null);
   const [showResults, setShowResults] = useState(false);
 
-  useEffect(() => {
+  const loadQuizzes = () => {
+    setLoading(true);
     Promise.all([api.getQuizzes(), api.getMyAttempts()])
       .then(([quizData, attemptsData]) => {
         const completedQuizIds = new Set(
@@ -56,6 +61,10 @@ export function QuizTab() {
         setQuizzes(mapped);
       })
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    loadQuizzes();
   }, []);
 
   const handleStartQuiz = (quiz: Quiz) => {
@@ -67,12 +76,17 @@ export function QuizTab() {
   const handleQuizComplete = (result: any) => {
     setLastResult(result);
     setShowResults(true);
+    const newTotal = result?.gamification?.totalPoints ?? result?.gamification?.newPoints;
+    if (newTotal !== undefined && onPointsUpdate) {
+      onPointsUpdate(newTotal);
+    }
   };
 
   const handleBackToQuizzes = () => {
     setCurrentQuiz(null);
     setShowResults(false);
     setLastResult(null);
+    loadQuizzes();
   };
 
   if (currentQuiz) {

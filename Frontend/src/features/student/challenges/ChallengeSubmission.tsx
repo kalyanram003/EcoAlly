@@ -9,6 +9,7 @@ interface ChallengeSubmissionProps {
   challenge: Challenge;
   onBack: () => void;
   onComplete: () => void;
+  onPointsUpdate?: (newTotal: number) => void;
 }
 
 interface UploadedPhoto {
@@ -28,7 +29,7 @@ type EcoLensResult = {
   bonusMultiplier: number;
 };
 
-export function ChallengeSubmission({ challenge, onBack, onComplete }: ChallengeSubmissionProps) {
+export function ChallengeSubmission({ challenge, onBack, onComplete, onPointsUpdate }: ChallengeSubmissionProps) {
   const [photos, setPhotos] = useState<UploadedPhoto[]>([]);
   // Keep raw File references so we can upload them to the API
   const [photoFiles, setPhotoFiles] = useState<File[]>([]);
@@ -129,6 +130,21 @@ export function ChallengeSubmission({ challenge, onBack, onComplete }: Challenge
     return allRequirementsChecked && hasPhotosIfRequired;
   };
 
+  const syncHeaderPoints = async (payload?: any) => {
+    if (!onPointsUpdate) return;
+    const total = payload?.gamification?.totalPoints;
+    if (total !== undefined) {
+      onPointsUpdate(total);
+      return;
+    }
+    try {
+      const me = await api.getMe();
+      if (me.roleRecord?.points != null) onPointsUpdate(me.roleRecord.points);
+    } catch {
+      /* ignore */
+    }
+  };
+
   const handleSubmit = async () => {
     if (!canSubmit()) return;
     setIsSubmitting(true);
@@ -150,6 +166,7 @@ export function ChallengeSubmission({ challenge, onBack, onComplete }: Challenge
                     ? 'AUTO_REJECTED'
                     : 'PENDING_REVIEW'
                 : 'PENDING_REVIEW';
+            await syncHeaderPoints(finalSubmission);
             setEcoLensResult({
               ecoScore: finalSubmission.ecoScore ?? 0,
               detectedCategory: finalSubmission.detectedCategory ?? 'irrelevant',
@@ -161,6 +178,7 @@ export function ChallengeSubmission({ challenge, onBack, onComplete }: Challenge
               bonusMultiplier: finalSubmission.bonusMultiplier ?? 1,
             });
           } else {
+            await syncHeaderPoints(finalSubmission);
             setShowSuccess(true);
             setTimeout(() => onComplete(), 3000);
           }
@@ -201,8 +219,10 @@ export function ChallengeSubmission({ challenge, onBack, onComplete }: Challenge
           bonusMultiplier: submission.bonusMultiplier ?? 1,
         };
 
+        await syncHeaderPoints(submission);
         setEcoLensResult(result);
       } else {
+        await syncHeaderPoints(submission);
         setShowSuccess(true);
         setTimeout(() => onComplete(), 3000);
       }
@@ -231,6 +251,7 @@ export function ChallengeSubmission({ challenge, onBack, onComplete }: Challenge
           <EcoLensResultCard
             result={ecoLensResult}
             onClose={() => {
+              void syncHeaderPoints();
               setEcoLensResult(null);
               onComplete();
             }}
