@@ -93,11 +93,11 @@ export function TeacherQuizManagement({ currentUser, selectedClass }: TeacherQui
                 description: form.description,
                 topic: form.topic || "General",
                 difficulty: form.difficulty,
-                isPublished: false,
+                published: false,
                 questions: validQuestions.map(q => ({
-                    questionText: q.text,
+                    text: q.text,
                     options: q.options,
-                    correctAnswerIndex: q.correctAnswerIndex,
+                    correctAnswer: q.correctAnswerIndex,
                 })),
             };
 

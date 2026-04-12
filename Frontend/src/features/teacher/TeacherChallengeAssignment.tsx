@@ -150,7 +150,7 @@ export function TeacherChallengeAssignment({ currentUser, selectedClass }: Teach
         tips: [],
         icon: iconMap[challengeForm.type] ?? "🌍",
         color: colorMap[challengeForm.type] ?? "bg-green-100",
-        isPublished: true,
+        published: true,
       });
 
       setAssignedChallenges((prev) => [newChallenge, ...prev]);

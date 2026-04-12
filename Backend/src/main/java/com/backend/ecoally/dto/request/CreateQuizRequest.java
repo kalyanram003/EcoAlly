@@ -22,7 +22,7 @@ public class CreateQuizRequest {
     private Quiz.Difficulty difficulty;
 
     private int timeLimit = 600;
-    private boolean isPublished = false;
+    private boolean published = false;
 
     private List<QuestionDto> questions;
 

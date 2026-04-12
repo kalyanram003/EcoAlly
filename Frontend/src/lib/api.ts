@@ -182,7 +182,7 @@ export const createChallenge = (data: {
     tips: string[];
     icon: string;
     color: string;
-    isPublished: boolean;
+    published: boolean;
 }) =>
     req<any>('/api/challenges', {
         method: 'POST',
@@ -211,14 +211,14 @@ export const deleteQuiz = (id: string) =>
 export const publishQuiz = (id: string) =>
     req<any>(`/api/quizzes/${id}`, {
         method: 'PUT',
-        body: JSON.stringify({ isPublished: true }),
+        body: JSON.stringify({ published: true }),
     });
 
 // ── Challenge Management ───────────────────────────────────────────────────────
 export const toggleChallengePublish = (id: string, isPublished: boolean) =>
     req<any>(`/api/challenges/${id}`, {
         method: 'PUT',
-        body: JSON.stringify({ isPublished }),
+        body: JSON.stringify({ published: isPublished }),
     });
 
 // ── Classes ───────────────────────────────────────────────────────────────────

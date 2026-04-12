@@ -20,5 +20,5 @@ public class CreateChallengeRequest {
     private List<String> tips;
     private String learningTopic;
     private Challenge.GameConfig gameConfig;
-    private boolean isPublished = false;
+    private boolean published = false;
 }
