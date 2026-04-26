@@ -73,3 +73,7 @@ EcoAlly seeks to instill lifelong sustainable habits and promote environmental s
    npm run dev
    ```
    *(The frontend typically runs on `http://localhost:5173`)*
+
+
+Ref: 
+![1000126283](https://github.com/user-attachments/assets/1e3b10fd-312f-400c-aec7-3c1b404b281f)
