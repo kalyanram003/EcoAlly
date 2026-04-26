@@ -9,7 +9,6 @@ import com.backend.ecoally.service.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -54,18 +53,15 @@ public class AwakeMapController {
     // Submit a new unhygienic location report with photo + GPS
     @PostMapping("/reports")
     public ResponseEntity<ApiResponse<AwakeReport>> submitReport(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal User user,
             @RequestParam("photo") MultipartFile photo,
             @RequestParam("description") String description,
             @RequestParam("lat") Double lat,
             @RequestParam("lng") Double lng) {
 
-        // Resolve reporter identity from JWT principal (username = email)
-        Optional<User> userOpt = userRepository.findByEmail(userDetails.getUsername());
-        if (userOpt.isEmpty()) {
+        if (user == null) {
             return ResponseEntity.status(401).body(ApiResponse.error("Authenticated user not found."));
         }
-        User user = userOpt.get();
 
         // Upload before-photo to Cloudinary under the "awake_map" folder
         String photoUrl;
@@ -93,9 +89,13 @@ public class AwakeMapController {
     // Upload an after-photo to mark the location as cleaned / resolved
     @PostMapping("/reports/{id}/resolve")
     public ResponseEntity<ApiResponse<AwakeReport>> resolveReport(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal User user,
             @PathVariable Long id,
             @RequestParam("photo") MultipartFile photo) {
+
+        if (user == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error("Authenticated user not found."));
+        }
 
         Optional<AwakeReport> reportOpt = awakeReportRepository.findById(id);
         if (reportOpt.isEmpty()) {
@@ -108,13 +108,6 @@ public class AwakeMapController {
             return ResponseEntity.badRequest()
                     .body(ApiResponse.error("This location is already marked as resolved."));
         }
-
-        // Resolve resolver identity
-        Optional<User> userOpt = userRepository.findByEmail(userDetails.getUsername());
-        if (userOpt.isEmpty()) {
-            return ResponseEntity.status(401).body(ApiResponse.error("Authenticated user not found."));
-        }
-        User user = userOpt.get();
 
         // Upload after-photo to Cloudinary
         String afterPhotoUrl;
